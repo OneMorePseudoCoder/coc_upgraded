@@ -3,6 +3,7 @@
 #define _BITWISE_
 #include "math_constants.h"
 #include "_types.h"
+#include <cmath>
 
 // float values defines
 #define fdSGN 0x080000000 // mask for sign bit
@@ -21,8 +22,8 @@
 #ifdef _M_AMD64
 IC bool negative(const float f) { return f < 0; }
 IC bool positive(const float f) { return f >= 0; }
-IC void set_negative(float& f) { f = -fabsf(f); }
-IC void set_positive(float& f) { f = fabsf(f); }
+IC void set_negative(float& f) { f = -std::fabsf(f); }
+IC void set_positive(float& f) { f = std::fabsf(f); }
 #else
 IC bool negative(const float& f) { return *(unsigned*)&f & fdSGN; }
 IC bool positive(const float& f) { return (*(unsigned*)&f & fdSGN) == 0; }
