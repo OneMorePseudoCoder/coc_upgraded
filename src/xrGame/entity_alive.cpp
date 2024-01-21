@@ -269,8 +269,7 @@ void CEntityAlive::Hit(SHit* pHDS)
     if (HDS.hit_type == ALife::eHitTypeWound_2)
         HDS.hit_type = ALife::eHitTypeWound;
     //-------------------------------------------------------------------
-    CDamageManager::HitScale(
-        HDS.boneID, conditions().hit_bone_scale(), conditions().wound_bone_scale(), pHDS->aim_bullet);
+    CDamageManager::HitScale(HDS.boneID, conditions().hit_bone_scale(), conditions().wound_bone_scale(), pHDS->aim_bullet);
 
     //изменить состояние, перед тем как родительский класс обработает хит
     CWound* pWound = conditions().ConditionHit(&HDS);
@@ -294,7 +293,7 @@ void CEntityAlive::Hit(SHit* pHDS)
     //-------------------------------------------
     inherited::Hit(&HDS);
 
-    if (g_Alive() && IsGameTypeSingle())
+    if (g_Alive())
     {
         CEntityAlive* EA = smart_cast<CEntityAlive*>(HDS.who);
         if (EA && EA->g_Alive() && EA->ID() != ID())
@@ -307,8 +306,7 @@ void CEntityAlive::Hit(SHit* pHDS)
 
 void CEntityAlive::Die(IGameObject* who)
 {
-    if (IsGameTypeSingle())
-        RELATION_REGISTRY().Action(smart_cast<CEntityAlive*>(who), this, RELATION_REGISTRY::KILL);
+	RELATION_REGISTRY().Action(smart_cast<CEntityAlive*>(who), this, RELATION_REGISTRY::KILL);
     inherited::Die(who);
 
     const CGameObject* who_object = smart_cast<const CGameObject*>(who);
@@ -388,8 +386,7 @@ void CEntityAlive::BloodyWallmarks(float P, const Fvector& dir, s16 element, con
     PlaceBloodWallmark(dir, start_pos, m_fBloodMarkDistance, wallmark_size, &**m_pBloodMarksVector);
 }
 
-void CEntityAlive::PlaceBloodWallmark(const Fvector& dir, const Fvector& start_pos, float trace_dist,
-    float wallmark_size, IWallMarkArray* pwallmarks_vector)
+void CEntityAlive::PlaceBloodWallmark(const Fvector& dir, const Fvector& start_pos, float trace_dist, float wallmark_size, IWallMarkArray* pwallmarks_vector)
 {
     collide::rq_result result;
     BOOL reach_wall =
@@ -411,11 +408,9 @@ void CEntityAlive::PlaceBloodWallmark(const Fvector& dir, const Fvector& start_p
             end_point.set(0, 0, 0);
             end_point.mad(start_pos, dir, result.range);
 
-            // ref_shader wallmarkShader = wallmarks_vector[::Random.randI(wallmarks_vector.size())];
             VERIFY(!pwallmarks_vector->empty());
             {
                 //добавить отметку на материале
-                // GEnv.Render->add_StaticWallmark(wallmarkShader, end_point, wallmark_size, pTri, pVerts);
                 GEnv.Render->add_StaticWallmark(pwallmarks_vector, end_point, wallmark_size, pTri, pVerts);
             }
         }
@@ -426,8 +421,6 @@ void CEntityAlive::StartFireParticles(CWound* pWound)
 {
     if (pWound->TypeSize(ALife::eHitTypeBurn) > m_fStartBurnWoundSize)
     {
-
-
         IKinematics* V = smart_cast<IKinematics*>(Visual());
 
         u16 particle_bone = CParticlesPlayer::GetNearestBone(V, pWound->GetBoneNum());
@@ -451,9 +444,6 @@ void CEntityAlive::StartFireParticles(CWound* pWound)
 
 void CEntityAlive::UpdateFireParticles()
 {
-  
-
-    //	WOUND_VECTOR_IT last_it;
 	auto const& wounds = conditions().wounds();
 	auto it = wounds.begin();
 	auto it_e = wounds.end();
@@ -504,14 +494,10 @@ void CEntityAlive::UpdateBloodDrops()
     static float m_fBloodDropTimeMax = pSettings->r_float(BLOOD_MARKS_SECT, "blood_drop_time_max");
     static float m_fBloodDropTimeMin = pSettings->r_float(BLOOD_MARKS_SECT, "blood_drop_time_min");
 
-
-
     if (!g_Alive())
     {
         return;
     }
-
-    //	WOUND_VECTOR_IT last_it;
 
 	auto const& wounds = conditions().wounds();
 	auto it = wounds.begin();
@@ -545,9 +531,7 @@ void CEntityAlive::UpdateBloodDrops()
                 pos_distort.mul(0.15f);
                 CParticlesPlayer::GetBonePos(this, pWound->GetBoneNum(), Fvector().set(0, 0, 0), pos);
                 pos.add(pos_distort);
-                PlaceBloodWallmark(
-                    Fvector().set(0.f, -1.f, 0.f), pos, m_fBloodMarkDistance, m_fBloodDropSize, &**m_pBloodDropsVector);
-            
+                PlaceBloodWallmark(Fvector().set(0.f, -1.f, 0.f), pos, m_fBloodMarkDistance, m_fBloodDropSize, &**m_pBloodDropsVector);
         }
     }
 }
@@ -575,34 +559,14 @@ CEntityConditionSimple* CEntityAlive::create_entity_condition(CEntityConditionSi
     return (inherited::create_entity_condition(m_entity_condition));
 }
 
-/*
-float CEntityAlive::GetfHealth	() const
-{
-    return conditions().health()*100.f;
-}
-
-float CEntityAlive::SetfHealth	(float value)
-{
-    conditions().health() = value/100.f;
-    return value;
-}
-*/
 float CEntityAlive::SetfRadiation(float value)
 {
     conditions().radiation() = value / 100.f;
     return value;
 }
-/*
-float CEntityAlive::g_Health	() const
-{
-    return conditions().GetHealth()*100.f;
-}
-float CEntityAlive::g_MaxHealth	() const
-{
-    return conditions().GetMaxHealth()*100.f;
-}
-*/
+
 float CEntityAlive::g_Radiation() const { return conditions().GetRadiation() * 100.f; }
+
 IFactoryObject* CEntityAlive::_construct()
 {
     inherited::_construct();
@@ -612,6 +576,7 @@ IFactoryObject* CEntityAlive::_construct()
 }
 
 u32 CEntityAlive::ef_creature_type() const { return (m_ef_creature_type); }
+
 u32 CEntityAlive::ef_weapon_type() const
 {
     VERIFY(m_ef_weapon_type != u32(-1));
@@ -623,6 +588,7 @@ u32 CEntityAlive::ef_detector_type() const
     VERIFY(m_ef_detector_type != u32(-1));
     return (m_ef_detector_type);
 }
+
 void CEntityAlive::PHGetLinearVell(Fvector& velocity)
 {
     if (character_physics_support())
@@ -701,6 +667,7 @@ void CEntityAlive::net_Relcase(IGameObject* object)
 
 Fvector CEntityAlive::predict_position(const float& time_to_check) const { return (Position()); }
 Fvector CEntityAlive::target_position() const { return (Position()); }
+
 void CEntityAlive::create_anim_mov_ctrl(CBlend* b, Fmatrix* start_pose, bool local_animation)
 {
     bool b_animation_movement_controlled = animation_movement_controlled();

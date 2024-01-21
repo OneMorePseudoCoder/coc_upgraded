@@ -131,12 +131,7 @@ CGamePersistent::CGamePersistent(void)
     m_frame_counter = 0;
     m_last_stats_frame = u32(-2);
 #endif
-    //
-    // dSetAllocHandler			(ode_alloc		);
-    // dSetReallocHandler			(ode_realloc	);
-    // dSetFreeHandler				(ode_free		);
 
-    //
     BOOL bDemoMode = (0 != strstr(Core.Params, "-demomode "));
     if (bDemoMode)
     {
@@ -195,8 +190,7 @@ void CGamePersistent::RegisterModel(IRenderVisual* V)
             if (*(bd.game_mtl_name))
             {
                 bd.game_mtl_idx = GMLib.GetMaterialIdx(*bd.game_mtl_name);
-                R_ASSERT2(GMLib.GetMaterialByIdx(bd.game_mtl_idx)->Flags.is(SGameMtl::flDynamic),
-                    "Required dynamic game material");
+                R_ASSERT2(GMLib.GetMaterialByIdx(bd.game_mtl_idx)->Flags.is(SGameMtl::flDynamic), "Required dynamic game material");
             }
             else
             {
@@ -239,6 +233,7 @@ void CGamePersistent::OnAppEnd()
 }
 
 void CGamePersistent::Start(LPCSTR op) { super::Start(op); }
+
 void CGamePersistent::Disconnect()
 {
     // destroy ambient particles
@@ -346,28 +341,9 @@ void CGamePersistent::WeathersUpdate()
                     VERIFY(snd._handle());
                     u32 _length_ms = iFloor(snd.get_length_sec() * 1000.0f);
                     ambient_sound_next_time[idx] = Device.dwTimeGlobal + _length_ms + ch.get_rnd_sound_time();
-                    //					Msg("- Playing ambient sound channel [%s]
-                    // file[%s]",ch.m_load_section.c_str(),snd._handle()->file_name());
                 }
             }
-            /*
-                        if (Device.dwTimeGlobal > ambient_sound_next_time)
-                        {
-                            ref_sound* snd			= env_amb->get_rnd_sound();
-                            ambient_sound_next_time	= Device.dwTimeGlobal + env_amb->get_rnd_sound_time();
-                            if (snd)
-                            {
-                                Fvector	pos;
-                                float	angle		= ::Random.randF(PI_MUL_2);
-                                pos.x				= _cos(angle);
-                                pos.y				= 0;
-                                pos.z				= _sin(angle);
-                                pos.normalize		().mul(env_amb->get_rnd_sound_dist()).add(Device.vCameraPosition);
-                                pos.y				+= 10.f;
-                                snd->play_at_pos	(0,pos);
-                            }
-                        }
-            */
+
             // start effect
             if ((FALSE == bIndoor) && (0 == ambient_particles) && Device.dwTimeGlobal > ambient_effect_next_time)
             {
@@ -625,7 +601,7 @@ void CGamePersistent::OnFrame()
     if (Device.Paused())
     {
 #ifndef MASTER_GOLD
-        if (Level().CurrentViewEntity() && IsGameTypeSingle())
+        if (Level().CurrentViewEntity())
         {
             if (!g_actor || (g_actor->ID() != Level().CurrentViewEntity()->ID()))
             {
@@ -681,7 +657,7 @@ void CGamePersistent::OnFrame()
             }
         }
 #else // MASTER_GOLD
-        if (g_actor && IsGameTypeSingle())
+        if (g_actor)
         {
             CCameraBase* C = NULL;
             if (!Actor()->Holder())
@@ -728,11 +704,6 @@ void CGamePersistent::OnFrame()
         }
     }
 
-#ifdef DEBUG
-// XXX nitrocaster PROFILER: temporarily disabled due to linkage issues
-// if ((m_last_stats_frame + 1) < m_frame_counter)
-//	profiler().clear		();
-#endif
     UpdateDof();
 }
 
@@ -788,8 +759,6 @@ void CGamePersistent::DumpStatistics(IGameFont& font, IPerformanceAlert* alert)
 #ifdef DEBUG
 #ifndef _EDITOR
     m_last_stats_frame = m_frame_counter;
-// XXX nitrocaster PROFILER: temporarily disabled due to linkage issues
-// profiler().show_stats(font,!!psAI_Flags.test(aiStats));
 #endif
 #endif
 }
@@ -798,18 +767,13 @@ float CGamePersistent::MtlTransparent(u32 mtl_idx)
 {
     return GMLib.GetMaterialByIdx((u16)mtl_idx)->fVisTransparencyFactor;
 }
+
 static BOOL bRestorePause = FALSE;
 static BOOL bEntryFlag = TRUE;
 
 void CGamePersistent::OnAppActivate()
 {
-    bool bIsMP = (g_pGameLevel && Level().game && GameID() != eGameIDSingle);
-    bIsMP &= !Device.Paused();
-
-    if (!bIsMP)
-        Device.Pause(FALSE, !bRestorePause, TRUE, "CGP::OnAppActivate");
-    else
-        Device.Pause(FALSE, TRUE, TRUE, "CGP::OnAppActivate MP");
+	Device.Pause(FALSE, !bRestorePause, TRUE, "CGP::OnAppActivate");
 
     bEntryFlag = TRUE;
 	
@@ -821,26 +785,17 @@ void CGamePersistent::OnAppDeactivate()
     if (!bEntryFlag)
         return;
 
-    bool bIsMP = (g_pGameLevel && Level().game && GameID() != eGameIDSingle);
-
     bRestorePause = FALSE;
 
-    if (!bIsMP)
-    {
-        bRestorePause = Device.Paused();
-        Device.Pause(TRUE, TRUE, TRUE, "CGP::OnAppDeactivate");
-    }
-    else
-    {
-        Device.Pause(TRUE, FALSE, TRUE, "CGP::OnAppDeactivate MP");
-    }
+	bRestorePause = Device.Paused();
+	Device.Pause(TRUE, TRUE, TRUE, "CGP::OnAppDeactivate");
+
     bEntryFlag = FALSE;
 }
 
 bool CGamePersistent::OnRenderPPUI_query()
 {
     return MainMenu()->OnRenderPPUI_query();
-    // enable PP or not
 }
 
 extern void draw_wnds_rects();
@@ -918,7 +873,8 @@ void CGamePersistent::SetLoadStageTitle(pcstr ls_title)
         pApp->SetLoadStageTitle("");
 }
 
-bool CGamePersistent::CanBePaused() { return IsGameTypeSingle(); }
+bool CGamePersistent::CanBePaused() { return true; }
+
 void CGamePersistent::SetPickableEffectorDOF(bool bSet)
 {
     m_bPickableDOF = bSet;
@@ -939,7 +895,6 @@ void CGamePersistent::SetEffectorDOF(const Fvector& needed_dof)
 void CGamePersistent::RestoreEffectorDOF() { SetEffectorDOF(m_dof[3]); }
 #include "hudmanager.h"
 
-//	m_dof		[4];	// 0-dest 1-current 2-from 3-original
 void CGamePersistent::UpdateDof()
 {
     static float diff_far = pSettings->r_float("zone_pick_dof", "far"); // 70.0f;

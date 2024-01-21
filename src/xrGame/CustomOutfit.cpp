@@ -26,11 +26,10 @@ CCustomOutfit::CCustomOutfit()
 }
 
 CCustomOutfit::~CCustomOutfit() { xr_delete(m_boneProtection); }
+
 BOOL CCustomOutfit::net_Spawn(CSE_Abstract* DC)
 {
-    if (IsGameTypeSingle())
-        ReloadBonesProtection();
-
+	ReloadBonesProtection();
     BOOL res = inherited::net_Spawn(DC);
     return (res);
 }
@@ -52,8 +51,6 @@ void CCustomOutfit::net_Import(NET_Packet& P)
 void CCustomOutfit::OnH_A_Chield()
 {
     inherited::OnH_A_Chield();
-    if (!IsGameTypeSingle())
-        ReloadBonesProtection();
 }
 
 void CCustomOutfit::Load(LPCSTR section)
@@ -112,9 +109,7 @@ void CCustomOutfit::Load(LPCSTR section)
 
 void CCustomOutfit::ReloadBonesProtection()
 {
-    IGameObject* parent = H_Parent();
-    if (IsGameTypeSingle())
-        parent = smart_cast<IGameObject*>(Level().CurrentViewEntity()); //TODO: FIX THIS OR NPC Can't wear outfit without resetting actor
+    IGameObject* parent = smart_cast<IGameObject*>(Level().CurrentViewEntity()); //TODO: FIX THIS OR NPC Can't wear outfit without resetting actor
 
     if (parent && parent->Visual() && m_BonesProtectionSect.size())
         m_boneProtection->reload(m_BonesProtectionSect, smart_cast<IKinematics*>(parent->Visual()));
@@ -152,19 +147,8 @@ float CCustomOutfit::HitThroughArmor(float hit_power, s16 element, float ap, boo
             return NewHitPower;
 
         float BoneArmor = ba * GetCondition();
-        if (/*!fis_zero(ba, EPS) && */ (ap > BoneArmor))
+        if (ap > BoneArmor)
         {
-            //пуля пробила бронь
-            if (!IsGameTypeSingle())
-            {
-                float hit_fraction = (ap - BoneArmor) / ap;
-                if (hit_fraction < m_boneProtection->m_fHitFracActor)
-                    hit_fraction = m_boneProtection->m_fHitFracActor;
-
-                NewHitPower *= hit_fraction;
-                NewHitPower *= m_boneProtection->getBoneProtection(element);
-            }
-
             VERIFY(NewHitPower >= 0.0f);
 
             float d_hit_power = (ap - BoneArmor) / ap;
@@ -180,7 +164,6 @@ float CCustomOutfit::HitThroughArmor(float hit_power, s16 element, float ap, boo
         {
             //пуля НЕ пробила бронь
             NewHitPower *= m_boneProtection->m_fHitFracActor;
-            //add_wound = false; //раны нет
             if (Core.ParamFlags.test(Core.dbgbullet))
                 Msg("CCustomOutfit::HitThroughArmor AP(%f) <= bone_armor(%f) [HitFracActor=%f] modified hit_power=%f", ap, BoneArmor, m_boneProtection->m_fHitFracActor, NewHitPower);
         }
@@ -188,8 +171,7 @@ float CCustomOutfit::HitThroughArmor(float hit_power, s16 element, float ap, boo
     else
     {
         float one = 0.1f;
-        if (hit_type == ALife::eHitTypeStrike || hit_type == ALife::eHitTypeWound ||
-            hit_type == ALife::eHitTypeWound_2 || hit_type == ALife::eHitTypeExplosion)
+        if (hit_type == ALife::eHitTypeStrike || hit_type == ALife::eHitTypeWound || hit_type == ALife::eHitTypeWound_2 || hit_type == ALife::eHitTypeExplosion)
         {
             one = 1.0f;
         }
@@ -352,9 +334,7 @@ bool CCustomOutfit::install_upgrade_impl(LPCSTR section, bool test)
 
 void CCustomOutfit::AddBonesProtection(LPCSTR bones_section)
 {
-    IGameObject* parent = H_Parent();
-    if (IsGameTypeSingle())
-        parent = smart_cast<IGameObject*>(Level().CurrentViewEntity()); //TODO: FIX THIS OR NPC Can't wear outfit without resetting actor
+    IGameObject* parent = smart_cast<IGameObject*>(Level().CurrentViewEntity()); //TODO: FIX THIS OR NPC Can't wear outfit without resetting actor
 
     if (parent && parent->Visual() && m_BonesProtectionSect.size())
         m_boneProtection->add(bones_section, smart_cast<IKinematics*>(parent->Visual()));

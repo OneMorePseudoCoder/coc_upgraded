@@ -539,12 +539,6 @@ void CCustomZone::shedule_Update(u32 dt)
     };
 
     UpdateOnOffState();
-
-    if (!IsGameTypeSingle() && Local())
-    {
-        if (Device.dwTimeGlobal > m_ttl)
-            DestroyObject();
-    }
 }
 
 void CCustomZone::CheckForAwaking()
@@ -555,9 +549,6 @@ void CCustomZone::CheckForAwaking()
 
 void CCustomZone::feel_touch_new(IGameObject* O)
 {
-    //	if(smart_cast<CActor*>(O) && O == Level().CurrentEntity())
-    //					m_pLocalActor	= smart_cast<CActor*>(O);
-
     CGameObject* pGameObject = smart_cast<CGameObject*>(O);
     CEntityAlive* pEntityAlive = smart_cast<CEntityAlive*>(pGameObject);
     CArtefact* pArtefact = smart_cast<CArtefact*>(pGameObject);
@@ -575,12 +566,11 @@ void CCustomZone::feel_touch_new(IGameObject* O)
     else
         object_info.small_object = false;
 
-    if ((object_info.small_object && m_zone_flags.test(eIgnoreSmall)) ||
-        (object_info.nonalive_object && m_zone_flags.test(eIgnoreNonAlive)) ||
-        (pArtefact && m_zone_flags.test(eIgnoreArtefact)))
+    if ((object_info.small_object && m_zone_flags.test(eIgnoreSmall)) || (object_info.nonalive_object && m_zone_flags.test(eIgnoreNonAlive)) || (pArtefact && m_zone_flags.test(eIgnoreArtefact)))
         object_info.zone_ignore = true;
     else
         object_info.zone_ignore = false;
+
     enter_Zone(object_info);
     m_ObjectInfoMap.push_back(object_info);
 
@@ -638,7 +628,7 @@ float CCustomZone::RelativePower(float dist, float nearest_shape_radius)
 
 float CCustomZone::effective_radius(float nearest_shape_radius)
 {
-    return /*Radius()*/ nearest_shape_radius * m_fEffectiveRadius;
+    return nearest_shape_radius * m_fEffectiveRadius;
 }
 
 float CCustomZone::Power(float dist, float nearest_shape_radius)
@@ -690,6 +680,7 @@ void CCustomZone::StartIdleLight()
         m_pIdleLight->set_active(true);
     }
 }
+
 void CCustomZone::StopIdleLight()
 {
     if (m_pIdleLight)
@@ -758,6 +749,7 @@ void CCustomZone::PlayHitParticles(CGameObject* pObject)
         }
     }
 }
+
 #include "bolt.h"
 void CCustomZone::PlayEntranceParticles(CGameObject* pObject)
 {
@@ -811,6 +803,7 @@ void CCustomZone::PlayEntranceParticles(CGameObject* pObject)
             pParticles->Play(false);
         }
     }
+
     if (m_zone_flags.test(eBoltEntranceParticles) && smart_cast<CBolt*>(pObject))
         PlayBoltEntranceParticles();
 }
@@ -911,7 +904,6 @@ void CCustomZone::PlayObjectIdleParticles(CGameObject* pObject)
     }
 
     //запустить партиклы на объекте
-    //. new
     PP->StopParticles(particle_str, BI_NONE, true);
 
     PP->StartParticles(particle_str, Fvector().set(0, 1, 0), ID());
@@ -933,6 +925,7 @@ void CCustomZone::StopObjectIdleParticles(CGameObject* pObject)
         return;
 
     shared_str particle_str = NULL;
+
     //разные партиклы для объектов разного размера
     if (pObject->Radius() < SMALL_OBJECT_RADIUS)
     {
@@ -986,8 +979,6 @@ void CCustomZone::UpdateBlowoutLight()
     if (m_fLightTimeLeft > (float)Device.dwTimeGlobal)
     {
         float time_k = m_fLightTimeLeft - (float)Device.dwTimeGlobal;
-
-        //		m_fLightTimeLeft -= Device.fTimeDelta;
         clamp(time_k, 0.0f, m_fLightTime * 1000.0f);
 
         float scale = time_k / (m_fLightTime * 1000.0f);

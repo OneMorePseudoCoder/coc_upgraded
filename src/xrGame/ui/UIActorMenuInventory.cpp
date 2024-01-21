@@ -126,9 +126,6 @@ void CUIActorMenu::SendEvent_Item_Eat(PIItem pItem, u16 recipient)
 void CUIActorMenu::SendEvent_Item_Drop(PIItem pItem, u16 recipient)
 {
     R_ASSERT(pItem->parent_id() == recipient);
-    if (!IsGameTypeSingle())
-        pItem->DenyTrade();
-    // pItem->SetDropManual			(TRUE);
     NET_Packet P;
     pItem->object().u_EventGen(P, GE_OWNERSHIP_REJECT, pItem->parent_id());
     P.w_u16(pItem->object().ID());
@@ -1031,9 +1028,6 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
             m_UIPropertiesBox->AddItem("st_detach_gl", NULL, INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON);
             b_show = true;
         }
-        else
-        {
-        }
     }
     if (pWeapon->ScopeAttachable())
     {
@@ -1041,9 +1035,6 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
         {
             m_UIPropertiesBox->AddItem("st_detach_scope", NULL, INVENTORY_DETACH_SCOPE_ADDON);
             b_show = true;
-        }
-        else
-        {
         }
     }
     if (pWeapon->SilencerAttachable())
@@ -1053,11 +1044,8 @@ void CUIActorMenu::PropertiesBoxForWeapon(CUICellItem* cell_item, PIItem item, b
             m_UIPropertiesBox->AddItem("st_detach_silencer", NULL, INVENTORY_DETACH_SILENCER_ADDON);
             b_show = true;
         }
-        else
-        {
-        }
     }
-    if (smart_cast<CWeaponMagazined*>(pWeapon) && IsGameTypeSingle())
+    if (smart_cast<CWeaponMagazined*>(pWeapon))
     {
         bool b = (pWeapon->GetAmmoElapsed() != 0);
         if (!b)
@@ -1102,8 +1090,6 @@ void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
             shared_str str = StringTable().translate("st_attach_scope_to_pistol");
             str.printf("%s %s", str.c_str(), item_in_slot_2->m_name.c_str());
             m_UIPropertiesBox->AddItem(str.c_str(), (void*)item_in_slot_2, INVENTORY_ATTACH_ADDON);
-            //			m_UIPropertiesBox->AddItem( "st_attach_scope_to_pistol",  (void*)item_in_slot_2,
-            // INVENTORY_ATTACH_ADDON );
             b_show = true;
         }
         if (item_in_slot_3 && item_in_slot_3->CanAttach(pScope))
@@ -1111,8 +1097,6 @@ void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
             shared_str str = StringTable().translate("st_attach_scope_to_pistol");
             str.printf("%s %s", str.c_str(), item_in_slot_3->m_name.c_str());
             m_UIPropertiesBox->AddItem(str.c_str(), (void*)item_in_slot_3, INVENTORY_ATTACH_ADDON);
-            //			m_UIPropertiesBox->AddItem( "st_attach_scope_to_rifle",  (void*)item_in_slot_3,
-            // INVENTORY_ATTACH_ADDON );
             b_show = true;
         }
         return;
@@ -1125,8 +1109,6 @@ void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
             shared_str str = StringTable().translate("st_attach_silencer_to_pistol");
             str.printf("%s %s", str.c_str(), item_in_slot_2->m_name.c_str());
             m_UIPropertiesBox->AddItem(str.c_str(), (void*)item_in_slot_2, INVENTORY_ATTACH_ADDON);
-            //			m_UIPropertiesBox->AddItem( "st_attach_silencer_to_pistol",  (void*)item_in_slot_2,
-            // INVENTORY_ATTACH_ADDON );
             b_show = true;
         }
         if (item_in_slot_3 && item_in_slot_3->CanAttach(pSilencer))
@@ -1134,8 +1116,6 @@ void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
             shared_str str = StringTable().translate("st_attach_silencer_to_pistol");
             str.printf("%s %s", str.c_str(), item_in_slot_3->m_name.c_str());
             m_UIPropertiesBox->AddItem(str.c_str(), (void*)item_in_slot_3, INVENTORY_ATTACH_ADDON);
-            //			m_UIPropertiesBox->AddItem( "st_attach_silencer_to_rifle",  (void*)item_in_slot_3,
-            // INVENTORY_ATTACH_ADDON );
             b_show = true;
         }
         return;
@@ -1148,9 +1128,6 @@ void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
             shared_str str = StringTable().translate("st_attach_gl_to_rifle");
             str.printf("%s %s", str.c_str(), item_in_slot_2->m_name.c_str());
             m_UIPropertiesBox->AddItem(str.c_str(), (void*)item_in_slot_2, INVENTORY_ATTACH_ADDON);
-            //			m_UIPropertiesBox->AddItem( "st_attach_gl_to_pistol",  (void*)item_in_slot_2,
-            //INVENTORY_ATTACH_ADDON
-            //);
             b_show = true;
         }
         if (item_in_slot_3 && item_in_slot_3->CanAttach(pGrenadeLauncher))
@@ -1158,9 +1135,6 @@ void CUIActorMenu::PropertiesBoxForAddon(PIItem item, bool& b_show)
             shared_str str = StringTable().translate("st_attach_gl_to_rifle");
             str.printf("%s %s", str.c_str(), item_in_slot_3->m_name.c_str());
             m_UIPropertiesBox->AddItem(str.c_str(), (void*)item_in_slot_3, INVENTORY_ATTACH_ADDON);
-            //			m_UIPropertiesBox->AddItem( "st_attach_gl_to_rifle",  (void*)item_in_slot_3,
-            //INVENTORY_ATTACH_ADDON
-            //);
             b_show = true;
         }
     }
@@ -1468,7 +1442,6 @@ void CUIActorMenu::ProcessPropertiesBoxClicked(CUIWindow* w, void* d)
     }
     } // switch
 
-    //SetCurrentItem(nullptr);
     UpdateItemsPlace();
     UpdateConditionProgressBars();
 } // ProcessPropertiesBoxClicked

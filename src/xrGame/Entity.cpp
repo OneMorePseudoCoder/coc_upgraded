@@ -25,6 +25,7 @@
 
 CEntity::CEntity() { m_registered_member = false; }
 CEntity::~CEntity() { xr_delete(m_entity_condition); }
+
 CEntityConditionSimple* CEntity::create_entity_condition(CEntityConditionSimple* ec)
 {
     if (!ec)
@@ -48,13 +49,6 @@ void CEntity::OnEvent(NET_Packet& P, u16 type)
         P.r_u16(id);
         P.r_u32(cl);
         IGameObject* who = Level().Objects.net_Find(id);
-        if (who && !IsGameTypeSingle())
-        {
-            if (this != who) /*if(bDebug) */
-                Msg("%s killed by %s ...", cName().c_str(), who->cName().c_str());
-            else /*if(bDebug) */
-                Msg("%s dies himself ...", cName().c_str());
-        }
         Die(who);
     }
     break;
@@ -67,14 +61,9 @@ void CEntity::Die(IGameObject* who)
         set_death_time();
     set_ready_to_save();
     SetfHealth(-1.f);
-
-    if (IsGameTypeSingle())
-    {
-        VERIFY(m_registered_member);
-    }
+	VERIFY(m_registered_member);
     m_registered_member = false;
-    if (IsGameTypeSingle())
-        Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+	Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
 }
 
 //обновление состояния
@@ -89,13 +78,8 @@ float CEntity::CalcCondition(float hit)
     return hit;
 }
 
-// void CEntity::Hit			(float perc, Fvector &dir, IGameObject* who, s16 element,Fvector position_in_object_space,
-// float
-// impulse, ALife::EHitType hit_type)
 void CEntity::Hit(SHit* pHDS)
 {
-    //	if (bDebug)				Log("Process HIT: ", *cName());
-
     // *** process hit calculations
     // Calc impulse
     Fvector vLocalDir;
@@ -161,10 +145,7 @@ BOOL CEntity::net_Spawn(CSE_Abstract* DC)
     {
         SetfHealth(E->get_health());
 
-        R_ASSERT2(!((E->get_killer_id() != ALife::_OBJECT_ID(-1)) && g_Alive()),
-            make_string(
-                "server entity [%s][%d] has an killer [%d] and not dead", E->name_replace(), E->ID, E->get_killer_id())
-                .c_str());
+        R_ASSERT2(!((E->get_killer_id() != ALife::_OBJECT_ID(-1)) && g_Alive()), make_string("server entity [%s][%d] has an killer [%d] and not dead", E->name_replace(), E->ID, E->get_killer_id()).c_str());
 
         m_killer_id = E->get_killer_id();
         if (m_killer_id == ID())
@@ -181,9 +162,7 @@ BOOL CEntity::net_Spawn(CSE_Abstract* DC)
         CSE_ALifeTrader* T = smart_cast<CSE_ALifeTrader*>(e);
         CSE_ALifeHelicopter* H = smart_cast<CSE_ALifeHelicopter*>(e);
 
-        R_ASSERT2(C || T || H,
-            "Invalid entity (no inheritance from CSE_CreatureAbstract, CSE_ALifeItemCar and CSE_ALifeTrader and "
-            "CSE_ALifeHelicopter)!");
+        R_ASSERT2(C || T || H, "Invalid entity (no inheritance from CSE_CreatureAbstract, CSE_ALifeItemCar and CSE_ALifeTrader and CSE_ALifeHelicopter)!");
         id_Team = id_Squad = id_Group = 0;
     }
     else
@@ -203,7 +182,7 @@ BOOL CEntity::net_Spawn(CSE_Abstract* DC)
         }
     }
 
-    if (g_Alive() && IsGameTypeSingle())
+    if (g_Alive())
     {
         m_registered_member = true;
         Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).register_member(this);
@@ -214,18 +193,17 @@ BOOL CEntity::net_Spawn(CSE_Abstract* DC)
     {
         m_level_death_time = Device.dwTimeGlobal;
         m_game_death_time = E->m_game_death_time;
-        ;
     }
 
     if (!inherited::net_Spawn(DC))
         return (FALSE);
 
-    //	SetfHealth			(E->fHealth);
     IKinematics* pKinematics = smart_cast<IKinematics*>(Visual());
     CInifile* ini = NULL;
 
     if (pKinematics)
         ini = pKinematics->LL_UserData();
+
     if (ini)
     {
         if (ini->section_exist("damage_section") && !use_simplified_visual())
@@ -241,8 +219,7 @@ void CEntity::net_Destroy()
     if (m_registered_member)
     {
         m_registered_member = false;
-        if (IsGameTypeSingle())
-            Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+		Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
     }
 
     inherited::net_Destroy();
@@ -256,7 +233,7 @@ void CEntity::KillEntity(u16 whoID, bool bypass_actor_check)
     //IMPORTANT: if you wish to kill actor you need to call db.actor:kill(level:object_by_id(whoID), true) in actor_before_death callback, to ensure all objects are properly destroyed
     // this will bypass below if block and go to normal KillEntity routine.
 #ifdef ACTOR_BEFORE_DEATH_CALLBACK
-    if (IsGameTypeSingle() && this->ID() == Actor()->ID() && (bypass_actor_check != true))
+    if (this->ID() == Actor()->ID() && (bypass_actor_check != true))
     {
         Actor()->use_HolderEx(NULL, true);
         Actor()->callback(GameObject::eActorBeforeDeath)(whoID);
@@ -307,6 +284,7 @@ void CEntity::KillEntity(u16 whoID, bool bypass_actor_check)
 };
 
 void CEntity::reinit() { inherited::reinit(); }
+
 void CEntity::reload(LPCSTR section)
 {
     inherited::reload(section);
@@ -323,6 +301,7 @@ void CEntity::set_death_time()
 bool CEntity::IsFocused() const { return (smart_cast<const CEntity*>(g_pGameLevel->CurrentEntity()) == this); }
 bool CEntity::IsMyCamera() const { return (smart_cast<const CEntity*>(g_pGameLevel->CurrentViewEntity()) == this); }
 void CEntity::set_ready_to_save() {}
+
 IFactoryObject* CEntity::_construct()
 {
     inherited::_construct();
@@ -344,25 +323,22 @@ void CEntity::shedule_Update(u32 dt)
             NET_Packet P;
             u_EventGen(P, GE_ASSIGN_KILLER, ID());
             P.w_u16(u16(-1));
-            if (IsGameTypeSingle())
-                u_EventSend(P);
+			u_EventSend(P);
         }
     }
 }
 
 void CEntity::on_before_change_team() {}
 void CEntity::on_after_change_team() {}
+
 void CEntity::ChangeTeam(int team, int squad, int group)
 {
     if ((team == g_Team()) && (squad == g_Squad()) && (group == g_Group()))
         return;
 
     VERIFY2(g_Alive(), "Try to change team of a dead object");
+	VERIFY(m_registered_member);
 
-    if (IsGameTypeSingle())
-    {
-        VERIFY(m_registered_member);
-    }
     // remove from current team
     on_before_change_team();
     Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);

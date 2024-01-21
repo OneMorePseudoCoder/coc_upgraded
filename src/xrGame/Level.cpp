@@ -346,15 +346,9 @@ void CLevel::OnFrame()
             Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_map_manager, &CMapManager::Update));
         else
             MapManager().Update();
-        if (IsGameTypeSingle() && Device.dwPrecacheFrame == 0)
+
+        if (Device.dwPrecacheFrame == 0)
         {
-            // XXX nitrocaster: was enabled in x-ray 1.5; to be restored or removed
-            // if (g_mt_config.test(mtMap))
-            //{
-            //    Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(
-            //    m_game_task_manager,&CGameTaskManager::UpdateTasks));
-            //}
-            // else
             GameTaskManager().UpdateTasks();
         }
     }
@@ -563,17 +557,6 @@ void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/)
         xr_strcat(RealName, ".xrdemo");
         Cameras().AddCamEffector(new CDemoPlay(RealName, 1.3f, 0));
     }
-    else if (E == eChangeTrack && P1)
-    {
-        // int id = atoi((char*)P1);
-        // Environment->Music_Play(id);
-    }
-    else if (E == eEnvironment)
-    {
-        // int id=0; float s=1;
-        // sscanf((char*)P1,"%d,%f",&id,&s);
-        // Environment->set_EnvMode(id,s);
-    }
 }
 
 void CLevel::DumpStatistics(IGameFont& font, IPerformanceAlert* alert)
@@ -724,24 +707,13 @@ void CLevel::ReculcInterpolationSteps()
 }
 
 bool CLevel::InterpolationDisabled() { return g_cl_lvInterp < 0; }
+
 void CLevel::PhisStepsCallback(u32 Time0, u32 Time1)
 {
     if (!Level().game)
         return;
     if (GameID() == eGameIDSingle)
         return;
-    //#pragma todo("Oles to all: highly inefficient and slow!!!")
-    // fixed (Andy)
-    /*
-    for (xr_vector<IGameObject*>::iterator O=Level().Objects.objects.begin(); O!=Level().Objects.objects.end(); ++O)
-    {
-    if( smart_cast<CActor*>((*O)){
-    CActor* pActor = smart_cast<CActor*>(*O);
-    if (!pActor || pActor->Remote()) continue;
-    pActor->UpdatePosStack(Time0, Time1);
-    }
-    };
-    */
 }
 
 void CLevel::SetNumCrSteps(u32 NumSteps)

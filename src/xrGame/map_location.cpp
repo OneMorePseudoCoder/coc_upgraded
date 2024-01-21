@@ -63,11 +63,10 @@ CMapLocation::CMapLocation(LPCSTR type, u16 object_id, bool is_user_loc)
     m_cached.m_Position.set(10000, 10000);
     m_cached.m_updatedFrame = u32(-1);
     m_cached.m_graphID = GameGraph::_GRAPH_ID(-1);
-    if (!IsGameTypeSingle())
-        m_cached.m_LevelName = Level().name();
 }
 
 CMapLocation::~CMapLocation() {}
+
 void CMapLocation::destroy()
 {
     delete_data(m_level_spot);
@@ -354,10 +353,7 @@ void CMapLocation::CalcLevelName()
     {
         if (m_cached.m_graphID != m_owner_se_object->m_tGraphID)
         {
-            m_cached.m_LevelName = ai().game_graph()
-                                       .header()
-                                       .level(ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id())
-                                       .name();
+            m_cached.m_LevelName = ai().game_graph().header().level(ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id()).name();
             m_cached.m_graphID = m_owner_se_object->m_tGraphID;
         }
     }
@@ -383,12 +379,10 @@ bool CMapLocation::Update() // returns actual
 
     IGameObject* pObject = Level().Objects.net_Find(m_objectID);
 
-    if (m_owner_se_object || (!IsGameTypeSingle() && pObject))
+    if (m_owner_se_object)
     {
         m_cached.m_Actuality = true;
-        if (IsGameTypeSingle())
-            CalcLevelName();
-
+		CalcLevelName();
         CalcPosition();
     }
     else if (IsUserDefined())
@@ -421,33 +415,29 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp)
             }
         }
 
-        if (IsGameTypeSingle())
-        {
-            CGameTask* ml_task = Level().GameTaskManager().HasGameTask(this, true);
-            if (ml_task)
-            {
-                CGameTask* active_task = Level().GameTaskManager().ActiveTask();
-                bool border_show = (ml_task == active_task);
-                if (m_minimap_spot)
-                {
-                    m_minimap_spot->show_static_border(border_show);
-                }
-                if (m_level_spot)
-                {
-                    m_level_spot->show_static_border(border_show);
-                }
-                if (m_complex_spot)
-                {
-                    m_complex_spot->show_static_border(border_show);
-                }
-            }
-        }
+		CGameTask* ml_task = Level().GameTaskManager().HasGameTask(this, true);
+		if (ml_task)
+		{
+			CGameTask* active_task = Level().GameTaskManager().ActiveTask();
+			bool border_show = (ml_task == active_task);
+			if (m_minimap_spot)
+			{
+				m_minimap_spot->show_static_border(border_show);
+			}
+			if (m_level_spot)
+			{
+				m_level_spot->show_static_border(border_show);
+			}
+			if (m_complex_spot)
+			{
+				m_complex_spot->show_static_border(border_show);
+			}
+		}
 
         // update spot position
         Fvector2 position = GetPosition();
 
-        m_position_on_map =
-            map->ConvertRealToLocal(position, (map->Heading()) ? false : true); // for visibility calculating
+        m_position_on_map = map->ConvertRealToLocal(position, (map->Heading()) ? false : true); // for visibility calculating
 
         sp->SetWndPos(m_position_on_map);
 
@@ -469,15 +459,12 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp)
             map->AttachChild(sp);
         }
 
-        if (IsGameTypeSingle())
-        {
-            CMapSpot* s = GetSpotBorder(sp);
-            if (s)
-            {
-                s->SetWndPos(sp->GetWndPos());
-                map->AttachChild(s);
-            }
-        }
+		CMapSpot* s = GetSpotBorder(sp);
+		if (s)
+		{
+			s->SetWndPos(sp->GetWndPos());
+			map->AttachChild(s);
+		}
 
         bool b_pointer = (GetSpotPointer(sp) && map->NeedShowPointer(wnd_rect));
 
@@ -503,8 +490,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp)
 
         VERIFY(Actor());
         GraphEngineSpace::CGameVertexParams params(Actor()->locations().vertex_types(), flt_max);
-        bool res = ai().graph_engine().search(
-            ai().game_graph(), Actor()->ai_location().game_vertex_id(), dest_graph_id, &map_point_path, params);
+        bool res = ai().graph_engine().search(ai().game_graph(), Actor()->ai_location().game_vertex_id(), dest_graph_id, &map_point_path, params);
 
         if (res)
         {
@@ -512,19 +498,8 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp)
             xr_vector<u32>::reverse_iterator it_e = map_point_path.rend();
 
             xr_vector<CLevelChanger*>::iterator lit = g_lchangers.begin();
-            // xr_vector<CLevelChanger*>::iterator lit_e = g_lchangers.end();
+
             bool bDone = false;
-            // for(; (it!=it_e)&&(!bDone) ;++it){
-            //	for(lit=g_lchangers.begin();lit!=lit_e; ++lit){
-
-            //		if((*it)==(*lit)->ai_location().game_vertex_id() )
-            //		{
-            //			bDone = true;
-            //			break;
-            //		}
-
-            //	}
-            //}
             static bool bbb = false;
             if (!bDone && bbb)
             {
@@ -534,9 +509,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp)
                 xr_vector<u32>::iterator it_e = map_point_path.end();
                 for (; it != it_e; ++it)
                 {
-                    //					Msg("%d-%s",(*it),ai().game_graph().vertex(*it));
-                    Msg("[%d] level[%s]", (*it),
-                        *ai().game_graph().header().level(ai().game_graph().vertex(*it)->level_id()).name());
+                    Msg("[%d] level[%s]", (*it), *ai().game_graph().header().level(ai().game_graph().vertex(*it)->level_id()).name());
                 }
                 Msg("- Available LevelChangers:");
                 xr_vector<CLevelChanger *>::iterator lit, lit_e;
@@ -546,9 +519,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp)
                     GameGraph::_GRAPH_ID gid = (*lit)->ai_location().game_vertex_id();
                     Msg("[%d]", gid);
                     Fvector p = ai().game_graph().vertex(gid)->level_point();
-                    Msg("lch_name=%s pos=%f %f %f",
-                        *ai().game_graph().header().level(ai().game_graph().vertex(gid)->level_id()).name(), p.x, p.y,
-                        p.z);
+                    Msg("lch_name=%s pos=%f %f %f", *ai().game_graph().header().level(ai().game_graph().vertex(gid)->level_id()).name(), p.x, p.y, p.z);
                 }
             };
             if (bDone)
@@ -588,6 +559,7 @@ void CMapLocation::UpdateSpotPointer(CUICustomMap* map, CMapSpotPointer* sp)
 {
     if (sp->GetParent())
         return; // already is child
+
     float heading;
     Fvector2 pointer_pos;
     if (map->GetPointerTo(m_position_on_map, sp->GetWidth() / 2, pointer_pos, heading))
@@ -601,29 +573,26 @@ void CMapLocation::UpdateSpotPointer(CUICustomMap* map, CMapSpotPointer* sp)
         Fvector ttt;
         ttt.set(tt.x, 0.0f, tt.y);
 
-        if (IsGameTypeSingle())
-        {
-            float dist_to_target = Level().CurrentEntity()->Position().distance_to(ttt);
-            CGameTask* task = Level().GameTaskManager().HasGameTask(this, true);
-            if (task)
-            {
-                map->SetPointerDistance(dist_to_target);
-            }
+		float dist_to_target = Level().CurrentEntity()->Position().distance_to(ttt);
+		CGameTask* task = Level().GameTaskManager().HasGameTask(this, true);
+		if (task)
+		{
+			map->SetPointerDistance(dist_to_target);
+		}
 
-            u32 clr = sp->GetTextureColor();
-            u32 a = 0xff;
-            if (dist_to_target >= 0.0f && dist_to_target < 10.0f)
-                a = 255;
-            else if (dist_to_target >= 10.0f && dist_to_target < 50.0f)
-                a = 200;
-            else if (dist_to_target >= 50.0f && dist_to_target < 100.0f)
-                a = 150;
-            else
-                a = 100;
+		u32 clr = sp->GetTextureColor();
+		u32 a = 0xff;
+		if (dist_to_target >= 0.0f && dist_to_target < 10.0f)
+			a = 255;
+		else if (dist_to_target >= 10.0f && dist_to_target < 50.0f)
+			a = 200;
+		else if (dist_to_target >= 50.0f && dist_to_target < 100.0f)
+			a = 150;
+		else
+			a = 100;
 
-            sp->SetTextureColor(subst_alpha(clr, a));
-        }
-    }
+		sp->SetTextureColor(subst_alpha(clr, a));
+	}
 }
 
 void CMapLocation::UpdateMiniMap(CUICustomMap* map)
@@ -631,6 +600,7 @@ void CMapLocation::UpdateMiniMap(CUICustomMap* map)
     CMapSpot* sp = m_minimap_spot;
     if (!sp)
         return;
+
     if (SpotEnabled())
         UpdateSpot(map, sp);
 }
@@ -816,8 +786,7 @@ Fvector2 CMapLocation::SpotSize()
     return m_level_spot->GetWndSize();
 }
 
-CRelationMapLocation::CRelationMapLocation(const shared_str& type, u16 object_id, u16 pInvOwnerActorID)
-    : CMapLocation(*type, object_id), m_last_relation()
+CRelationMapLocation::CRelationMapLocation(const shared_str& type, u16 object_id, u16 pInvOwnerActorID) : CMapLocation(*type, object_id), m_last_relation()
 {
     m_curr_spot_name = type;
     m_pInvOwnerActorID = pInvOwnerActorID;
@@ -916,8 +885,7 @@ bool CRelationMapLocation::Update()
         {
             const CGameObject* pObj = smart_cast<const CGameObject*>(_object_);
             CActor* pAct = smart_cast<CActor*>(Level().Objects.net_Find(m_pInvOwnerActorID));
-            if (/*pAct->Position().distance_to_sqr(pObj->Position()) < 100.0F && */ abs(
-                    pObj->Position().y - pAct->Position().y) < 3.0f)
+            if (abs(pObj->Position().y - pAct->Position().y) < 3.0f)
                 vis_res = true;
             else
                 vis_res = false;

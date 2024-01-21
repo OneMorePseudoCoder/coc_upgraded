@@ -30,16 +30,14 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType, float ap_mod)
     param_s.kDist = pSettings->r_float(section, "k_dist");
     param_s.kDisp = pSettings->r_float(section, "k_disp");
     param_s.kHit = pSettings->r_float(section, "k_hit");
-    //.	param_s.kCritical			= pSettings->r_float(section, "k_hit_critical");
     param_s.kImpulse = pSettings->r_float(section, "k_impulse");
-    // m_kPierce				= pSettings->r_float(section, "k_pierce");
     param_s.kAP = pSettings->r_float(section, "k_ap");
 	param_s.kAP *= ap_mod;
     param_s.k_cam_dispersion = READ_IF_EXISTS(pSettings, r_float, section, "k_cam_dispersion", 1.0f);
     param_s.u8ColorID = READ_IF_EXISTS(pSettings, r_u8, section, "tracer_color_ID", 0);
-
     param_s.kBulletSpeed = READ_IF_EXISTS(pSettings, r_float, section, "k_bullet_speed", 1.0f);
-    if (pSettings->line_exist(section, "k_air_resistance"))
+ 
+	if (pSettings->line_exist(section, "k_air_resistance"))
         param_s.kAirRes = pSettings->r_float(section, "k_air_resistance");
     else
         param_s.kAirRes = pSettings->r_float(BULLET_MANAGER_SECTION, "air_resistance_k");
@@ -57,6 +55,7 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType, float ap_mod)
         if (!pSettings->r_bool(section, "allow_ricochet"))
             m_flags.set(cfRicochet, FALSE);
     }
+
     if (pSettings->line_exist(section, "magnetic_beam_shot"))
     {
         if (pSettings->r_bool(section, "magnetic_beam_shot"))
@@ -110,9 +109,7 @@ void CWeaponAmmo::Load(LPCSTR section)
     cartridge_param.kDist = pSettings->r_float(section, "k_dist");
     cartridge_param.kDisp = pSettings->r_float(section, "k_disp");
     cartridge_param.kHit = pSettings->r_float(section, "k_hit");
-    //.	cartridge_param.kCritical	= pSettings->r_float(section, "k_hit_critical");
     cartridge_param.kImpulse = pSettings->r_float(section, "k_impulse");
-    // m_kPierce				= pSettings->r_float(section, "k_pierce");
     cartridge_param.kAP = pSettings->r_float(section, "k_ap");
     cartridge_param.u8ColorID = READ_IF_EXISTS(pSettings, r_u8, section, "tracer_color_ID", 0);
 
@@ -150,7 +147,9 @@ BOOL CWeaponAmmo::net_Spawn(CSE_Abstract* DC)
 }
 
 void CWeaponAmmo::net_Destroy() { inherited::net_Destroy(); }
+
 void CWeaponAmmo::OnH_B_Chield() { inherited::OnH_B_Chield(); }
+
 void CWeaponAmmo::OnH_B_Independent(bool just_before_destroy)
 {
     if (!Useful())
@@ -169,26 +168,14 @@ bool CWeaponAmmo::Useful() const
     // Если IItem еще не полностью использованый, вернуть true
     return !!m_boxCurr;
 }
-/*
-s32 CWeaponAmmo::Sort(PIItem pIItem)
-{
-    // Если нужно разместить IItem после this - вернуть 1, если
-    // перед - -1. Если пофиг то 0.
-    CWeaponAmmo *l_pA = smart_cast<CWeaponAmmo*>(pIItem);
-    if(!l_pA) return 0;
-    if(xr_strcmp(cNameSect(), l_pA->cNameSect())) return 0;
-    if(m_boxCurr <= l_pA->m_boxCurr) return 1;
-    else return -1;
-}
-*/
+
 bool CWeaponAmmo::Get(CCartridge& cartridge)
 {
     if (!m_boxCurr)
         return false;
+
     cartridge.m_ammoSect = cNameSect();
-
     cartridge.param_s = cartridge_param;
-
     cartridge.m_flags.set(CCartridge::cfTracer, m_tracer);
     cartridge.m_4to1_tracer = m_4to1_tracer;
     cartridge.bullet_material_idx = GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
@@ -210,10 +197,6 @@ void CWeaponAmmo::UpdateCL()
     VERIFY2(_valid(renderable.xform), *cName());
     inherited::UpdateCL();
     VERIFY2(_valid(renderable.xform), *cName());
-
-    if (!IsGameTypeSingle())
-        make_Interpolation();
-
     VERIFY2(_valid(renderable.xform), *cName());
 }
 

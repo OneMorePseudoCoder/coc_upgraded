@@ -138,7 +138,7 @@ void CLevel::IR_OnKeyboardPress(int key)
         if (Device.editor())
             return;
 
-        if (!g_block_pause && IsGameTypeSingle())
+        if (!g_block_pause)
         {
 #if defined(DEBUG) || defined(COC_DEBUG)
             if (psActorFlags.test(AF_NO_CLIP))
@@ -205,12 +205,12 @@ void CLevel::IR_OnKeyboardPress(int key)
             return;
     }
 
-    if (_curr == kQUICK_SAVE && IsGameTypeSingle())
+    if (_curr == kQUICK_SAVE)
     {
         Console->Execute("save");
         return;
     }
-    if (_curr == kQUICK_LOAD && IsGameTypeSingle())
+    if (_curr == kQUICK_LOAD)
     {
 #ifdef DEBUG
         FS.get_path("$game_config$")->m_Flags.set(FS_Path::flNeedRescan, TRUE);

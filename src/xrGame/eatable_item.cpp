@@ -67,15 +67,11 @@ BOOL CEatableItem::net_Spawn(CSE_Abstract* DC)
 void CEatableItem::net_Export(NET_Packet& P)
 {
     inherited::net_Export(P);
-    //P.w_float_q8(GetCondition(), 0.0f, 1.0f);
 }
 
 void CEatableItem::net_Import(NET_Packet& P)
 {
     inherited::net_Import(P);
-    /*float _cond;
-    P.r_float_q8(_cond, 0.0f, 1.0f);
-    SetCondition(_cond);*/
 }
 
 bool CEatableItem::Useful() const
@@ -132,14 +128,6 @@ bool CEatableItem::UseBy(CEntityAlive* entity_alive)
             B.Load(m_physic_item->cNameSect(), (EBoostParams)i);
             entity_alive->conditions().ApplyBooster(B, m_physic_item->cNameSect());
         }
-    }
-
-    if (!IsGameTypeSingle() && OnServer())
-    {
-        NET_Packet tmp_packet;
-        CGameObject::u_EventGen(tmp_packet, GEG_PLAYER_USE_BOOSTER, entity_alive->ID());
-        tmp_packet.w_u16(object_id());
-        Level().Send(tmp_packet);
     }
 
     return true;

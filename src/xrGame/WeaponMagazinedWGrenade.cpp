@@ -55,11 +55,11 @@ void CWeaponMagazinedWGrenade::Load(LPCSTR section)
 }
 
 void CWeaponMagazinedWGrenade::net_Destroy() { inherited::net_Destroy(); }
+
 BOOL CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC)
 {
     CSE_ALifeItemWeapon* const weapon = smart_cast<CSE_ALifeItemWeapon*>(DC);
     R_ASSERT(weapon);
-    if (IsGameTypeSingle()){}
 
     BOOL l_res = inherited::net_Spawn(DC);
 
@@ -314,8 +314,8 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
             }
             E->g_fireParams(this, p1, d);
         }
-        if (IsGameTypeSingle())
-            p1.set(get_LastFP2());
+		
+		p1.set(get_LastFP2());
 
         Fmatrix launch_matrix;
         launch_matrix.identity();
@@ -324,7 +324,7 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
 
         launch_matrix.c.set(p1);
 
-        if (IsGameTypeSingle() && IsZoomed() && smart_cast<CActor*>(H_Parent()))
+        if (IsZoomed() && smart_cast<CActor*>(H_Parent()))
         {
             H_Parent()->setEnabled(FALSE);
             setEnabled(FALSE);
@@ -340,17 +340,8 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
                 Fvector Transference;
                 Transference.mul(d, RQ.range);
                 Fvector res[2];
-#ifdef DEBUG
-//.				DBG_OpenCashedDraw();
-//.				DBG_DrawLine(p1,Fvector().add(p1,d),color_xrgb(255,0,0));
-#endif
-                u8 canfire0 = TransferenceAndThrowVelToThrowDir(
-                    Transference, CRocketLauncher::m_fLaunchSpeed, EffectiveGravity(), res);
-#ifdef DEBUG
-//.				if(canfire0>0)DBG_DrawLine(p1,Fvector().add(p1,res[0]),color_xrgb(0,255,0));
-//.				if(canfire0>1)DBG_DrawLine(p1,Fvector().add(p1,res[1]),color_xrgb(0,0,255));
-//.				DBG_ClosedCashedDraw(30000);
-#endif
+
+                u8 canfire0 = TransferenceAndThrowVelToThrowDir(Transference, CRocketLauncher::m_fLaunchSpeed, EffectiveGravity(), res);
 
                 if (canfire0 != 0)
                 {
@@ -471,10 +462,7 @@ bool CWeaponMagazinedWGrenade::Attach(PIItem pIItem, bool b_send_event)
 {
     CGrenadeLauncher* pGrenadeLauncher = smart_cast<CGrenadeLauncher*>(pIItem);
 
-	if (pGrenadeLauncher &&
-		m_eGrenadeLauncherStatus == ALife::eAddonAttachable &&
-		(m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher) == 0 /*&&
-																					(m_sGrenadeLauncherName == pIItem->object().cNameSect())*/)
+	if (pGrenadeLauncher && m_eGrenadeLauncherStatus == ALife::eAddonAttachable && (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher) == 0)
     {
         auto it = m_launchers.begin();
         for (; it != m_launchers.end(); it++)
@@ -496,7 +484,7 @@ bool CWeaponMagazinedWGrenade::Attach(PIItem pIItem, bool b_send_event)
                         m_ammoTypes2.push_back(_ammoItem);
                     }
                 }
-                //óíè÷òîæèòü ïîäñòâîëüíèê èç èíâåíòàðÿ
+
                 if (b_send_event)
                 {
                     if (OnServer())
@@ -804,8 +792,7 @@ float CWeaponMagazinedWGrenade::Weight() const
 
 bool CWeaponMagazinedWGrenade::IsNecessaryItem(const shared_str& item_sect)
 {
-    return (std::find(m_ammoTypes.begin(), m_ammoTypes.end(), item_sect) != m_ammoTypes.end() ||
-        std::find(m_ammoTypes2.begin(), m_ammoTypes2.end(), item_sect) != m_ammoTypes2.end());
+    return (std::find(m_ammoTypes.begin(), m_ammoTypes.end(), item_sect) != m_ammoTypes.end() || std::find(m_ammoTypes2.begin(), m_ammoTypes2.end(), item_sect) != m_ammoTypes2.end());
 }
 
 u8 CWeaponMagazinedWGrenade::GetCurrentHudOffsetIdx()

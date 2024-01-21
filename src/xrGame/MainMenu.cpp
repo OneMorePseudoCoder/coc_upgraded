@@ -22,9 +22,6 @@
 
 #include "Common/object_broker.h"
 
-
-
-// fwd. decl.
 extern ENGINE_API BOOL bShowPauseString;
 
 //#define DEMO_BUILD
@@ -53,8 +50,6 @@ CMainMenu::CMainMenu()
     g_btnHint = NULL;
     g_statHint = NULL;
     m_deactivated_frame = 0;
-
-    //-------------------------------------------
 
     m_NeedErrDialog = ErrNoError;
     m_start_time = 0;
@@ -86,9 +81,7 @@ void CMainMenu::ReadTextureInfo()
 
     const auto UpdateFileSet = [&](pcstr path)
     {
-        FS.file_list(files, "$game_config$", FS_ListFiles,
-            strconcat(sizeof(buf), buf, path, "\\", "textures_descr\\*.xml")
-        );
+        FS.file_list(files, "$game_config$", FS_ListFiles, strconcat(sizeof(buf), buf, path, "\\", "textures_descr\\*.xml"));
     };
 
     const auto ParseFileSet = [&]()
@@ -98,8 +91,7 @@ void CMainMenu::ReadTextureInfo()
             string_path path, name;
             _splitpath(file.name.c_str(), nullptr, path, name, nullptr);
             xr_strcat(name, ".xml");
-            path[xr_strlen(path) - 1] = '\0'; // cut the latest '\\'
-
+            path[xr_strlen(path) - 1] = '\0';
             CUITextureMaster::ParseShTexInfo(path, name);
         }
     };
@@ -118,13 +110,12 @@ void CMainMenu::Activate(bool bActivate)
 {
     if (m_Flags.test(flActive) == bActivate)
         return;
+
     if (m_Flags.test(flGameSaveScreenshot))
         return;
-    if ((m_screenshotFrame == Device.dwFrame) || (m_screenshotFrame == Device.dwFrame - 1) ||
-        (m_screenshotFrame == Device.dwFrame + 1))
-        return;
 
-    bool b_is_single = IsGameTypeSingle();
+    if ((m_screenshotFrame == Device.dwFrame) || (m_screenshotFrame == Device.dwFrame - 1) || (m_screenshotFrame == Device.dwFrame + 1))
+        return;
 
     if (GEnv.isDedicatedServer && bActivate)
         return;
@@ -142,28 +133,22 @@ void CMainMenu::Activate(bool bActivate)
 
         m_Flags.set(flRestoreConsole, Console->bVisible);
 
-        if (b_is_single)
-            m_Flags.set(flRestorePause, Device.Paused());
+		m_Flags.set(flRestorePause, Device.Paused());
 
         Console->Hide();
 
-        if (b_is_single)
-        {
-            m_Flags.set(flRestorePauseStr, bShowPauseString);
-            bShowPauseString = FALSE;
-            if (!m_Flags.test(flRestorePause))
-                Device.Pause(TRUE, TRUE, FALSE, "mm_activate2");
-        }
+		m_Flags.set(flRestorePauseStr, bShowPauseString);
+		bShowPauseString = FALSE;
+		if (!m_Flags.test(flRestorePause))
+			Device.Pause(TRUE, TRUE, FALSE, "mm_activate2");
 
         if (g_pGameLevel)
         {
-            if (b_is_single)
-            {
-                Device.seqFrame.Remove(g_pGameLevel);
-            }
+			Device.seqFrame.Remove(g_pGameLevel);
             Device.seqRender.Remove(g_pGameLevel);
             CCameraManager::ResetPP();
         };
+
         Device.seqRender.Add(this, 4); // 1-console 2-cursor 3-tutorial
 
         Console->Execute("stat_memory");
@@ -192,24 +177,20 @@ void CMainMenu::Activate(bool bActivate)
             m_startDialog->HideDialog();
 
         CleanInternals();
+
         if (g_pGameLevel)
         {
-            if (b_is_single)
-            {
-                Device.seqFrame.Add(g_pGameLevel);
-            }
+			Device.seqFrame.Add(g_pGameLevel);
             Device.seqRender.Add(g_pGameLevel);
         };
+
         if (m_Flags.test(flRestoreConsole))
             Console->Show();
 
-        if (b_is_single)
-        {
-            if (!m_Flags.test(flRestorePause))
-                Device.Pause(FALSE, TRUE, FALSE, "mm_deactivate1");
+		if (!m_Flags.test(flRestorePause))
+			Device.Pause(FALSE, TRUE, FALSE, "mm_deactivate1");
 
-            bShowPauseString = m_Flags.test(flRestorePauseStr);
-        }
+		bShowPauseString = m_Flags.test(flRestorePauseStr);
 
         if (m_Flags.test(flRestoreCursor))
             GetUICursor().Show();
@@ -249,9 +230,11 @@ bool CMainMenu::ReloadUI()
 }
 
 bool CMainMenu::IsActive() { return !!m_Flags.test(flActive); }
+
 bool CMainMenu::CanSkipSceneRendering() { return IsActive() && !m_Flags.test(flGameSaveScreenshot); }
 
 bool CMainMenu::IsLanguageChanged() { return mLanguageChanged; }
+
 void CMainMenu::SetLanguageChanged(bool status) { mLanguageChanged = status; }
 
 // IInputReceiver

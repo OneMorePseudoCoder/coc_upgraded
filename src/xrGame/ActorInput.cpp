@@ -56,9 +56,6 @@ void CActor::IR_OnKeyboardPress(int cmd)
     {
     case kWPN_FIRE:
     {
-        if ((mstate_wishful & mcLookout) && !IsGameTypeSingle())
-            return;
-
         u16 slot = inventory().GetActiveSlot();
         if (inventory().ActiveItem() && (slot == INV_SLOT_3 || slot == INV_SLOT_2 || slot == KNIFE_SLOT))
             mstate_wishful &= ~mcSprint;
@@ -199,15 +196,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 
             if (itm)
             {
-                if (IsGameTypeSingle())
-                {
-                    inventory().Eat(itm);
-                }
-                else
-                {
-                    inventory().ClientEat(itm);
-                }
-
+				inventory().Eat(itm);
                 StaticDrawableWrapper* _s = CurrentGameUI()->AddCustomStatic("item_used", true);
                 string1024 str;
                 strconcat(sizeof(str), str, *StringTable().translate("st_item_used"), ": ", itm->NameItem());
@@ -483,7 +472,6 @@ void CActor::ActorUse()
 
             VERIFY(pEntityAliveWeLookingAt);
 
-            if (IsGameTypeSingle())
             {
                 if (pEntityAliveWeLookingAt->g_Alive())
                 {

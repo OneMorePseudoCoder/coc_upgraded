@@ -265,18 +265,9 @@ void CUIMainIngameWnd::Draw()
         UIStaticDiskIO->Show(true);
         UIStaticDiskIO->SetTextureColor(color_rgba(255, 255, 255, alpha));
     }
+
     FS.dwOpenCounter = 0;
 
-    if (!IsGameTypeSingle())
-    {
-        float luminocity = smart_cast<CGameObject*>(Level().CurrentEntity())->ROS()->get_luminocity();
-        float power = log(luminocity > .001f ? luminocity : .001f) * (1.f /*luminocity_factor*/);
-        luminocity = exp(power);
-
-        static float cur_lum = luminocity;
-        cur_lum = luminocity * 0.01f + cur_lum * 0.99f;
-        UIMotionIcon->SetLuminosity((s16)iFloor(cur_lum * 100.0f));
-    }
     if (!pActor || !pActor->g_Alive())
         return;
 
@@ -574,8 +565,7 @@ void CUIMainIngameWnd::UpdateMainIndicators()
         return;
 
     UpdateQuickSlots();
-    if (IsGameTypeSingle())
-        CurrentGameUI()->GetPdaMenu().UpdateRankingWnd();
+	CurrentGameUI()->GetPdaMenu().UpdateRankingWnd();
 
     u8 flags = 0;
     flags |= LA_CYCLIC;

@@ -27,7 +27,6 @@
 #include "UIRankingWnd.h"
 #include "UILogsWnd.h"
 #include "UIScriptWnd.h"
-//#include "script_engine.h"
 
 #define PDA_XML "pda.xml"
 
@@ -78,22 +77,15 @@ void CUIPdaWnd::Init()
     m_btn_close = UIHelper::Create3tButton(uiXml, "close_button", this);
     m_hint_wnd = UIHelper::CreateHint(uiXml, "hint_wnd");
 
-    if (IsGameTypeSingle())
-    {
-        pUITaskWnd = new CUITaskWnd();
-        pUITaskWnd->hint_wnd = m_hint_wnd;
-        pUITaskWnd->Init();
+	pUITaskWnd = new CUITaskWnd();
+	pUITaskWnd->hint_wnd = m_hint_wnd;
+	pUITaskWnd->Init();
 
-        //pUIFactionWarWnd = new CUIFactionWarWnd();
-        //pUIFactionWarWnd->hint_wnd = m_hint_wnd;
-        //pUIFactionWarWnd->Init();
+	pUIRankingWnd = new CUIRankingWnd();
+	pUIRankingWnd->Init();
 
-        pUIRankingWnd = new CUIRankingWnd();
-        pUIRankingWnd->Init();
-
-        pUILogsWnd = new CUILogsWnd();
-        pUILogsWnd->Init();
-    }
+	pUILogsWnd = new CUILogsWnd();
+	pUILogsWnd->Init();
 
     UITabControl = new CUITabControl();
     UITabControl->SetAutoDelete(true);
@@ -104,8 +96,6 @@ void CUIPdaWnd::Init()
     UINoice = new CUIStatic();
     UINoice->SetAutoDelete(true);
     CUIXmlInit::InitStatic(uiXml, "noice_static", 0, UINoice);
-
-    //	RearrangeTabButtons		(UITabControl);
 }
 
 void CUIPdaWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
@@ -130,7 +120,6 @@ void CUIPdaWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
     }
     default:
     {
-        //R_ASSERT(m_pActiveDialog);
         if (m_pActiveDialog)
             m_pActiveDialog->SendMessage(pWnd, msg, pData);
     }
@@ -259,9 +248,8 @@ void CUIPdaWnd::Show_MapLegendWnd(bool status)
 void CUIPdaWnd::Draw()
 {
     inherited::Draw();
-    //.	DrawUpdatedSections();
     DrawHint();
-    UINoice->Draw(); // over all
+    UINoice->Draw();
 }
 
 void CUIPdaWnd::DrawHint()
@@ -273,9 +261,6 @@ void CUIPdaWnd::DrawHint()
     else if (m_sActiveSection == "eptRanking")
     {
         pUIRankingWnd->DrawHint();
-    }
-    else if (m_sActiveSection == "eptLogs")
-    {
     }
     m_hint_wnd->Draw();
 }
@@ -291,6 +276,7 @@ void CUIPdaWnd::UpdatePda()
 }
 
 void CUIPdaWnd::UpdateRankingWnd() { pUIRankingWnd->Update(); }
+
 void CUIPdaWnd::Reset()
 {
     inherited::ResetAll();
@@ -304,6 +290,7 @@ void CUIPdaWnd::Reset()
 }
 
 void CUIPdaWnd::SetCaption(LPCSTR text) { m_caption->SetText(text); }
+
 void RearrangeTabButtons(CUITabControl* pTab)
 {
     TABS_VECTOR* btn_vec = pTab->GetButtonsVector();

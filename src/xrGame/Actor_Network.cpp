@@ -601,14 +601,7 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
 
     cam_Active()->Set(-E->o_torso.yaw, E->o_torso.pitch, 0); // E->o_Angle.z);
 
-    // *** movement state - respawn
-    // mstate_wishful			= 0;
-    // mstate_real				= 0;
-    // mstate_old				= 0;
     m_bJumpKeyPressed = FALSE;
-    //
-    //	m_bJumpKeyPressed = ((mstate_wishful&mcJump)!=0);
-    //
     NET_SavedAccel.set(0, 0, 0);
     NET_WasInterpolating = TRUE;
 
@@ -616,52 +609,23 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
 
     Engine.Sheduler.Register(this, TRUE);
 
-    if (!IsGameTypeSingle())
-    {
-        setEnabled(TRUE);
-    }
-
     m_hit_slowmo = 0.f;
 
     OnChangeVisual();
     //----------------------------------
     m_bAllowDeathRemove = false;
 
-    //	m_bHasUpdate = false;
     m_bInInterpolation = false;
     m_bInterpolate = false;
 
-    //	if (GameID() != eGameIDSingle)
-    {
-        processing_activate();
-    }
+	processing_activate();
 
 #ifdef DEBUG
     LastPosS.clear();
     LastPosH.clear();
     LastPosL.clear();
 #endif
-    //*
 
-    //	if (OnServer())// && E->s_flags.is(M_SPAWN_OBJECT_LOCAL))
-    /*
-        if (OnClient())
-        {
-            if (!pStatGraph)
-            {
-                static g_Y = 0;
-                pStatGraph = new CStatGraph();
-                pStatGraph->SetRect(0, g_Y, Device.dwWidth, 100, 0xff000000, 0xff000000);
-                g_Y += 110;
-                if (g_Y > 700) g_Y = 100;
-                pStatGraph->SetGrid(0, 0.0f, 10, 1.0f, 0xff808080, 0xffffffff);
-                pStatGraph->SetMinMax(0, 10, 300);
-                pStatGraph->SetStyle(CStatGraph::stBar);
-                pStatGraph->AppendSubGraph(CStatGraph::stCurve);
-                pStatGraph->AppendSubGraph(CStatGraph::stCurve);
-            }
-        }
-    */
     SetDefaultVisualOutfit(cNameVisual());
 
     smart_cast<IKinematics*>(Visual())->CalculateBones();
@@ -690,21 +654,17 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
     if (E->m_holderID != ALife::_OBJECT_ID(-1))
         if (!GEnv.isDedicatedServer)
             Level().client_spawn_manager().add(E->m_holderID, ID(), callback);
-    // F
-    //-------------------------------------------------------------
+
     m_iLastHitterID = u16(-1);
     m_iLastHittingWeaponID = u16(-1);
     m_s16LastHittedElement = -1;
     m_bWasHitted = false;
     m_dwILastUpdateTime = 0;
 
-    if (IsGameTypeSingle())
-    {
-        Level().MapManager().AddMapLocation("actor_location", ID());
-        Level().MapManager().AddMapLocation("actor_location_p", ID());
+	Level().MapManager().AddMapLocation("actor_location", ID());
+	Level().MapManager().AddMapLocation("actor_location_p", ID());
 
-        m_statistic_manager = new CActorStatisticMgr();
-    }
+	m_statistic_manager = new CActorStatisticMgr();
 
     spatial.type |= STYPE_REACTTOSOUND;
     psHUD_Flags.set(HUD_WEAPON_RT, TRUE);

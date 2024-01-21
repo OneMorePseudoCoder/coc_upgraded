@@ -17,12 +17,12 @@
 #include "phdebug.h"
 #include "xrEngine/objectdump.h"
 #endif
+
 BOOL dbg_draw_doors = false;
-CPhysicObject::CPhysicObject(void)
-    : m_type(epotBox), m_mass(10.f), m_collision_hit_callback(nullptr), m_anim_blend(nullptr),
-      bones_snd_player(nullptr), m_net_updateData(nullptr), m_just_after_spawn(false), m_activated(false) {}
+CPhysicObject::CPhysicObject(void) : m_type(epotBox), m_mass(10.f), m_collision_hit_callback(nullptr), m_anim_blend(nullptr), bones_snd_player(nullptr), m_net_updateData(nullptr), m_just_after_spawn(false), m_activated(false) {}
 
 CPhysicObject::~CPhysicObject(void) { xr_delete(m_net_updateData); }
+
 BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 {
     CSE_Abstract* e = (CSE_Abstract*)(DC);
@@ -43,10 +43,6 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
     if (!PPhysicsShell()->isBreakable() && !scriptBinder.object() && !CPHSkeleton::IsRemoving())
         SheduleUnregister();
 
-    // if (PPhysicsShell()->Animated())
-    //{
-    //	processing_activate();
-    //}
     bones_snd_player = create_moving_bones_snd_player(*this);
     if (bones_snd_player)
         play_bones_sound();
@@ -77,6 +73,7 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 #endif
     return TRUE;
 }
+
 void CPhysicObject::create_collision_model()
 {
     xr_delete(CForm);
@@ -93,19 +90,8 @@ void CPhysicObject::create_collision_model()
     }
 
     CForm = new CCF_Skeleton(this);
-
-    /*
-    switch(m_type) {
-        case epotBox:
-        case epotFixedChain:
-        case epotFreeChain :
-        case epotSkeleton  :	collidable.model = new CCF_Skeleton(this);	break;
-
-        default: NODEFAULT;
-
-    }
-    */
 }
+
 void CPhysicObject::play_bones_sound()
 {
     if (!bones_snd_player)
@@ -115,7 +101,7 @@ void CPhysicObject::play_bones_sound()
     }
     if (is_active(bones_snd_player))
         return;
-    // processing_activate();
+
     bones_snd_player->play(*this);
 }
 
@@ -123,7 +109,7 @@ void CPhysicObject::stop_bones_sound()
 {
     if (!is_active(bones_snd_player))
         return;
-    // processing_deactivate();
+
     bones_snd_player->stop();
 }
 
@@ -141,8 +127,10 @@ static CPhysicsShellHolder* retrive_collide_object(bool bo1, dContact& c)
         collide_obj = static_cast<CPhysicsShellHolder*>(ud->ph_ref_object);
     else
         collide_obj = 0;
+
     return collide_obj;
 }
+
 static void door_ignore(bool& do_collide, bool bo1, dContact& c, SGameMtl* /*material_1*/, SGameMtl* /*material_2*/)
 {
     CPhysicsShellHolder* collide_obj = retrive_collide_object(bo1, c);
@@ -168,8 +156,8 @@ void CPhysicObject::set_door_ignore_dynamics()
     R_ASSERT(PPhysicsShell());
     PPhysicsShell()->remove_ObjectContactCallback(door_ignore);
     PPhysicsShell()->add_ObjectContactCallback(door_ignore);
-    // PPhysicsShell()->
 }
+
 void CPhysicObject::unset_door_ignore_dynamics()
 {
     R_ASSERT(PPhysicsShell());
@@ -186,7 +174,6 @@ void CPhysicObject::RunStartupAnim(CSE_Abstract* D)
 {
     if (Visual() && smart_cast<IKinematics*>(Visual()))
     {
-        //		CSE_PHSkeleton	*po	= smart_cast<CSE_PHSkeleton*>(D);
         IKinematicsAnimated* PKinematicsAnimated = NULL;
         R_ASSERT(Visual() && smart_cast<IKinematics*>(Visual()));
         PKinematicsAnimated = smart_cast<IKinematicsAnimated*>(Visual());
@@ -197,10 +184,7 @@ void CPhysicObject::RunStartupAnim(CSE_Abstract* D)
             R_ASSERT2(*visual->startup_animation, "no startup animation");
 
 #ifdef DEBUG
-            VERIFY2((!!PKinematicsAnimated->LL_MotionID(visual->startup_animation.c_str()).valid()),
-                (make_string(" animation %s not faund ", visual->startup_animation.c_str()) +
-                    dbg_object_base_dump_string(this))
-                    .c_str());
+            VERIFY2((!!PKinematicsAnimated->LL_MotionID(visual->startup_animation.c_str()).valid()), (make_string(" animation %s not faund ", visual->startup_animation.c_str()) + dbg_object_base_dump_string(this)).c_str());
 #endif
             m_anim_blend = m_anim_script_callback.play_cycle(PKinematicsAnimated, visual->startup_animation);
         }
@@ -208,6 +192,7 @@ void CPhysicObject::RunStartupAnim(CSE_Abstract* D)
         smart_cast<IKinematics*>(Visual())->CalculateBones(TRUE);
     }
 }
+
 IC bool check_blend(CBlend* b, LPCSTR name, LPCSTR sect, LPCSTR visual)
 {
 #ifdef DEBUG
@@ -216,6 +201,7 @@ IC bool check_blend(CBlend* b, LPCSTR name, LPCSTR sect, LPCSTR visual)
 #endif
     return !!b;
 }
+
 void CPhysicObject::run_anim_forward()
 {
     if (!check_blend(m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str()))
@@ -225,6 +211,7 @@ void CPhysicObject::run_anim_forward()
     if (m_anim_blend->speed < 0.f)
         m_anim_blend->speed = -m_anim_blend->speed;
 }
+
 void CPhysicObject::run_anim_back()
 {
     if (!check_blend(m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str()))
@@ -234,6 +221,7 @@ void CPhysicObject::run_anim_back()
     if (m_anim_blend->speed > 0.f)
         m_anim_blend->speed = -m_anim_blend->speed;
 }
+
 void CPhysicObject::stop_anim()
 {
     if (!check_blend(m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str()))
@@ -247,6 +235,7 @@ float CPhysicObject::anim_time_get()
         return 0.f;
     return m_anim_blend->timeCurrent;
 }
+
 void CPhysicObject::anim_time_set(float time)
 {
     if (!check_blend(m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str()))
@@ -271,11 +260,6 @@ void CPhysicObject::anim_time_set(float time)
 
 void CPhysicObject::net_Destroy()
 {
-    // if (PPhysicsShell()->Animated())
-    //{
-    //	processing_deactivate();
-    //}
-
     inherited::net_Destroy();
     CPHSkeleton::RespawnInit();
     xr_delete(bones_snd_player);
@@ -286,6 +270,7 @@ void CPhysicObject::net_Save(NET_Packet& P)
     inherited::net_Save(P);
     CPHSkeleton::SaveNetState(P);
 }
+
 void CPhysicObject::CreatePhysicsShell(CSE_Abstract* e)
 {
     CSE_ALifeObjectPhysic* po = smart_cast<CSE_ALifeObjectPhysic*>(e);
@@ -335,11 +320,6 @@ void CPhysicObject::UpdateCL()
         m_pPhysicsShell->AnimatorOnFrame();
     }
 
-    if (!IsGameTypeSingle())
-    {
-        Interpolate();
-    }
-
     m_anim_script_callback.update(*this);
     PHObjectPositionUpdate();
 
@@ -355,6 +335,7 @@ void CPhysicObject::UpdateCL()
         return;
     bones_snd_player->update(Device.fTimeDelta, *this);
 }
+
 void CPhysicObject::PHObjectPositionUpdate()
 {
     if (m_pPhysicsShell)
@@ -436,7 +417,6 @@ void CPhysicObject::CreateBody(CSE_ALifeObjectPhysic* po)
 
     case epotSkeleton:
     {
-        // pKinematics->LL_SetBoneRoot(0);
         CreateSkeleton(po);
     }
     break;
@@ -454,15 +434,15 @@ void CPhysicObject::CreateBody(CSE_ALifeObjectPhysic* po)
         disable_params.Load(pKinematics->LL_UserData());
         m_pPhysicsShell->set_DisableParams(disable_params);
     }
-    // m_pPhysicsShell->SetAirResistance(0.002f, 0.3f);
 }
 
 BOOL CPhysicObject::net_SaveRelevant()
 {
-    return TRUE; //! m_flags.test(CSE_ALifeObjectPhysic::flSpawnCopy);
+    return TRUE;
 }
 
 BOOL CPhysicObject::UsedAI_Locations() { return (FALSE); }
+
 void CPhysicObject::InitServerObject(CSE_Abstract* D)
 {
     CPHSkeleton::InitServerObject(D);
@@ -471,34 +451,14 @@ void CPhysicObject::InitServerObject(CSE_Abstract* D)
         return;
     l_tpALifePhysicObject->type = u32(m_type);
 }
+
 ICollisionHitCallback* CPhysicObject::get_collision_hit_callback() { return m_collision_hit_callback; }
+
 void CPhysicObject::set_collision_hit_callback(ICollisionHitCallback* cc)
 {
     xr_delete(m_collision_hit_callback);
     m_collision_hit_callback = cc;
 }
-
-//////////////////////////////////////////////////////////////////////////
-/*
-DEFINE_MAP_PRED	(LPCSTR,	CPhysicsJoint*,	JOINT_P_MAP,	JOINT_P_PAIR_IT,	pred_str);
-
-JOINT_P_MAP			*l_tpJointMap = new JOINT_P_MAP();
-
-l_tpJointMap->insert(std::make_pair(bone_name,joint*));
-JOINT_P_PAIR_IT		I = l_tpJointMap->find(bone_name);
-if (l_tpJointMap->end()!=I){
-//bone_name is found and is an pair_iterator
-(*I).second
-}
-
-JOINT_P_PAIR_IT		I = l_tpJointMap->begin();
-JOINT_P_PAIR_IT		E = l_tpJointMap->end();
-for ( ; I != E; ++I) {
-(*I).second->joint_method();
-Msg("%s",(*I).first);
-}
-
-*/
 
 //////////////////////////////////////////////////////////////////////////
 bool CPhysicObject::is_ai_obstacle() const
@@ -507,7 +467,6 @@ bool CPhysicObject::is_ai_obstacle() const
 }
 
 // network synchronization ----------------------------
-
 net_updatePhData* CPhysicObject::NetSync()
 {
     if (!m_net_updateData)
@@ -517,63 +476,15 @@ net_updatePhData* CPhysicObject::NetSync()
 
 void CPhysicObject::net_Export(NET_Packet& P)
 {
-    if (this->H_Parent() || IsGameTypeSingle())
-    {
-        P.w_u8(0);
-        return;
-    }
-
-    CPHSynchronize* pSyncObj = NULL;
-    SPHNetState State;
-    pSyncObj = this->PHGetSyncItem(0);
-
-    if (pSyncObj && !this->H_Parent())
-        pSyncObj->get_State(State);
-    else
-        State.position.set(this->Position());
-
-    mask_num_items num_items;
-    num_items.mask = 0;
-    u16 temp = this->PHGetSyncItemsNumber();
-    R_ASSERT(temp < (u16(1) << 5));
-    num_items.num_items = u8(temp);
-
-    if (State.enabled)
-        num_items.mask |= CSE_ALifeObjectPhysic::inventory_item_state_enabled;
-    if (fis_zero(State.angular_vel.square_magnitude()))
-        num_items.mask |= CSE_ALifeObjectPhysic::inventory_item_angular_null;
-    if (fis_zero(State.linear_vel.square_magnitude()))
-        num_items.mask |= CSE_ALifeObjectPhysic::inventory_item_linear_null;
-    // if (m_pPhysicsShell->PPhysicsShellAnimator())		{num_items.mask |= CSE_ALifeObjectPhysic::animated;}
-
-    P.w_u8(num_items.common);
-
-    /*if (num_items.mask&CSE_ALifeObjectPhysic::animated)
-    {
-        net_Export_Anim_Params(P);
-    }*/
-    net_Export_PH_Params(P, State, num_items);
-
-    if (PPhysicsShell()->isEnabled())
-    {
-        P.w_u8(1); // not freezed
-    }
-    else
-    {
-        P.w_u8(0); // freezed
-    }
+	P.w_u8(0);
+	return;
 };
 
 void CPhysicObject::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask_num_items& num_items)
 {
-    // UI().Font().pFontStat->OutSet(100.0f,100.0f);
     P.w_vec3(State.force);
-    // Msg("Export State.force.y:%4.6f",State.force.y);
     P.w_vec3(State.torque);
-    // UI().Font().pFontStat->OutNext("Export State.torque:%4.6f",State.torque.magnitude());
     P.w_vec3(State.position);
-    // Msg("Export State.position.y:%4.6f",State.position.y);
-    // Msg("Export State.enabled:%i",int(State.enabled));
 
     float magnitude = _sqrt(State.quaternion.magnitude());
     if (fis_zero(magnitude))
@@ -584,20 +495,6 @@ void CPhysicObject::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask
         State.quaternion.z = 1.f;
         State.quaternion.w = 0.f;
     }
-    else
-    {
-        /*		float				invert_magnitude = 1.f/magnitude;
-
-        State.quaternion.x	*= invert_magnitude;
-        State.quaternion.y	*= invert_magnitude;
-        State.quaternion.z	*= invert_magnitude;
-        State.quaternion.w	*= invert_magnitude;
-
-        clamp				(State.quaternion.x,-1.f,1.f);
-        clamp				(State.quaternion.y,-1.f,1.f);
-        clamp				(State.quaternion.z,-1.f,1.f);
-        clamp				(State.quaternion.w,-1.f,1.f);*/
-    }
 
     P.w_float(State.quaternion.x);
     P.w_float(State.quaternion.y);
@@ -606,10 +503,6 @@ void CPhysicObject::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask
 
     if (!(num_items.mask & CSE_ALifeObjectPhysic::inventory_item_angular_null))
     {
-        /*	clamp				(State.angular_vel.x,-10.f*PI_MUL_2,10.f*PI_MUL_2);
-        clamp				(State.angular_vel.y,-10.f*PI_MUL_2,10.f*PI_MUL_2);
-        clamp				(State.angular_vel.z,-10.f*PI_MUL_2,10.f*PI_MUL_2);*/
-
         P.w_float(State.angular_vel.x);
         P.w_float(State.angular_vel.y);
         P.w_float(State.angular_vel.z);
@@ -617,18 +510,9 @@ void CPhysicObject::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask
 
     if (!(num_items.mask & CSE_ALifeObjectPhysic::inventory_item_linear_null))
     {
-        /*clamp				(State.linear_vel.x,-32.f,32.f);
-        clamp				(State.linear_vel.y,-32.f,32.f);
-        clamp				(State.linear_vel.z,-32.f,32.f);*/
-
         P.w_float(State.linear_vel.x);
         P.w_float(State.linear_vel.y);
         P.w_float(State.linear_vel.z);
-        // Msg("Export State.linear_vel.y:%4.6f",State.linear_vel.y);
-    }
-    else
-    {
-        // Msg("Export State.linear_vel.y:%4.6f",0.0f);
     }
 }
 
@@ -642,11 +526,6 @@ void CPhysicObject::net_Import(NET_Packet& P)
     CSE_ALifeObjectPhysic::mask_num_items num_items;
     num_items.common = NumItems;
     NumItems = num_items.num_items;
-
-    /*if (num_items.mask & CSE_ALifeObjectPhysic::animated)
-    {
-        net_Import_Anim_Params(P);
-    }*/
 
     net_update_PItem N;
     N.dwTimeStamp = Device.dwTimeGlobal;
@@ -662,15 +541,7 @@ void CPhysicObject::net_Import(NET_Packet& P)
 
     net_updatePhData* p = NetSync();
 
-    //	if (!p->NET_IItem.empty() && (p->NET_IItem.back().dwTimeStamp>=N.dwTimeStamp))
-    //		return;
-
-    // if (!p->NET_IItem.empty())
-    // m_flags.set							(FInInterpolate, TRUE);
-
     Level().AddObject_To_Objects4CrPr(this);
-    // this->CrPr_SetActivated				(false);
-    // this->CrPr_SetActivationStep			(0);
 
     p->NET_IItem.push_back(N);
 
@@ -690,15 +561,9 @@ void CPhysicObject::net_Import(NET_Packet& P)
 
 void CPhysicObject::net_Import_PH_Params(NET_Packet& P, net_update_PItem& N, mask_num_items& num_items)
 {
-    // N.State.force.set			(0.f,0.f,0.f);
-    // N.State.torque.set			(0.f,0.f,0.f);
-    // UI().Font().pFontStat->OutSet(100.0f,100.0f);
     P.r_vec3(N.State.force);
-    // Msg("Import N.State.force.y:%4.6f",N.State.force.y);
     P.r_vec3(N.State.torque);
-
     P.r_vec3(N.State.position);
-    // Msg("Import N.State.position.y:%4.6f",N.State.position.y);
 
     P.r_float(N.State.quaternion.x);
     P.r_float(N.State.quaternion.y);
@@ -706,7 +571,7 @@ void CPhysicObject::net_Import_PH_Params(NET_Packet& P, net_update_PItem& N, mas
     P.r_float(N.State.quaternion.w);
 
     N.State.enabled = num_items.mask & CSE_ALifeObjectPhysic::inventory_item_state_enabled;
-    // UI().Font().pFontStat->OutNext("Import N.State.enabled:%i",int(N.State.enabled));
+
     if (!(num_items.mask & CSE_ALifeObjectPhysic::inventory_item_angular_null))
     {
         N.State.angular_vel.x = P.r_float();
@@ -724,7 +589,6 @@ void CPhysicObject::net_Import_PH_Params(NET_Packet& P, net_update_PItem& N, mas
     }
     else
         N.State.linear_vel.set(0.f, 0.f, 0.f);
-    // Msg("Import N.State.linear_vel.y:%4.6f",N.State.linear_vel.y);
 
     N.State.previous_position = N.State.position;
     N.State.previous_quaternion = N.State.quaternion;
@@ -754,20 +618,7 @@ void CPhysicObject::PH_A_CrPr()
         PPhysicsShell()->GetGlobalTransformDynamic(&XFORM());
         K->CalculateBones_Invalidate();
         K->CalculateBones(TRUE);
-#if 0
-		Fbox bb= BoundingBox	();
-		DBG_OpenCashedDraw		();
-		Fvector c,r,p;
-		bb.get_CD(c,r );
-		XFORM().transform_tiny(p,c);
-		DBG_DrawAABB( p, r,color_xrgb(255, 0, 0));
-		//PPhysicsShell()->XFORM().transform_tiny(c);
-		Fmatrix mm;
-		PPhysicsShell()->GetGlobalTransformDynamic(&mm);
-		mm.transform_tiny(p,c);
-		DBG_DrawAABB( p, r,color_xrgb(0, 255, 0));
-		DBG_ClosedCashedDraw	(50000);
-#endif
+
         spatial_move();
         m_just_after_spawn = false;
 
@@ -775,10 +626,7 @@ void CPhysicObject::PH_A_CrPr()
 
         PPhysicsShell()->get_ElementByStoreOrder(0)->Fix();
         PPhysicsShell()->SetIgnoreStatic();
-        // PPhysicsShell()->SetIgnoreDynamic	();
-        // PPhysicsShell()->DisableCollision();
     }
-    // CalculateInterpolationParams()
 };
 
 void CPhysicObject::CalculateInterpolationParams()
@@ -800,9 +648,6 @@ void CPhysicObject::Interpolate()
         if (p->NET_IItem.size() >= 2)
         {
             float ret_interpolate = interpolate_states(p->NET_IItem.front(), p->NET_IItem.back(), newState);
-            // Msg("Interpolation factor is %0.4f", ret_interpolate);
-            // Msg("Current position is: x = %3.3f, y = %3.3f, z = %3.3f", newState.position.x, newState.position.y,
-            // newState.position.z);
             if (ret_interpolate >= 1.f)
             {
                 p->NET_IItem.pop_front();
@@ -878,7 +723,6 @@ bool CPhysicObject::get_door_vectors(Fvector& closed, Fvector& open) const
     Fvector door_dir;
     start_pos.transform_dir(door_dir, box.m_rotate.i);
     Fvector door_dir_local = box.m_rotate.i;
-    // Fvector door_dir_bone; start_bone_pos.transform_dir(door_dir_bone, box.m_rotate.i );
 
     const Fvector det_vector = Fvector().sub(center_pos, start_pos.c);
 
@@ -886,14 +730,10 @@ bool CPhysicObject::get_door_vectors(Fvector& closed, Fvector& open) const
     {
         door_dir.invert();
         door_dir_local.invert();
-        // door_dir_bone.invert();
     }
 
     const SJointIKData& joint = bd.IK_data;
     const Fvector2& limits = joint.limits[1].limit;
-
-    // if( limits.y < EPS ) //limits.y - limits.x < EPS
-    //	return false;
 
     if (M_PI - limits.y < EPS && M_PI + limits.x < EPS)
         return false;
@@ -906,8 +746,6 @@ bool CPhysicObject::get_door_vectors(Fvector& closed, Fvector& open) const
 
     start_pos.transform_dir(open);
     start_pos.transform_dir(closed);
-
-// DBG_OpenCashedDraw( );
 
 #ifdef DEBUG
     if (dbg_draw_doors)
@@ -927,7 +765,6 @@ bool CPhysicObject::get_door_vectors(Fvector& closed, Fvector& open) const
         DBG_DrawLine(pos1, Fvector().add(pos1, det_vector), color_xrgb(255, 255, 0));
     }
 #endif
-    // DBG_ClosedCashedDraw( 50000000 );
 
     return true;
 }

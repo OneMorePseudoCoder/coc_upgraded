@@ -885,7 +885,6 @@ IC static void CLevel_Export(lua_State* luaState)
     module(luaState)
     [
         def("command_line", &command_line),
-        def("IsGameTypeSingle", REMOVE_NOEXCEPT(&IsGameTypeSingle)),
         def("IsDynamicMusic", &IsDynamicMusic),
         def("render_get_dx_level", &render_get_dx_level),
         def("IsImportantSave", &IsImportantSave)
@@ -935,15 +934,12 @@ IC static void CLevel_Export(lua_State* luaState)
                               .def("setHMS", &xrTime::setHMS)
                               .def("setHMSms", &xrTime::setHMSms)
                               .def("set", &xrTime::set)
-                              .def("get", &xrTime::get, policy_list<out_value<2>, out_value<3>, out_value<4>,
-                                                            out_value<5>, out_value<6>, out_value<7>, out_value<8>>())
+                              .def("get", &xrTime::get, policy_list<out_value<2>, out_value<3>, out_value<4>, out_value<5>, out_value<6>, out_value<7>, out_value<8>>())
                               .def("dateToString", &xrTime::dateToString)
                               .def("timeToString", &xrTime::timeToString),
+
         // declarations
         def("time", get_time), def("get_game_time", get_time_struct),
-        //		def("get_surge_time",	Game::get_surge_time),
-        //		def("get_object_by_name",Game::get_object_by_name),
-
         def("start_tutorial", &start_tutorial),
         def("stop_tutorial", &stop_tutorial),
         def("has_active_tutorial", &has_active_tutotial),

@@ -500,6 +500,7 @@ void CActor::Hit(SHit* pHDS)
             mstate_wishful &= ~mcSprint;
         }
     }
+
     if (!GEnv.isDedicatedServer && !m_disabled_hitmarks)
     {
         bool b_fireWound = (pHDS->hit_type == ALife::eHitTypeFireWound || pHDS->hit_type == ALife::eHitTypeWound_2);
@@ -509,60 +510,47 @@ void CActor::Hit(SHit* pHDS)
             HitMark(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
     }
 
-    if (IsGameTypeSingle())
-    {
-        if (GodMode())
-        {
-            HDS.power = 0.0f;
-            inherited::Hit(&HDS);
-        }
+	if (GodMode())
+	{
+		HDS.power = 0.0f;
+		inherited::Hit(&HDS);
+	}
 
-        float hit_power = HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
-        HDS.power = hit_power;
-        HDS.add_wound = true;
-        if (g_Alive())
-        {
-            CScriptHit tLuaHit;
+	float hit_power = HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
+	HDS.power = hit_power;
+	HDS.add_wound = true;
+	if (g_Alive())
+	{
+		CScriptHit tLuaHit;
 
-            tLuaHit.m_fPower = HDS.power;
-            tLuaHit.m_fImpulse = HDS.impulse;
-            tLuaHit.m_tDirection = HDS.direction();
-            tLuaHit.m_tHitType = HDS.hit_type;
-            tLuaHit.m_tpDraftsman = smart_cast<const CGameObject*>(HDS.who)->lua_game_object();
+		tLuaHit.m_fPower = HDS.power;
+		tLuaHit.m_fImpulse = HDS.impulse;
+		tLuaHit.m_tDirection = HDS.direction();
+		tLuaHit.m_tHitType = HDS.hit_type;
+		tLuaHit.m_tpDraftsman = smart_cast<const CGameObject*>(HDS.who)->lua_game_object();
 
-            luabind::functor<bool> funct;
-            if (GEnv.ScriptEngine->functor("_G.CActor__BeforeHitCallback", funct))
-            {
-                if (!funct(this->lua_game_object(), &tLuaHit, HDS.boneID))
-                    return;
-            }
+		luabind::functor<bool> funct;
+		if (GEnv.ScriptEngine->functor("_G.CActor__BeforeHitCallback", funct))
+		{
+			if (!funct(this->lua_game_object(), &tLuaHit, HDS.boneID))
+				return;
+		}
 
-            HDS.power = tLuaHit.m_fPower;
-            HDS.impulse = tLuaHit.m_fImpulse;
-            HDS.dir = tLuaHit.m_tDirection;
-            HDS.hit_type = (ALife::EHitType)tLuaHit.m_tHitType;
-            //HDS.who = smart_cast<IGameObject*>(tLuaHit.m_tpDraftsman->object());
-            //HDS.whoID = tLuaHit.m_tpDraftsman->ID();
+		HDS.power = tLuaHit.m_fPower;
+		HDS.impulse = tLuaHit.m_fImpulse;
+		HDS.dir = tLuaHit.m_tDirection;
+		HDS.hit_type = (ALife::EHitType)tLuaHit.m_tHitType;
 
-            /* AVO: send script callback*/
-            callback(GameObject::eHit)(
-                this->lua_game_object(),
-                HDS.damage(),
-                HDS.direction(),
-                smart_cast<const CGameObject*>(HDS.who)->lua_game_object(),
-                HDS.boneID
-            );
-        }
-        inherited::Hit(&HDS);
-    }
+		/* AVO: send script callback*/
+		callback(GameObject::eHit)(this->lua_game_object(), HDS.damage(), HDS.direction(), smart_cast<const CGameObject*>(HDS.who)->lua_game_object(), HDS.boneID);
+	}
+	inherited::Hit(&HDS);
 }
 
-void CActor::HitMark(float P, Fvector dir, IGameObject* who_object, s16 element, Fvector position_in_bone_space,
-    float impulse, ALife::EHitType hit_type_)
+void CActor::HitMark(float P, Fvector dir, IGameObject* who_object, s16 element, Fvector position_in_bone_space, float impulse, ALife::EHitType hit_type_)
 {
     // hit marker
-    if (/*(hit_type==ALife::eHitTypeFireWound||hit_type==ALife::eHitTypeWound_2) && */
-        g_Alive() && Local() && (Level().CurrentEntity() == this))
+    if (g_Alive() && Local() && (Level().CurrentEntity() == this))
     {
         HUD().HitMarked(0, P, dir);
 
@@ -670,23 +658,11 @@ void CActor::Die(IGameObject* who)
             {
                 if (item_in_slot)
                 {
-                    if (IsGameTypeSingle())
-                    {
-                        CGrenade* grenade = smart_cast<CGrenade*>(item_in_slot);
-                        if (grenade)
-                            grenade->DropGrenade();
-                        else
-                            item_in_slot->SetDropManual(TRUE);
-                    }
-                    else
-                    {
-                        // This logic we do on a server site
-                        /*
-                        if ((*I).m_pIItem->object().CLS_ID != CLSID_OBJECT_W_KNIFE)
-                        {
-                            (*I).m_pIItem->SetDropManual(TRUE);
-                        }*/
-                    }
+					CGrenade* grenade = smart_cast<CGrenade*>(item_in_slot);
+					if (grenade)
+						grenade->DropGrenade();
+					else
+						item_in_slot->SetDropManual(TRUE);
                 };
                 continue;
             }
@@ -704,29 +680,6 @@ void CActor::Die(IGameObject* who)
         TIItemContainer& l_blist = inventory().m_belt;
         while (!l_blist.empty())
             inventory().Ruck(l_blist.front());
-
-        if (!IsGameTypeSingle())
-        {
-            // if we are on server and actor has PDA - destroy PDA
-            for (auto& l_it : inventory().m_ruck)
-            {
-                if (GameID() == eGameIDArtefactHunt)
-                {
-                    auto pArtefact = smart_cast<CArtefact*>(l_it);
-                    if (pArtefact)
-                    {
-                        l_it->SetDropManual(true);
-                        continue;
-                    }
-                }
-
-                if (l_it->object().CLS_ID == CLSID_OBJECT_PLAYERS_BAG)
-                {
-                    l_it->SetDropManual(true);
-                    continue;
-                }
-            }
-        }
     }
 
     if (!GEnv.isDedicatedServer)
@@ -738,20 +691,14 @@ void CActor::Die(IGameObject* who)
         m_DangerSnd.stop();
     }
 
-    if (IsGameTypeSingle())
-    {
+
 #ifdef FP_DEATH
-        cam_Set(eacFirstEye);
+	cam_Set(eacFirstEye);
 #else
-        cam_Set(eacFreeLook);
+	cam_Set(eacFreeLook);
 #endif // FP_DEATH
-        CurrentGameUI()->HideShownDialogs();
-        start_tutorial("game_over");
-    }
-    else
-    {
-        cam_Set(eacFixedLookAt);
-    }
+	CurrentGameUI()->HideShownDialogs();
+	start_tutorial("game_over");
 
     mstate_wishful &= ~mcAnyMove;
     mstate_real &= ~mcAnyMove;
@@ -762,14 +709,10 @@ void CActor::Die(IGameObject* who)
 void CActor::SwitchOutBorder(bool new_border_state)
 {
     if (new_border_state)
-    {
         callback(GameObject::eExitLevelBorder)(lua_game_object());
-    }
     else
-    {
-        //.		Msg("enter level border");
         callback(GameObject::eEnterLevelBorder)(lua_game_object());
-    }
+
     m_bOutBorder = new_border_state;
 }
 
@@ -818,23 +761,15 @@ void CActor::g_Physics(Fvector& _accel, float jump, float dt)
             Fvector hdir;
             di->HitDir(hdir);
             SetHitInfo(this, NULL, 0, Fvector().set(0, 0, 0), hdir);
-            //				Hit
-            //(m_PhysicMovementControl->gcontact_HealthLost,hdir,di->DamageInitiator(),m_PhysicMovementControl->ContactBone(),di->HitPos(),0.f,ALife::eHitTypeStrike);//s16(6
-            //+ 2*::Random.randI(0,2))
+            //Hit
             if (Level().CurrentControlEntity() == this)
             {
-                SHit HDS = SHit(character_physics_support()->movement()->gcontact_HealthLost,
-                    //.								0.0f,
-                    hdir, di->DamageInitiator(), character_physics_support()->movement()->ContactBone(), di->HitPos(),
-                    0.f, di->HitType(), 0.0f, b_hit_initiated);
-                //				Hit(&HDS);
-
+                SHit HDS = SHit(character_physics_support()->movement()->gcontact_HealthLost, hdir, di->DamageInitiator(), character_physics_support()->movement()->ContactBone(), di->HitPos(), 0.f, di->HitType(), 0.0f, b_hit_initiated);
                 NET_Packet l_P;
                 HDS.GenHeader(GE_HIT, ID());
                 HDS.whoID = di->DamageInitiator()->ID();
                 HDS.weaponID = di->DamageInitiator()->ID();
                 HDS.Write_Packet(l_P);
-
                 u_EventSend(l_P);
             }
         }
@@ -973,7 +908,7 @@ void CActor::UpdateCL()
 #endif
             HUD().ShowCrosshair(pWeapon->use_crosshair());
 
-            BOOL B = !((mstate_real & mcLookout) && !IsGameTypeSingle());
+            BOOL B = TRUE;
 
             psHUD_Flags.set(HUD_WEAPON_RT, B);
 
@@ -993,7 +928,6 @@ void CActor::UpdateCL()
             // Обновляем информацию об оружии в шейдерах
             //g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->GetZRotatingFactor(); //--#SM+#--
             //g_pGamePersistent->m_pGShaderConstants->hud_params.y = pWeapon->GetSecondVP_FovFactor(); //--#SM+#--
-
         }
     }
     else
@@ -1424,8 +1358,7 @@ extern BOOL g_ShowAnimationInfo;
 void CActor::OnHUDDraw(CCustomHUD*)
 {
     R_ASSERT(IsFocused());
-    if (!((mstate_real & mcLookout) && !IsGameTypeSingle()))
-        g_player_hud->render_hud();
+	g_player_hud->render_hud();
 }
 
 void CActor::RenderIndicator(Fvector dpos, float r1, float r2, const ui_shader& IndShader)
@@ -1531,10 +1464,7 @@ void CActor::RenderText(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
 
     pFont->SetAligment(CGameFont::alCenter);
     pFont->SetColor(color);
-    //	pFont->SetHeight	(NewFontSize);
     pFont->Out(x, y, Text);
-    //-------------------------------------------------
-    //	pFont->SetHeight(OldFontSize);
     *pdup = delta_up;
 };
 
@@ -1544,41 +1474,24 @@ void CActor::SetPhPosition(const Fmatrix& transform)
     {
         character_physics_support()->movement()->SetPosition(transform.c);
     }
-    // else m_phSkeleton->S
 }
 
 void CActor::ForceTransform(const Fmatrix& m)
 {
-    // if( !g_Alive() )
-    //			return;
-    // VERIFY(_valid(m));
-    // XFORM().set( m );
-    // if( character_physics_support()->movement()->CharacterExist() )
-    //		character_physics_support()->movement()->EnableCharacter();
-    // character_physics_support()->set_movement_position( m.c );
-    // character_physics_support()->movement()->SetVelocity( 0, 0, 0 );
-
     character_physics_support()->ForceTransform(m);
-    const float block_damage_time_seconds = 2.f;
-    if (!IsGameTypeSingle())
-        character_physics_support()->movement()->BlockDamageSet(u64(block_damage_time_seconds / fixed_step));
 }
 
-//ENGINE_API extern float psHUD_FOV;
 float CActor::Radius() const
 {
     float R = inherited::Radius();
     CWeapon* W = smart_cast<CWeapon*>(inventory().ActiveItem());
     if (W)
         R += W->Radius();
-    //if (HUDview()) R *= 1.f/psHUD_FOV;
     return R;
 }
 
 bool CActor::use_bolts() const
 {
-    if (!IsGameTypeSingle())
-        return false;
     return CInventoryOwner::use_bolts();
 };
 
@@ -1586,23 +1499,7 @@ int g_iCorpseRemove = 1;
 
 bool CActor::NeedToDestroyObject() const
 {
-    if (IsGameTypeSingle())
-    {
-        return false;
-    }
-    else
-    {
-        if (g_Alive())
-            return false;
-        if (g_iCorpseRemove == -1)
-            return false;
-        if (g_iCorpseRemove == 0 && m_bAllowDeathRemove)
-            return true;
-        if (TimePassedAfterDeath() > m_dwBodyRemoveTime && m_bAllowDeathRemove)
-            return true;
-        else
-            return false;
-    }
+	return false;
 }
 
 ALife::_TIME_ID CActor::TimePassedAfterDeath() const

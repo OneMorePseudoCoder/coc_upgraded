@@ -68,8 +68,6 @@ CRelationRegistryWrapper& RELATION_REGISTRY::relation_registry()
 {
     if (!m_relation_registry)
     {
-        VERIFY(IsGameTypeSingle());
-
         m_relation_registry = new CRelationRegistryWrapper();
         load_attack_goodwill();
     }

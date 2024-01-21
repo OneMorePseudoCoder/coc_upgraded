@@ -153,16 +153,7 @@ void SBinocVisibleObj::Update()
             u32 clr = subst_alpha(m_lt.GetTextureColor(), 255);
 
             //-----------------------------------------------------
-            CActor* pActor = nullptr;
-            if (IsGameTypeSingle())
-                pActor = Actor();
-            else
-            {
-                if (Level().CurrentViewEntity())
-                {
-                    pActor = smart_cast<CActor*>(Level().CurrentViewEntity());
-                }
-            }
+            CActor* pActor = Actor();
             if (pActor)
             {
                 //-----------------------------------------------------
@@ -198,22 +189,15 @@ void SBinocVisibleObj::Update()
 }
 
 CBinocularsVision::CBinocularsVision(const shared_str& sect) { Load(sect); }
+
 CBinocularsVision::~CBinocularsVision() { delete_data(m_active_objects); }
+
 void CBinocularsVision::Update()
 {
     if (GEnv.isDedicatedServer)
         return;
     //-----------------------------------------------------
-    const CActor* pActor = nullptr;
-    if (IsGameTypeSingle())
-        pActor = Actor();
-    else
-    {
-        if (Level().CurrentViewEntity())
-        {
-            pActor = smart_cast<const CActor*>(Level().CurrentViewEntity());
-        }
-    }
+    const CActor* pActor = Actor();
     if (!pActor)
         return;
     //-----------------------------------------------------
@@ -261,15 +245,7 @@ void CBinocularsVision::Update()
             m_sounds.PlaySound("found_snd", Fvector().set(0, 0, 0), nullptr, true);
         }
     }
-    /*
-    std::sort(m_active_objects.begin(), m_active_objects.end());
 
-    while (m_active_objects.size() && m_active_objects.back()->m_flags.test(flVisObjNotValid))
-    {
-        xr_delete(m_active_objects.back());
-        m_active_objects.pop_back();
-    }
-	*/
     // death or invis
     for_each(m_active_objects.begin(), m_active_objects.end(), check_pred());
     m_active_objects.erase(remove_if(m_active_objects.begin(), m_active_objects.end(),

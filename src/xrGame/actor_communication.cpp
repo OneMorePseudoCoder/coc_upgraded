@@ -129,7 +129,6 @@ void CActor::RunTalkDialog(CInventoryOwner* talk_partner, bool disable_break)
         if (CurrentGameUI()->TopInputReceiver())
             CurrentGameUI()->TopInputReceiver()->HideDialog();
 
-        //		smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(disable_break);
         smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(talk_partner->bDisableBreakDialog);
     }
 }
@@ -151,9 +150,6 @@ void CActor::StartTalk (CInventoryOwner* talk_partner)
 
 void CActor::NewPdaContact(CInventoryOwner* pInvOwner)
 {
-    if (!IsGameTypeSingle())
-        return;
-
     bool b_alive = !!(smart_cast<CEntityAlive*>(pInvOwner))->g_Alive();
     CurrentGameUI()->UIMainIngameWnd->AnimateContacts(b_alive);
 

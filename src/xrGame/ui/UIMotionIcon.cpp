@@ -41,8 +41,6 @@ void CUIMotionIcon::Init(Frect const& zonemap_rect)
     float k = UI().get_current_kx();
     sz.mul(rel_sz * k);
 
-    // float h = Device.dwHeight;
-    // float w = Device.dwWidth;
     AttachChild(&m_luminosity_progress);
     xml_init.InitProgressShape(uiXml, "luminosity_progress", 0, &m_luminosity_progress);
     m_luminosity_progress.SetWndSize(sz);
@@ -56,8 +54,6 @@ void CUIMotionIcon::Init(Frect const& zonemap_rect)
 
 void CUIMotionIcon::SetNoise(float Pos)
 {
-    if (!IsGameTypeSingle())
-        return;
     if (!IsShown())
         return;
     Pos = clampr(Pos, 0.f, 100.f);
@@ -66,8 +62,6 @@ void CUIMotionIcon::SetNoise(float Pos)
 
 void CUIMotionIcon::SetLuminosity(float Pos)
 {
-    if (!IsGameTypeSingle())
-        return;
     if (!IsShown())
         return;
     m_luminosity = Pos;
@@ -79,15 +73,12 @@ void CUIMotionIcon::Draw()
         return;
     inherited::Draw();
 }
+
 void CUIMotionIcon::Update()
 {
-    if (!IsGameTypeSingle())
-    {
-        inherited::Update();
-        return;
-    }
     if (!IsShown())
         return;
+
     if (m_bchanged)
     {
         m_bchanged = false;
@@ -99,9 +90,9 @@ void CUIMotionIcon::Update()
         else
             SetLuminosity(0.f);
     }
+
     inherited::Update();
 
-    // m_luminosity_progress
     if (cur_pos != m_luminosity)
     {
         float _diff = _abs(m_luminosity - cur_pos);
@@ -120,9 +111,6 @@ void CUIMotionIcon::Update()
 
 void SetActorVisibility(u16 who_id, float value)
 {
-    if (!IsGameTypeSingle())
-        return;
-
     if (g_pMotionIcon && g_pMotionIcon->IsShown())
         g_pMotionIcon->SetActorVisibility(who_id, value);
 }
