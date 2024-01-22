@@ -510,7 +510,7 @@ BOOL CBulletManager::firetrace_callback(collide::rq_result& result, LPVOID param
 #ifdef COC_EDITION
     float const air_resistance = bullet.air_resistance;
 #else
-    float const air_resistance = (GameID() == eGameIDSingle) ? Level().BulletManager().m_fAirResistanceK : bullet.air_resistance;
+    float const air_resistance = Level().BulletManager().m_fAirResistanceK;
 #endif
 
     CBulletManager& bullet_manager = Level().BulletManager();
@@ -616,7 +616,7 @@ bool CBulletManager::process_bullet(collide::rq_results& storage, SBullet& bulle
 #ifdef COC_EDITION
     float const air_resistance = bullet.air_resistance;
 #else
-    float const air_resistance = (GameID() == eGameIDSingle) ? m_fAirResistanceK : bullet.air_resistance;
+    float const air_resistance = m_fAirResistanceK;
 #endif
     bullet.tracer_start_position = bullet.bullet_pos;
 

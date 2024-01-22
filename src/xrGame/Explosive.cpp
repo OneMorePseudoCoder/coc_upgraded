@@ -59,9 +59,6 @@ CExplosive::CExplosive(void)
 
     m_iCurrentParentID = 0xffff;
 
-    //	m_bReadyToExplode		= false;
-    //	m_bExploding			= false;
-    //	m_bExplodeEventSent		= false;
     m_explosion_flags.assign(0);
     m_vExplodeSize.set(0.001f, 0.001f, 0.001f);
 
@@ -84,7 +81,9 @@ CExplosive::~CExplosive(void)
     sndExplode.destroy();
 #endif
 }
+
 void CExplosive::Load(LPCSTR section) { Load(pSettings, section); }
+
 void CExplosive::Load(CInifile const* ini, LPCSTR section)
 {
     m_fBlastHit = ini->r_float(section, "blast");
@@ -124,11 +123,8 @@ void CExplosive::Load(CInifile const* ini, LPCSTR section)
     m_fExplodeDurationMax = ini->r_float(section, "explode_duration");
 
     effector.effect_sect_name = ini->r_string("explode_effector", "effect_sect_name");
-    //	if( ini->line_exist(section,"wallmark_section") )
-    //	{
+
     m_wallmark_manager.m_owner = cast_game_object();
-    //		m_wallmark_manager.Load(pSettings,ini->r_string(section,"wallmark_section"));
-    //	}
 
     m_bHideInExplosion = TRUE;
     if (ini->line_exist(section, "hide_in_explosion"))
@@ -171,6 +167,7 @@ struct SExpQParams
 
     float shoot_factor;
 };
+
 //проверка на попадание "осколком" по объекту
 ICF static BOOL grenade_hit_callback(collide::rq_result& result, LPVOID params)
 {
@@ -208,8 +205,7 @@ ICF static BOOL grenade_hit_callback(collide::rq_result& result, LPVOID params)
     return (ep.shoot_factor > 0.01f);
 }
 
-float CExplosive::ExplosionEffect(collide::rq_results& storage, CExplosive* exp_obj, CPhysicsShellHolder* blasted_obj,
-    const Fvector& expl_centre, const float expl_radius)
+float CExplosive::ExplosionEffect(collide::rq_results& storage, CExplosive* exp_obj, CPhysicsShellHolder* blasted_obj, const Fvector& expl_centre, const float expl_radius)
 {
     const Fmatrix& obj_xform = blasted_obj->XFORM();
     Fmatrix inv_obj_form;
@@ -274,9 +270,7 @@ float CExplosive::ExplosionEffect(collide::rq_results& storage, CExplosive* exp_
 #endif
 
 #ifdef DEBUG
-        float l_S = effective_volume *
-            (_abs(l_dir.dotproduct(obj_xform.i)) / l_d.x + _abs(l_dir.dotproduct(obj_xform.j)) / l_d.y +
-                _abs(l_dir.dotproduct(obj_xform.k)) / l_d.z);
+        float l_S = effective_volume * (_abs(l_dir.dotproduct(obj_xform.i)) / l_d.x + _abs(l_dir.dotproduct(obj_xform.j)) / l_d.y + _abs(l_dir.dotproduct(obj_xform.k)) / l_d.z);
         float add_eff = _sqrt(l_S / max_s) * TestPassEffect(l_source_p, l_dir, mag, expl_radius, storage, blasted_obj);
         effect += add_eff;
         if (ph_dbg_draw_mask.test(phDbgDrawExplosions))
@@ -287,9 +281,7 @@ float CExplosive::ExplosionEffect(collide::rq_results& storage, CExplosive* exp_
             Msg("dist/overlap effect, %f", add_eff / _sqrt(l_S / max_s));
         }
 #else
-        float l_S = effective_volume *
-            (_abs(l_dir.dotproduct(obj_xform.i)) / l_d.x + _abs(l_dir.dotproduct(obj_xform.j)) / l_d.y +
-                _abs(l_dir.dotproduct(obj_xform.k)) / l_d.z);
+        float l_S = effective_volume * (_abs(l_dir.dotproduct(obj_xform.i)) / l_d.x + _abs(l_dir.dotproduct(obj_xform.j)) / l_d.y + _abs(l_dir.dotproduct(obj_xform.k)) / l_d.z);
         effect += _sqrt(l_S / max_s) * TestPassEffect(l_source_p, l_dir, mag, expl_radius, storage, blasted_obj);
 #endif
     }
@@ -301,8 +293,8 @@ float CExplosive::ExplosionEffect(collide::rq_results& storage, CExplosive* exp_
 #endif
     return effect / TEST_RAYS_PER_OBJECT;
 }
-float CExplosive::TestPassEffect(const Fvector& source_p, const Fvector& dir, float range, float ef_radius,
-    collide::rq_results& storage, IGameObject* blasted_obj)
+
+float CExplosive::TestPassEffect(const Fvector& source_p, const Fvector& dir, float range, float ef_radius, collide::rq_results& storage, IGameObject* blasted_obj)
 {
     float sq_ef_radius = ef_radius * ef_radius;
     float dist_factor = sq_ef_radius / (range * range * (exp_dist_extinction_factor - 1.f) + sq_ef_radius);
@@ -324,6 +316,7 @@ float CExplosive::TestPassEffect(const Fvector& source_p, const Fvector& dir, fl
         return dist_factor;
     return shoot_factor * dist_factor;
 }
+
 void CExplosive::Explode()
 {
     VERIFY(0xffff != Initiator());
@@ -342,7 +335,7 @@ void CExplosive::Explode()
         DBG_DrawPoint(pos, 0.3f, color_xrgb(255, 0, 0));
     }
 #endif
-    //	Msg("---------CExplosive Explode [%d] frame[%d]",cast_game_object()->ID(), Device.dwFrame);
+
     OnBeforeExplosion();
     //играем звук взрыва
 #ifdef LAYERED_SND_SHOOT
@@ -352,7 +345,6 @@ void CExplosive::Explode()
 #endif
 
     //показываем эффекты
-
     m_wallmark_manager.PlaceWallmarks(pos);
 
     Fvector vel;
@@ -395,7 +387,6 @@ void CExplosive::Explode()
         CCartridge cartridge;
         cartridge.param_s.kDist = 1.f;
         cartridge.param_s.kHit = 1.f;
-        //.		cartridge.param_s.kCritical			= 1.f;
         cartridge.param_s.kImpulse = 1.f;
         cartridge.param_s.kAP = 1.f;
         cartridge.param_s.fWallmarkSize = fWallmarkSize;
@@ -420,7 +411,6 @@ void CExplosive::Explode()
     for (u32 o_it = 0; o_it < ISpatialResult.size(); o_it++)
     {
         ISpatial* spatial = ISpatialResult[o_it];
-        //		feel_touch_new(spatial->dcast_GameObject());
 
         CPhysicsShellHolder* pGameObject = smart_cast<CPhysicsShellHolder*>(spatial->dcast_GameObject());
         if (pGameObject && cast_game_object()->ID() != pGameObject->ID())
@@ -465,6 +455,7 @@ void CExplosive::PositionUpdate()
     Fvector::generate_orthonormal_basis(explode_matrix.j, explode_matrix.i, explode_matrix.k);
     explode_matrix.c.set(pos);
 }
+
 void CExplosive::GetExplPosition(Fvector& p) { p.set(m_vExplodePos); }
 void CExplosive::GetExplDirection(Fvector& d) { d.set(m_vExplodeDir); }
 void CExplosive::GetExplVelocity(Fvector& v)
@@ -474,15 +465,14 @@ void CExplosive::GetExplVelocity(Fvector& v)
 
 void CExplosive::UpdateCL()
 {
-    // VERIFY(!this->getDestroy());
     VERIFY(!physics_world()->Processing());
     if (!m_explosion_flags.test(flExploding))
-        return; // !m_bExploding
+        return;
     if (m_explosion_flags.test(flExploded))
     {
         CGameObject* go = cast_game_object();
         go->processing_deactivate();
-        m_explosion_flags.set(flExploding, FALSE); // m_bExploding = false;
+        m_explosion_flags.set(flExploding, FALSE);
         OnAfterExplosion();
         return;
     }
@@ -492,8 +482,6 @@ void CExplosive::UpdateCL()
         m_explosion_flags.set(flExploded, TRUE);
 
         StopLight();
-
-        //		Msg("---------CExplosive OnAfterExplosion [%d] frame[%d]",cast_game_object()->ID(), Device.dwFrame);
     }
     else
     {
@@ -531,25 +519,21 @@ void CExplosive::OnAfterExplosion()
         CParticlesObject::Destroy(m_pExpParticle);
         m_pExpParticle = NULL;
     }
+
     //ликвидировать сам объект
     if (cast_game_object()->Local())
         cast_game_object()->DestroyObject();
-
-    //	NET_Packet			P;
-    //	cast_game_object()->u_EventGen			(P,GE_DESTROY,cast_game_object()->ID());
-    //	//		Msg					("ge_destroy: [%d] - %s",ID(),*cName());
-    //	if (cast_game_object()->Local()) cast_game_object()->u_EventSend			(P);
 }
+
 void CExplosive::OnBeforeExplosion()
 {
     m_bAlreadyHidden = false;
     if (m_bHideInExplosion)
     {
         HideExplosive();
-        //	Msg("---------CExplosive OnBeforeExplosion setVisible(false) [%d] frame[%d]",cast_game_object()->ID(),
-        // Device.dwFrame);
     }
 }
+
 void CExplosive::HideExplosive()
 {
     CGameObject* GO = cast_game_object();
@@ -599,8 +583,6 @@ void CExplosive::GenExplodeEvent(const Fvector& pos, const Fvector& normal)
     if (OnClient() || cast_game_object()->Remote())
         return;
 
-    //	if( m_bExplodeEventSent )
-    //		return;
     VERIFY(!m_explosion_flags.test(flExplodEventSent)); //! m_bExplodeEventSent
     VERIFY(0xffff != Initiator());
 
@@ -611,7 +593,6 @@ void CExplosive::GenExplodeEvent(const Fvector& pos, const Fvector& normal)
     P.w_vec3(normal);
     cast_game_object()->u_EventSend(P);
 
-    // m_bExplodeEventSent = true;
     m_explosion_flags.set(flExplodEventSent, TRUE);
 }
 
@@ -643,7 +624,6 @@ void CExplosive::StartLight()
     VERIFY(!physics_world()->Processing());
     if (m_fLightTime > 0)
     {
-        //		VERIFY					(!m_pLight);
         LightCreate();
 
         m_pLight->set_color(m_LightColor.r, m_LightColor.g, m_LightColor.b);
@@ -652,6 +632,7 @@ void CExplosive::StartLight()
         m_pLight->set_active(true);
     }
 }
+
 void CExplosive::StopLight()
 {
     if (m_pLight)
@@ -669,6 +650,7 @@ void CExplosive::GetRaySourcePos(CExplosive* exp_obj, const Fvector& expl_center
         exp_obj->GetRayExplosionSourcePos(p);
     }
 }
+
 void CExplosive::GetRayExplosionSourcePos(Fvector& pos)
 {
     pos.set(m_vExplodeSize);
@@ -676,6 +658,7 @@ void CExplosive::GetRayExplosionSourcePos(Fvector& pos)
     pos.random_point(pos);
     pos.add(m_vExplodePos);
 }
+
 void CExplosive::ExplodeWaveProcessObject(collide::rq_results& storage, CPhysicsShellHolder* l_pGO)
 {
     Fvector l_goPos;
@@ -726,10 +709,12 @@ void CExplosive::ExplodeWaveProcessObject(collide::rq_results& storage, CPhysics
     }
 #endif
 }
+
 struct SRemovePred
 {
     bool operator()(CGameObject* O) { return !!O->getDestroy(); }
 };
+
 void CExplosive::ExplodeWaveProcess()
 {
     auto I = std::remove_if(m_blasted_objects.begin(), m_blasted_objects.end(), SRemovePred());
@@ -746,6 +731,7 @@ void CExplosive::ExplodeWaveProcess()
 
 void CExplosive::GetExplosionBox(Fvector& size) { size.set(m_vExplodeSize); }
 void CExplosive::SetExplosionSize(const Fvector& new_size) { m_vExplodeSize.set(new_size); }
+
 void CExplosive::ActivateExplosionBox(const Fvector& size, Fvector& in_out_pos)
 {
     CPhysicsShellHolder* self_obj = smart_cast<CPhysicsShellHolder*>(cast_game_object());
@@ -756,16 +742,13 @@ void CExplosive::ActivateExplosionBox(const Fvector& size, Fvector& in_out_pos)
     if (self_shell && self_shell->isActive())
         self_shell->EnableCollision();
 }
+
 void CExplosive::net_Relcase(IGameObject* O)
 {
-    if (GameID() == eGameIDSingle)
-    {
-        if (O->ID() == m_iCurrentParentID)
-            m_iCurrentParentID = u16(-1);
-    }
+	if (O->ID() == m_iCurrentParentID)
+		m_iCurrentParentID = u16(-1);
 
-    auto I =
-        std::find(m_blasted_objects.begin(), m_blasted_objects.end(), smart_cast<CPhysicsShellHolder*>(O));
+    auto I = std::find(m_blasted_objects.begin(), m_blasted_objects.end(), smart_cast<CPhysicsShellHolder*>(O));
     if (m_blasted_objects.end() != I)
     {
         m_blasted_objects.erase(I);

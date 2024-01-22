@@ -92,8 +92,8 @@ static float ICoincidenced = 0;
 extern float cammera_into_collision_shift;
 
 string32 ACTOR_DEFS::g_quick_use_slots[4] = {NULL, NULL, NULL, NULL};
-// skeleton
 
+// skeleton
 static Fbox bbStandBox;
 static Fbox bbCrouchBox;
 static Fvector vFootCenter;
@@ -102,7 +102,7 @@ static Fvector vFootExt;
 Flags32 psActorFlags = {AF_GODMODE_RT | AF_AUTOPICKUP | AF_RUN_BACKWARD | AF_IMPORTANT_SAVE | AF_USE_TRACERS };
 int psActorSleepTime = 1;
 
-CActor::CActor() : CEntityAlive(), current_ik_cam_shift(0)
+CActor::CActor() : CEntityAlive()
 {
     game_news_registry = new CGameNewsRegistryWrapper();
     // Cameras
@@ -278,14 +278,12 @@ void set_box(LPCSTR section, CPHMovementControl& mc, u32 box_num)
 }
 void CActor::Load(LPCSTR section)
 {
-    // Msg						("Loading actor: %s",section);
     inherited::Load(section);
     material().Load(section);
     CInventoryOwner::Load(section);
     m_location_manager->Load(section);
 
-    if (GameID() == eGameIDSingle)
-        OnDifficultyChanged();
+	OnDifficultyChanged();
     //////////////////////////////////////////////////////////////////////////
     ISpatial* self = smart_cast<ISpatial*>(this);
     if (self)
@@ -302,14 +300,11 @@ void CActor::Load(LPCSTR section)
     character_physics_support()->movement()->SetCrashSpeeds(cs_min, cs_max);
     character_physics_support()->movement()->SetMass(mass);
     if (pSettings->line_exist(section, "stalker_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(
-            rtStalker, pSettings->r_float(section, "stalker_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(rtStalker, pSettings->r_float(section, "stalker_restrictor_radius"));
     if (pSettings->line_exist(section, "stalker_small_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(
-            rtStalkerSmall, pSettings->r_float(section, "stalker_small_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(rtStalkerSmall, pSettings->r_float(section, "stalker_small_restrictor_radius"));
     if (pSettings->line_exist(section, "medium_monster_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(
-            rtMonsterMedium, pSettings->r_float(section, "medium_monster_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(rtMonsterMedium, pSettings->r_float(section, "medium_monster_restrictor_radius"));
     character_physics_support()->movement()->Load(section);
 
     set_box(section, *character_physics_support()->movement(), 2);
@@ -359,20 +354,14 @@ void CActor::Load(LPCSTR section)
             }
             char buf[256];
 
-            GEnv.Sound->create(
-                sndDie[0], strconcat(sizeof(buf), buf, *cName(), "\\die0"), st_Effect, SOUND_TYPE_MONSTER_DYING);
-            GEnv.Sound->create(
-                sndDie[1], strconcat(sizeof(buf), buf, *cName(), "\\die1"), st_Effect, SOUND_TYPE_MONSTER_DYING);
-            GEnv.Sound->create(
-                sndDie[2], strconcat(sizeof(buf), buf, *cName(), "\\die2"), st_Effect, SOUND_TYPE_MONSTER_DYING);
-            GEnv.Sound->create(
-                sndDie[3], strconcat(sizeof(buf), buf, *cName(), "\\die3"), st_Effect, SOUND_TYPE_MONSTER_DYING);
+            GEnv.Sound->create(sndDie[0], strconcat(sizeof(buf), buf, *cName(), "\\die0"), st_Effect, SOUND_TYPE_MONSTER_DYING);
+            GEnv.Sound->create(sndDie[1], strconcat(sizeof(buf), buf, *cName(), "\\die1"), st_Effect, SOUND_TYPE_MONSTER_DYING);
+            GEnv.Sound->create(sndDie[2], strconcat(sizeof(buf), buf, *cName(), "\\die2"), st_Effect, SOUND_TYPE_MONSTER_DYING);
+            GEnv.Sound->create(sndDie[3], strconcat(sizeof(buf), buf, *cName(), "\\die3"), st_Effect, SOUND_TYPE_MONSTER_DYING);
 
-            m_HeavyBreathSnd.create(
-                pSettings->r_string(section, "heavy_breath_snd"), st_Effect, SOUND_TYPE_MONSTER_INJURING);
+            m_HeavyBreathSnd.create(pSettings->r_string(section, "heavy_breath_snd"), st_Effect, SOUND_TYPE_MONSTER_INJURING);
             m_BloodSnd.create(pSettings->r_string(section, "heavy_blood_snd"), st_Effect, SOUND_TYPE_MONSTER_INJURING);
-            m_DangerSnd.create(
-                pSettings->r_string(section, "heavy_danger_snd"), st_Effect, SOUND_TYPE_MONSTER_INJURING);
+            m_DangerSnd.create(pSettings->r_string(section, "heavy_danger_snd"), st_Effect, SOUND_TYPE_MONSTER_INJURING);
         }
     }
 
@@ -399,10 +388,8 @@ void CActor::Load(LPCSTR section)
     invincibility_fire_shield_1st = READ_IF_EXISTS(pSettings, r_string, section, "Invincibility_Shield_1st", 0);
     invincibility_fire_shield_3rd = READ_IF_EXISTS(pSettings, r_string, section, "Invincibility_Shield_3rd", 0);
     //-----------------------------------------
-    m_AutoPickUp_AABB =
-        READ_IF_EXISTS(pSettings, r_fvector3, section, "AutoPickUp_AABB", Fvector().set(0.02f, 0.02f, 0.02f));
-    m_AutoPickUp_AABB_Offset =
-        READ_IF_EXISTS(pSettings, r_fvector3, section, "AutoPickUp_AABB_offs", Fvector().set(0, 0, 0));
+    m_AutoPickUp_AABB = READ_IF_EXISTS(pSettings, r_fvector3, section, "AutoPickUp_AABB", Fvector().set(0.02f, 0.02f, 0.02f));
+    m_AutoPickUp_AABB_Offset = READ_IF_EXISTS(pSettings, r_fvector3, section, "AutoPickUp_AABB_offs", Fvector().set(0, 0, 0));
 
     m_sCharacterUseAction = "character_use";
     m_sDeadCharacterUseAction = "dead_character_use";
@@ -455,8 +442,7 @@ void CActor::Hit(SHit* pHDS)
     if (!sndHit[HDS.hit_type].empty() && conditions().PlayHitSound(pHDS))
     {
         ref_sound& S = sndHit[HDS.hit_type][Random.randI(sndHit[HDS.hit_type].size())];
-        bool b_snd_hit_playing = sndHit[HDS.hit_type].end() !=
-            std::find_if(sndHit[HDS.hit_type].begin(), sndHit[HDS.hit_type].end(), playing_pred());
+        bool b_snd_hit_playing = sndHit[HDS.hit_type].end() != std::find_if(sndHit[HDS.hit_type].begin(), sndHit[HDS.hit_type].end(), playing_pred());
 
         if (ALife::eHitTypeExplosion == HDS.hit_type)
         {
@@ -1222,7 +1208,6 @@ void CActor::shedule_Update(u32 DT)
         m_pVehicleWeLookingAt = smart_cast<CHolderCustom*>(game_object);
         CEntityAlive* pEntityAlive = smart_cast<CEntityAlive*>(game_object);
 
-        if (GameID() == eGameIDSingle)
         {
             if (game_object->tip_text())
             {
@@ -1255,9 +1240,7 @@ void CActor::shedule_Update(u32 DT)
                 }
                 else if (m_pVehicleWeLookingAt)
                 {
-                    m_sDefaultObjAction = m_pVehicleWeLookingAt->m_sUseAction == nullptr
-                                              ? m_sCarCharacterUseAction
-                                              : m_pVehicleWeLookingAt->m_sUseAction;
+                    m_sDefaultObjAction = m_pVehicleWeLookingAt->m_sUseAction == nullptr ? m_sCarCharacterUseAction : m_pVehicleWeLookingAt->m_sUseAction;
                 }
                 else if (m_pObjectWeLookingAt && m_pObjectWeLookingAt->cast_inventory_item() &&
                     m_pObjectWeLookingAt->cast_inventory_item()->CanTake())
@@ -1280,13 +1263,12 @@ void CActor::shedule_Update(u32 DT)
         m_pInvBoxWeLookingAt = NULL;
     }
 
-    //	UpdateSleep									();
-
     //для свойст артефактов, находящихся на поясе
     UpdateArtefactsOnBeltAndOutfit();
     m_pPhysics_support->in_shedule_Update(DT);
     Check_for_AutoPickUp();
 };
+
 #include "debug_renderer.h"
 void CActor::renderable_Render()
 {
@@ -1297,22 +1279,8 @@ void CActor::renderable_Render()
 	if (flashlight && flashlight->torch_active())
 		return;
 
-
-    if ((cam_active == eacFirstEye && // first eye cam
-            GEnv.Render->get_generation() == GEnv.Render->GENERATION_R2 && // R2
-            GEnv.Render->active_phase() == 1) // shadow map rendering on R2	
-        ||
-        !(IsFocused() && cam_active == eacFirstEye &&
-            (!m_holder || (m_holder && m_holder->allowWeapon() && m_holder->HUDView())))
-    )
+    if ((cam_active == eacFirstEye && GEnv.Render->get_generation() == GEnv.Render->GENERATION_R2 && GEnv.Render->active_phase() == 1) || !(IsFocused() && cam_active == eacFirstEye && (!m_holder || (m_holder && m_holder->allowWeapon() && m_holder->HUDView()))))
         CInventoryOwner::renderable_Render();
-
-
-    //if (1 /*!HUDview()*/)
-    //{
-    //    CInventoryOwner::renderable_Render();
-    //}
-    //VERIFY(_valid(XFORM()));
 }
 
 BOOL CActor::renderable_ShadowGenerate()
@@ -1395,20 +1363,9 @@ void CActor::RenderIndicator(Fvector dpos, float r1, float r2, const ui_shader& 
     GEnv.UIRender->PushPoint(a.x + pos.x, a.y + pos.y, a.z + pos.z, 0xffffffff, 0.f, 0.f);
     GEnv.UIRender->PushPoint(c.x + pos.x, c.y + pos.y, c.z + pos.z, 0xffffffff, 1.f, 1.f);
     GEnv.UIRender->PushPoint(b.x + pos.x, b.y + pos.y, b.z + pos.z, 0xffffffff, 1.f, 0.f);
-    // pv->set         (d.x+pos.x,d.y+pos.y,d.z+pos.z, 0xffffffff, 0.f,1.f);        pv++;
-    // pv->set         (a.x+pos.x,a.y+pos.y,a.z+pos.z, 0xffffffff, 0.f,0.f);        pv++;
-    // pv->set         (c.x+pos.x,c.y+pos.y,c.z+pos.z, 0xffffffff, 1.f,1.f);        pv++;
-    // pv->set         (b.x+pos.x,b.y+pos.y,b.z+pos.z, 0xffffffff, 1.f,0.f);        pv++;
-    // render
-    // dwCount 				= u32(pv-pv_start);
-    // RCache.Vertex.Unlock	(dwCount,hFriendlyIndicator->vb_stride);
 
     GEnv.UIRender->CacheSetXformWorld(Fidentity);
-    // RCache.set_xform_world		(Fidentity);
     GEnv.UIRender->SetShader(*IndShader);
-    // RCache.set_Shader			(IndShader);
-    // RCache.set_Geometry			(hFriendlyIndicator);
-    // RCache.Render	   			(D3DPT_TRIANGLESTRIP,dwOffset,0, dwCount, 0, 2);
     GEnv.UIRender->FlushPrimitive();
 };
 
@@ -1438,7 +1395,6 @@ void CActor::RenderText(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
     CGameFont* pFont = UI().Font().pFontArial14;
     if (!pFont)
         return;
-    //	float OldFontSize = pFont->GetHeight	();
     float delta_up = 0.0f;
     if (size < mid_size)
         delta_up = upsize;
@@ -1447,7 +1403,6 @@ void CActor::RenderText(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
     dpos.y += delta_up;
     if (size > mid_size)
         size = mid_size;
-    //	float NewFontSize = size/mid_size * fontsize;
     //------------------------------------------------
     M.c.y += dpos.y;
 

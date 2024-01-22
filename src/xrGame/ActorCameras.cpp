@@ -31,7 +31,9 @@ void CActor::cam_Set(EActorCameras style)
     old_cam->OnDeactivate();
     cam_Active()->OnActivate(old_cam);
 }
+
 float CActor::f_Ladder_cam_limit = 1.f;
+
 void CActor::cam_SetLadder()
 {
     CCameraBase* C = cameras[eacFirstEye];
@@ -50,6 +52,7 @@ void CActor::cam_SetLadder()
         C->bClampYaw = true;
     }
 }
+
 void CActor::camUpdateLadder(float dt)
 {
     if (!character_physics_support()->movement()->ElevatorState())
@@ -93,6 +96,7 @@ void CActor::cam_UnsetLadder()
     C->lim_yaw[1] = 0;
     C->bClampYaw = false;
 }
+
 float cammera_into_collision_shift = 0.05f;
 float CActor::CameraHeight()
 {
@@ -115,11 +119,13 @@ ICF void calc_point(Fvector& pt, float radius, float depth, float alpha)
     pt.y = radius + radius * _cos(alpha);
     pt.z = depth;
 }
+
 ICF void calc_gl_point(Fvector& pt, const Fmatrix& xform, float radius, float angle)
 {
     calc_point(pt, radius, VIEWPORT_NEAR / 2, angle);
     xform.transform_tiny(pt);
 }
+
 ICF BOOL test_point(const Fvector& pt, xrXRC& xrc, const Fmatrix33& mat, const Fvector& ext)
 {
     for (auto &it : *xrc.r_get())
@@ -140,7 +146,6 @@ IC bool test_point(const Fvector& pt, const Fmatrix33& mat, const Fvector& ext, 
     fmat.j.set(mat.j);
     fmat.k.set(mat.k);
     fmat.c.set(pt);
-    // IPhysicsShellHolder * ve = smart_cast<IPhysicsShellHolder*> ( Level().CurrentEntity() ) ;
     VERIFY(actor);
     return test_camera_box(ext, fmat, actor);
 }
@@ -172,6 +177,7 @@ void dbg_draw_viewport(const T& cam_info, float _viewport_near)
     DBG_DrawLine(bottom_left, bottom_right, color_xrgb(255, 0, 0));
 }
 #endif
+
 IC void get_box_mat(Fmatrix33& mat, float alpha, const SRotation& r_torso)
 {
     float dZ = ((PI_DIV_2 - ((PI + alpha) / 2)));
@@ -181,6 +187,7 @@ IC void get_box_mat(Fmatrix33& mat, float alpha, const SRotation& r_torso)
     mat.j = xformR.j;
     mat.k = xformR.k;
 }
+
 IC void get_q_box(Fbox& xf, float c, float alpha, float radius)
 {
     Fvector src_pt, tgt_pt;
@@ -192,8 +199,7 @@ IC void get_q_box(Fbox& xf, float c, float alpha, float radius)
     xf.grow(c);
 }
 
-IC void get_cam_oob(Fvector& bc, Fvector& bd, Fmatrix33& mat, const Fmatrix& xform, const SRotation& r_torso,
-    float alpha, float radius, float c)
+IC void get_cam_oob(Fvector& bc, Fvector& bd, Fmatrix33& mat, const Fmatrix& xform, const SRotation& r_torso, float alpha, float radius, float c)
 {
     get_box_mat(mat, alpha, r_torso);
     Fbox xf;
@@ -202,8 +208,8 @@ IC void get_cam_oob(Fvector& bc, Fvector& bd, Fmatrix33& mat, const Fmatrix& xfo
     // query
     xf.get_CD(bc, bd);
 }
-IC void get_cam_oob(
-    Fvector& bd, Fmatrix& mat, const Fmatrix& xform, const SRotation& r_torso, float alpha, float radius, float c)
+
+IC void get_cam_oob(Fvector& bd, Fmatrix& mat, const Fmatrix& xform, const SRotation& r_torso, float alpha, float radius, float c)
 {
     Fmatrix33 mat3;
     Fvector bc;
@@ -214,6 +220,7 @@ IC void get_cam_oob(
     mat.k.set(mat3.k);
     mat.c.set(bc);
 }
+
 void CActor::cam_Lookout(const Fmatrix& xform, float camera_height)
 {
     if (!fis_zero(r_torso_tgt_roll))
@@ -230,14 +237,6 @@ void CActor::cam_Lookout(const Fmatrix& xform, float camera_height)
         Fmatrix33 mat;
         get_cam_oob(bc, bd, mat, xform, r_torso, alpha, radius, c);
 
-        /*
-        xrXRC				xrc			;
-        xrc.box_options		(0)			;
-        xrc.box_query		(Level().ObjectSpace.GetStaticModel(), bc, bd)		;
-        u32 tri_count		= xrc.r_count();
-
-        */
-        // if (tri_count)
         {
             float da = 0.f;
             BOOL bIntersect = FALSE;
@@ -272,6 +271,7 @@ void CActor::cam_Lookout(const Fmatrix& xform, float camera_height)
         r_torso.roll = 0.f;
     }
 }
+
 #ifdef DEBUG
 BOOL ik_cam_shift = true;
 float ik_cam_shift_tolerance = 0.2f;
@@ -289,26 +289,8 @@ void CActor::cam_Update(float dt, float fFOV)
 
     if ((mstate_real & mcClimb) && (cam_active != eacFreeLook))
         camUpdateLadder(dt);
+
     on_weapon_shot_update();
-    float y_shift = 0;
-
-    if (GamePersistent().GameType() != eGameIDSingle && ik_cam_shift && character_physics_support() &&
-        character_physics_support()->ik_controller())
-    {
-        y_shift = character_physics_support()->ik_controller()->Shift();
-        float cam_smooth_k = 1.f;
-        if (_abs(y_shift - current_ik_cam_shift) > ik_cam_shift_tolerance)
-        {
-            cam_smooth_k = 1.f - ik_cam_shift_speed * dt / 0.01f;
-        }
-
-        if (_abs(y_shift) < ik_cam_shift_tolerance / 2.f)
-            cam_smooth_k = 1.f - ik_cam_shift_speed * 1.f / 0.01f * dt;
-        clamp(cam_smooth_k, 0.f, 1.f);
-        current_ik_cam_shift = cam_smooth_k * current_ik_cam_shift + y_shift * (1.f - cam_smooth_k);
-    }
-    else
-        current_ik_cam_shift = 0;
 
     // Alex ADD: smooth crouch fix
     float HeightInterpolationSpeed = 4.f;
@@ -316,7 +298,7 @@ void CActor::cam_Update(float dt, float fFOV)
     if (CurrentHeight != CameraHeight())
         CurrentHeight = (CurrentHeight * (1.0f - HeightInterpolationSpeed*dt)) + (CameraHeight() * HeightInterpolationSpeed*dt);
 
-    Fvector point = { 0, CurrentHeight + current_ik_cam_shift, 0 };
+    Fvector point = { 0, CurrentHeight, 0 };
 
     Fvector dangle = {0, 0, 0};
     Fmatrix xform;

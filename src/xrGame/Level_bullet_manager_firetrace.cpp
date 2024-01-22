@@ -238,13 +238,9 @@ void CBulletManager::DynamicObjectHit(CBulletManager::_event& E)
         }
     }
 
-    if (g_clear)
-        E.Repeated = false;
-	
-    if (GameID() == eGameIDSingle)
-        E.Repeated = false;
+	E.Repeated = false;
 
-    bool NeedShootmark = true; //! E.Repeated;
+    bool NeedShootmark = true;
 
     if (smart_cast<CActor*>(E.R.O))
     {
@@ -293,8 +289,6 @@ void CBulletManager::DynamicObjectHit(CBulletManager::_event& E)
     //отправить хит пораженному объекту
     if (E.bullet.flags.allow_sendhit && !E.Repeated)
     {
-
-
         SHit Hit = SHit(hit_param.power, original_dir, NULL, u16(E.R.element), position_in_bone_space, hit_param.impulse, E.bullet.hit_type, E.bullet.armor_piercing, E.bullet.flags.aim_bullet);
 
         Hit.GenHeader(u16(GE_HIT) & 0xffff, E.R.O->ID());

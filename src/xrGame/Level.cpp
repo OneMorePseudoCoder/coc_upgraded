@@ -17,7 +17,6 @@
 #include "Level_Bullet_Manager.h"
 #include "xrScriptEngine/script_process.hpp"
 #include "xrScriptEngine/script_engine.hpp"
-#include "team_base_zone.h"
 #include "infoportion.h"
 #include "xrAICore/Navigation/PatrolPath/patrol_path_storage.h"
 #include "date_time.h"
@@ -465,15 +464,6 @@ void CLevel::OnRender()
             CClimableObject* climable = smart_cast<CClimableObject*>(_O);
             if (climable)
                 climable->OnRender();
-            CTeamBaseZone* team_base_zone = smart_cast<CTeamBaseZone*>(_O);
-            if (team_base_zone)
-                team_base_zone->OnRender();
-            if (GameID() != eGameIDSingle)
-            {
-                CInventoryItem* pIItem = smart_cast<CInventoryItem*>(_O);
-                if (pIItem)
-                    pIItem->OnRender();
-            }
             if (dbg_net_Draw_Flags.test(dbg_draw_skeleton)) // draw skeleton
             {
                 CGameObject* pGO = smart_cast<CGameObject*>(_O);
@@ -710,10 +700,7 @@ bool CLevel::InterpolationDisabled() { return g_cl_lvInterp < 0; }
 
 void CLevel::PhisStepsCallback(u32 Time0, u32 Time1)
 {
-    if (!Level().game)
-        return;
-    if (GameID() == eGameIDSingle)
-        return;
+	return;
 }
 
 void CLevel::SetNumCrSteps(u32 NumSteps)

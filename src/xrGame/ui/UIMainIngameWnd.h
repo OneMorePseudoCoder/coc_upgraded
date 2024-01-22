@@ -78,7 +78,6 @@ protected:
     //	CUIStatic			UIPsyHealthIcon;
     CUIStatic* UIInvincibleIcon;
     //	CUIStatic			UISleepIcon;
-    CUIStatic* UIArtefactIcon;
 
     CUIScrollView* m_UIIcons;
     CUIWindow* m_pMPChatWnd;

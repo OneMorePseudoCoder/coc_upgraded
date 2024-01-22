@@ -42,8 +42,3 @@ SCRIPT_EXPORT(CSE_ALifeMountedWeapon, (CSE_ALifeDynamicObjectVisual), {
     module(luaState)[luabind_class_dynamic_alife1(
         CSE_ALifeMountedWeapon, "cse_alife_mounted_weapon", CSE_ALifeDynamicObjectVisual)];
 });
-
-SCRIPT_EXPORT(CSE_ALifeTeamBaseZone, (CSE_ALifeSpaceRestrictor), {
-    module(luaState)[luabind_class_dynamic_alife1(
-        CSE_ALifeTeamBaseZone, "cse_alife_team_base_zone", CSE_ALifeSpaceRestrictor)];
-});

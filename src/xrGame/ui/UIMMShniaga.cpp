@@ -105,16 +105,11 @@ void CUIMMShniaga::InitShniaga(CUIXml& xml_doc, LPCSTR path)
     }
     else
     {
-        if (GameID() == eGameIDSingle)
-        {
-            VERIFY(Actor());
-            if (g_actor && !Actor()->g_Alive())
-                CreateList(m_buttons, xml_doc, "menu_main_single_dead");
-            else
-                CreateList(m_buttons, xml_doc, "menu_main_single");
-        }
-        else
-            CreateList(m_buttons, xml_doc, "menu_main_mm");
+		VERIFY(Actor());
+		if (g_actor && !Actor()->g_Alive())
+			CreateList(m_buttons, xml_doc, "menu_main_single_dead");
+		else
+			CreateList(m_buttons, xml_doc, "menu_main_single");
     }
 
     ShowMain();
@@ -151,11 +146,6 @@ void CUIMMShniaga::CreateList(xr_vector<CUITextWnd*>& lst, CUIXml& xml_doc, LPCS
         st->SetFont(pF);
         st->SetTextComplexMode(false);
         st->SetTextST(xml_doc.ReadAttrib("btn", i, "caption"));
-
-        //		float font_height			= st->GetFont()->GetHeight();
-        //		UI().ClientToScreenScaledHeight(font_height);
-
-        //.		st->SetTextOffset			(0, (button_height-font_height)/2.0f);
         st->SetTextColor(color);
         st->SetTextAlignment(CGameFont::alCenter);
         st->SetVTextAlignment(valCenter);

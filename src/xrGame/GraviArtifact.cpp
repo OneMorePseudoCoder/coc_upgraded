@@ -12,7 +12,7 @@
 #include "game_cl_base.h"
 #include "Include/xrRender/Kinematics.h"
 #include "xrPhysics/IPHWorld.h"
-// extern CPHWorld*	ph_world;
+
 #define CHOOSE_MAX(x, inst_x, y, inst_y, z, inst_z) \
     if (x > y)                                      \
         if (x > z)                                  \
@@ -48,7 +48,6 @@ void CGraviArtefact::Load(LPCSTR section)
 
     if (pSettings->line_exist(section, "jump_height"))
         m_fJumpHeight = pSettings->r_float(section, "jump_height");
-    //	m_fEnergy = pSettings->r_float(section,"energy");
 }
 
 void CGraviArtefact::UpdateCLChild()
@@ -73,20 +72,5 @@ void CGraviArtefact::UpdateCLChild()
     else if (H_Parent())
     {
         XFORM().set(H_Parent()->XFORM());
-
-        if (GameID() == eGameIDArtefactHunt && m_CarringBoneID != u16(-1))
-        {
-            IKinematics* K = smart_cast<IKinematics*>(H_Parent()->Visual());
-            if (K)
-            {
-                K->CalculateBones();
-                Fmatrix Ruck_MTX = K->LL_GetTransform(m_CarringBoneID);
-                Fvector x;
-                x.set(-0.1f, 0.f, -0.3f);
-                Ruck_MTX.translate_add(x);
-                Ruck_MTX.mulA_43(XFORM());
-                XFORM().set(Ruck_MTX);
-            };
-        };
     };
 }

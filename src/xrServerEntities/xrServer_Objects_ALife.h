@@ -707,22 +707,6 @@ public:
     SERVER_ENTITY_EDITOR_METHODS
 };
 
-class CSE_ALifeTeamBaseZone : public CSE_ALifeSpaceRestrictor
-{
-    using inherited = CSE_ALifeSpaceRestrictor;
-
-public:
-    CSE_ALifeTeamBaseZone(LPCSTR caSection);
-    virtual ~CSE_ALifeTeamBaseZone();
-
-    u8 m_team;
-    virtual void UPDATE_Read(NET_Packet& P);
-    virtual void UPDATE_Write(NET_Packet& P);
-    virtual void STATE_Read(NET_Packet& P, u16 size);
-    virtual void STATE_Write(NET_Packet& P);
-    SERVER_ENTITY_EDITOR_METHODS
-};
-
 class CSE_ALifeInventoryBox : public CSE_ALifeDynamicObjectVisual
 {
     using inherited = CSE_ALifeDynamicObjectVisual;

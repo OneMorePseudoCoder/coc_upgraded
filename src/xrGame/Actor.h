@@ -330,7 +330,6 @@ protected:
     CCameraBase* cameras[eacMaxCam];
     EActorCameras cam_active;
     float fPrevCamPos;
-    float current_ik_cam_shift;
     Fvector vPrevCamDir;
     float fCurAVelocity;
     CEffectorBobbing* pCamBobbing;

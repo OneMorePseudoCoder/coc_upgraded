@@ -126,7 +126,6 @@
 #include "radioactivezone.h"
 #include "level_changer.h"
 #include "script_zone.h"
-#include "team_base_zone.h"
 #include "torridZone.h"
 #include "ZoneVisual.h"
 #include "hairszone.h"
@@ -193,7 +192,6 @@ void CObjectFactory::register_classes()
 
     // server entities
     add<CSE_ALifeGroupTemplate<CSE_ALifeMonsterBase>>(CLSID_AI_FLESH_GROUP, "flesh_group");
-    //	add<CSE_SpawnGroup>											(CLSID_AI_SPAWN_GROUP			,"spawn_group");
     add<CSE_ALifeGraphPoint>(CLSID_AI_GRAPH, "graph_point");
     add<CSE_ALifeOnlineOfflineGroup>(CLSID_ONLINE_OFFLINE_GROUP, "online_offline_group");
     // client and server entities
@@ -307,10 +305,6 @@ void CObjectFactory::register_classes()
     ADD(CExplosiveRocket, CSE_Temporary, CLSID_OBJECT_G_RPG7, "wpn_grenade_rpg7");
     ADD(CExplosiveRocket, CSE_Temporary, CLSID_OBJECT_G_FAKE, "wpn_grenade_fake");
 
-	//-----------------------------------------------------------------------------------------------------------------
-
-	//-----------------------------------------------------------------------------------------------------------------
-
     // Zones
     ADD(CCustomZone, CSE_ALifeCustomZone, CLSID_ZONE, "zone");
     ADD(CMosquitoBald, CSE_ALifeAnomalousZone, CLSID_Z_MBALD, "zone_mosquito_bald");
@@ -326,7 +320,6 @@ void CObjectFactory::register_classes()
 #endif //	BENCHMARK_BUILD
     ADD(CScriptZone, CSE_ALifeSpaceRestrictor, CLSID_SCRIPT_ZONE, "script_zone");
     ADD(CSmartZone, CSE_ALifeSmartZone, CLSID_SMART_ZONE, "smart_zone");
-    ADD(CTeamBaseZone, CSE_ALifeTeamBaseZone, CLSID_Z_TEAM_BASE, "team_base_zone");
     ADD(CTorridZone, CSE_ALifeTorridZone, CLSID_Z_TORRID, "torrid_zone");
     ADD(CSpaceRestrictor, CSE_ALifeSpaceRestrictor, CLSID_SPACE_RESTRICTOR, "space_restrictor");
     ADD(CAmebaZone, CSE_ALifeZoneVisual, CLSID_Z_AMEBA, "ameba_zone");
@@ -347,7 +340,6 @@ void CObjectFactory::register_classes()
     // objects
     ADD(CProjector, CSE_ALifeObjectProjector, CLSID_OBJECT_PROJECTOR, "projector");
     ADD(CWeaponStatMgun, CSE_ALifeStationaryMgun, CLSID_OBJECT_W_STATMGUN, "wpn_stat_mgun");
-    //	ADD(CTrigger				,CSE_Trigger					,CLSID_OBJECT_TRIGGER			,"trigger");
 
     // entity
     ADD(CHangingLamp, CSE_ALifeObjectHangingLamp, CLSID_OBJECT_HLAMP, "hanging_lamp");

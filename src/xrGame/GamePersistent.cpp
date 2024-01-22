@@ -253,31 +253,13 @@ void CGamePersistent::OnGameStart()
     UpdateGameType();
 }
 
-LPCSTR GameTypeToString(EGameIDs gt, bool bShort)
-{
-    switch (gt)
-    {
-    case eGameIDSingle: return "single"; break;
-    case eGameIDDeathmatch: return (bShort) ? "dm" : "deathmatch"; break;
-    case eGameIDTeamDeathmatch: return (bShort) ? "tdm" : "teamdeathmatch"; break;
-    case eGameIDArtefactHunt: return (bShort) ? "ah" : "artefacthunt"; break;
-    case eGameIDCaptureTheArtefact: return (bShort) ? "cta" : "capturetheartefact"; break;
-    case eGameIDDominationZone: return (bShort) ? "dz" : "dominationzone"; break;
-    case eGameIDTeamDominationZone: return (bShort) ? "tdz" : "teamdominationzone"; break;
-    default: return "---";
-    }
-}
-
 void CGamePersistent::UpdateGameType()
 {
     super::UpdateGameType();
 
-    m_game_params.m_e_game_type = ParseStringToGameType(m_game_params.m_game_type);
+    m_game_params.m_e_game_type = eGameIDSingle;
 
-    if (m_game_params.m_e_game_type == eGameIDSingle)
-        g_current_keygroup = _sp;
-    else
-        g_current_keygroup = _mp;
+	g_current_keygroup = _sp;
 }
 
 void CGamePersistent::OnGameEnd()
@@ -502,8 +484,7 @@ void CGamePersistent::game_loaded()
 {
     if (Device.dwPrecacheFrame <= 2)
     {
-        if (g_pGameLevel && g_pGameLevel->bReady && (allow_intro() && g_keypress_on_start) &&
-            load_screen_renderer.b_need_user_input && m_game_params.m_e_game_type == eGameIDSingle)
+        if (g_pGameLevel && g_pGameLevel->bReady && (allow_intro() && g_keypress_on_start) && load_screen_renderer.b_need_user_input)
         {
             VERIFY(NULL == m_intro);
             m_intro = new CUISequencer();

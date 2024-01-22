@@ -68,8 +68,6 @@ extern Fvector	m_hud_offset_pos;
 extern Fvector	m_hand_offset_pos;
 extern BOOL		g_use_aim_inertion;
 
-
-
 extern int x_m_x;
 extern int x_m_z;
 extern BOOL net_cl_inputguaranteed;
@@ -324,7 +322,7 @@ public:
     CCC_ALifeSwitchDistance(LPCSTR N) : IConsole_Command(N){};
     virtual void Execute(LPCSTR args)
     {
-        if ((GameID() == eGameIDSingle) && ai().get_alife())
+        if (ai().get_alife())
         {
             float id1 = 0.0f;
             sscanf(args, "%f", &id1);
@@ -349,7 +347,7 @@ public:
     CCC_ALifeProcessTime(LPCSTR N) : IConsole_Command(N){};
     virtual void Execute(LPCSTR args)
     {
-        if ((GameID() == eGameIDSingle) && ai().get_alife())
+        if (ai().get_alife())
         {
             game_sv_Single* tpGame = smart_cast<game_sv_Single*>(Level().Server->GetGameState());
             VERIFY(tpGame);
@@ -371,7 +369,7 @@ public:
     CCC_ALifeObjectsPerUpdate(LPCSTR N) : IConsole_Command(N){};
     virtual void Execute(LPCSTR args)
     {
-        if ((GameID() == eGameIDSingle) && ai().get_alife())
+        if (ai().get_alife())
         {
             game_sv_Single* tpGame = smart_cast<game_sv_Single*>(Level().Server->GetGameState());
             VERIFY(tpGame);
@@ -390,7 +388,7 @@ public:
     CCC_ALifeSwitchFactor(LPCSTR N) : IConsole_Command(N){};
     virtual void Execute(LPCSTR args)
     {
-        if ((GameID() == eGameIDSingle) && ai().get_alife())
+        if (ai().get_alife())
         {
             game_sv_Single* tpGame = smart_cast<game_sv_Single*>(Level().Server->GetGameState());
             VERIFY(tpGame);
@@ -437,17 +435,9 @@ class CCC_DemoRecordSetPos : public CCC_Vector3
     static Fvector p;
 
 public:
-    CCC_DemoRecordSetPos(LPCSTR N)
-        : CCC_Vector3(N, &p, Fvector().set(-FLT_MAX, -FLT_MAX, -FLT_MAX), Fvector().set(FLT_MAX, FLT_MAX, FLT_MAX)){};
+    CCC_DemoRecordSetPos(LPCSTR N) : CCC_Vector3(N, &p, Fvector().set(-FLT_MAX, -FLT_MAX, -FLT_MAX), Fvector().set(FLT_MAX, FLT_MAX, FLT_MAX)){};
     virtual void Execute(LPCSTR args)
     {
-#ifndef DEBUG
-// if (GameID() != eGameIDSingle)
-//{
-//	Msg("For this game type Demo Record is disabled.");
-//	return;
-//};
-#endif
         CDemoRecord::GetGlobalPosition(p);
         CCC_Vector3::Execute(args);
         CDemoRecord::SetGlobalPosition(p);
@@ -462,13 +452,6 @@ public:
     CCC_DemoPlay(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
     virtual void Execute(LPCSTR args)
     {
-#ifndef DEBUG
-// if (GameID() != eGameIDSingle)
-//{
-//	Msg("For this game type Demo Play is disabled.");
-//	return;
-//};
-#endif
         if (0 == g_pGameLevel)
         {
             Msg("! There are no level(s) started");
@@ -482,7 +465,7 @@ public:
             if (comma)
             {
                 loops = atoi(comma + 1);
-                *comma = 0; //. :)
+                *comma = 0;
             }
             strconcat(sizeof(fn), fn, args, ".xrdemo");
             FS.update_path(fn, "$game_saves$", fn);
@@ -775,16 +758,7 @@ public:
 
     virtual void Execute(LPCSTR args)
     {
-#ifdef _DEBUG
         CCC_Float::Execute(args);
-#else
-        if (!g_pGameLevel || GameID() == eGameIDSingle)
-            CCC_Float::Execute(args);
-        else
-        {
-            Msg("! Command disabled for this type of game");
-        }
-#endif
     }
 };
 
@@ -794,8 +768,7 @@ protected:
     int* value_blin;
 
 public:
-    CCC_Net_CL_InputUpdateRate(LPCSTR N, int* V, int _min = 0, int _max = 999)
-        : CCC_Integer(N, V, _min, _max), value_blin(V){};
+    CCC_Net_CL_InputUpdateRate(LPCSTR N, int* V, int _min = 0, int _max = 999) : CCC_Integer(N, V, _min, _max), value_blin(V){};
 
     virtual void Execute(LPCSTR args)
     {
@@ -1072,7 +1045,6 @@ public:
     virtual void Execute(LPCSTR args)
     {
         CCC_Integer::Execute(args);
-        // dWorldSetQuickStepNumIterations(NULL,phIterations);
         if (physics_world())
             physics_world()->StepNumIterations(phIterations);
     }
@@ -1087,13 +1059,7 @@ public:
     {
         if (!physics_world())
             return;
-#ifndef DEBUG
-        if (g_pGameLevel && Level().game && GameID() != eGameIDSingle)
-        {
-            Msg("Command is not available in Multiplayer");
-            return;
-        }
-#endif
+
         physics_world()->SetGravity(float(atof(args)));
     }
     virtual void Status(TStatus& S)
@@ -1118,9 +1084,7 @@ public:
 #ifndef DEBUG
         clamp(step_count, 50.f, 200.f);
 #endif
-        // IPHWorld::SetStep(1.f/step_count);
         ph_console::ph_step_time = 1.f / step_count;
-        // physics_world()->SetStep(1.f/step_count);
         if (physics_world())
             physics_world()->SetStep(ph_console::ph_step_time);
     }
@@ -1192,7 +1156,6 @@ struct CCC_JumpToLevel : public IConsole_Command
     }
 };
 
-//#ifndef MASTER_GOLD
 class CCC_Script : public IConsole_Command
 {
 public:
@@ -1484,8 +1447,7 @@ public:
 
     virtual void Info(TInfo& I)
     {
-        xr_sprintf(I,
-            "allows to change bind rotation and position offsets for attached item, <section_name> given as arguments");
+        xr_sprintf(I, "allows to change bind rotation and position offsets for attached item, <section_name> given as arguments");
     }
 };
 
@@ -1978,8 +1940,7 @@ void CCC_RegisterCommands()
     CMD3(CCC_Mask, "dbg_draw_car_plots_all_trans", &ph_dbg_draw_mask, phDbgDrawCarAllTrnsm);
     CMD3(CCC_Mask, "dbg_draw_ph_zbuffer_disable", &ph_dbg_draw_mask, phDbgDrawZDisable);
     CMD3(CCC_Mask, "dbg_ph_obj_collision_damage", &ph_dbg_draw_mask, phDbgDispObjCollisionDammage);
-    CMD_RADIOGROUPMASK2("dbg_ph_ai_always_phmove", &ph_dbg_draw_mask, phDbgAlwaysUseAiPhMove, "dbg_ph_ai_never_phmove",
-        &ph_dbg_draw_mask, phDbgNeverUseAiPhMove);
+    CMD_RADIOGROUPMASK2("dbg_ph_ai_always_phmove", &ph_dbg_draw_mask, phDbgAlwaysUseAiPhMove, "dbg_ph_ai_never_phmove", &ph_dbg_draw_mask, phDbgNeverUseAiPhMove);
     CMD3(CCC_Mask, "dbg_ph_ik", &ph_dbg_draw_mask, phDbgIK);
     CMD3(CCC_Mask, "dbg_ph_ik_off", &ph_dbg_draw_mask1, phDbgIKOff);
     CMD3(CCC_Mask, "dbg_draw_ph_ik_goal", &ph_dbg_draw_mask, phDbgDrawIKGoal);
@@ -2044,22 +2005,6 @@ void CCC_RegisterCommands()
     extern BOOL dbg_draw_animation_movement_controller;
     CMD4(CCC_Integer, "dbg_draw_animation_movement_controller", &dbg_draw_animation_movement_controller, FALSE, TRUE);
 
-    /*
-    enum
-    {
-        dbg_track_obj_blends_bp_0			= 1<< 0,
-        dbg_track_obj_blends_bp_1			= 1<< 1,
-        dbg_track_obj_blends_bp_2			= 1<< 2,
-        dbg_track_obj_blends_bp_3			= 1<< 3,
-        dbg_track_obj_blends_motion_name	= 1<< 4,
-        dbg_track_obj_blends_time			= 1<< 5,
-        dbg_track_obj_blends_ammount		= 1<< 6,
-        dbg_track_obj_blends_mix_params		= 1<< 7,
-        dbg_track_obj_blends_flags			= 1<< 8,
-        dbg_track_obj_blends_state			= 1<< 9,
-        dbg_track_obj_blends_dump			= 1<< 10
-    };
-    */
     extern Flags32 dbg_track_obj_flags;
     CMD3(CCC_Mask, "dbg_track_obj_blends_bp_0", &dbg_track_obj_flags, dbg_track_obj_blends_bp_0);
     CMD3(CCC_Mask, "dbg_track_obj_blends_bp_1", &dbg_track_obj_flags, dbg_track_obj_blends_bp_1);
@@ -2087,7 +2032,6 @@ void CCC_RegisterCommands()
     CMD1(CCC_DumpTasks, "dump_tasks");
     CMD1(CCC_DumpMap, "dump_map");
     CMD1(CCC_DumpCreatures, "dump_creatures");
-
 #endif
 
     CMD3(CCC_Mask, "cl_dynamiccrosshair", &psHUD_Flags, HUD_CROSSHAIR_DYNAMIC);
@@ -2103,8 +2047,7 @@ void CCC_RegisterCommands()
 
     CMD3(CCC_Mask, "ai_use_torch_dynamic_lights", &g_uCommonFlags, flAiUseTorchDynamicLights);
 
-    CMD4(CCC_Vector3, "psp_cam_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000),
-        Fvector().set(1000, 1000, 1000));
+    CMD4(CCC_Vector3, "psp_cam_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
     CMD4(CCC_Vector3, "hud_offset_pos", &m_hud_offset_pos, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
     CMD4(CCC_Vector3, "hand_offset_pos", &m_hand_offset_pos, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
 

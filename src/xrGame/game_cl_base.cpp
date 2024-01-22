@@ -11,8 +11,6 @@
 #include "UI/UIDialogWnd.h"
 #include "string_table.h"
 
-LPCSTR GameTypeToString(EGameIDs gt, bool bShort);
-
 game_cl_GameState::game_cl_GameState()
 {
     shedule.t_min = 5;

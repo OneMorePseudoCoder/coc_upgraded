@@ -65,7 +65,7 @@ const u32 g_clWhite = 0xffffffff;
 
 #define MAININGAME_XML "maingame.xml"
 
-CUIMainIngameWnd::CUIMainIngameWnd(): /*m_pGrenade(NULL),m_pItem(NULL),*/ m_pPickUpItem(NULL), m_pMPChatWnd(NULL), UIArtefactIcon(NULL), m_pMPLogWnd(NULL)
+CUIMainIngameWnd::CUIMainIngameWnd(): /*m_pGrenade(NULL),m_pItem(NULL),*/ m_pPickUpItem(NULL), m_pMPChatWnd(NULL), m_pMPLogWnd(NULL)
 {
     UIZoneMap = new CUIZoneMap();
 }
@@ -80,7 +80,6 @@ CUIMainIngameWnd::~CUIMainIngameWnd()
     xr_delete(g_MissileForceShape);
     xr_delete(UIWeaponJammedIcon);
     xr_delete(UIInvincibleIcon);
-    xr_delete(UIArtefactIcon);
 }
 
 void CUIMainIngameWnd::Init()
@@ -178,15 +177,7 @@ void CUIMainIngameWnd::Init()
     UIInvincibleIcon = UIHelper::CreateStatic(uiXml, "invincible_static", NULL);
     UIInvincibleIcon->Show(false);
 
-    if ((GameID() == eGameIDArtefactHunt) || (GameID() == eGameIDCaptureTheArtefact))
-    {
-        UIArtefactIcon = UIHelper::CreateStatic(uiXml, "artefact_static", NULL);
-        UIArtefactIcon->Show(false);
-    }
-
-    shared_str warningStrings[7] = {"jammed", "radiation", "wounds", "starvation", "fatigue",
-        "invincible"
-        "artefact"};
+    shared_str warningStrings[6] = {"jammed", "radiation", "wounds", "starvation", "fatigue", "invincible"};
 
     // Загружаем пороговые значения для индикаторов
     EWarningIcons j = ewiWeaponJammed;
@@ -416,7 +407,6 @@ void CUIMainIngameWnd::SetWarningIconColor(EWarningIcons icon, const u32 cl)
         if (bMagicFlag)
             break;
         break;
-    case ewiArtefact: SetWarningIconColorUI(UIArtefactIcon, cl); break;
 
     default: R_ASSERT(!"Unknown warning icon type");
     }

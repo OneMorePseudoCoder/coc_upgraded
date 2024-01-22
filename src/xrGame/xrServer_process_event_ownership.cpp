@@ -30,10 +30,9 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
             id_entity, Device.dwFrame);
         return;
     }
+
     if (!e_entity)
     {
-        //		Msg( "! ERROR on ownership: entity not found. parent_id = [%d], entity_id = [%d], frame = [%d].",
-        // id_parent, id_entity, Device.dwFrame );
         return;
     }
 
@@ -67,15 +66,6 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
         // trust only ServerClient or new_ownerClient
         return;
     }
-
-    CSE_ALifeCreatureAbstract* alife_entity = smart_cast<CSE_ALifeCreatureAbstract*>(e_parent);
-    if (alife_entity && !alife_entity->g_Alive() && game->Type() != eGameIDSingle)
-    {
-#ifdef MP_LOGGING
-        Msg("--- SV: WARNING: dead player [%d] tries to take item [%d]", id_parent, id_entity);
-#endif //#ifdef MP_LOGGING
-        return;
-    };
 
     // Game allows ownership of entity
     if (game->OnTouch(id_parent, id_entity, bForced))

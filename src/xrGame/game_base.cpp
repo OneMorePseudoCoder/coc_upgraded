@@ -24,21 +24,7 @@ game_GameState::game_GameState()
 
 CLASS_ID game_GameState::getCLASS_ID(LPCSTR game_type_name, bool isServer)
 {
-    EGameIDs gameID = ParseStringToGameType(game_type_name);
-    switch (gameID)
-    {
-    case eGameIDSingle: return (isServer) ? TEXT2CLSID("SV_SINGL") : TEXT2CLSID("CL_SINGL"); break;
-
-    case eGameIDDeathmatch: return (isServer) ? TEXT2CLSID("SV_DM") : TEXT2CLSID("CL_DM"); break;
-
-    case eGameIDTeamDeathmatch: return (isServer) ? TEXT2CLSID("SV_TDM") : TEXT2CLSID("CL_TDM"); break;
-
-    case eGameIDArtefactHunt: return (isServer) ? TEXT2CLSID("SV_AHUNT") : TEXT2CLSID("CL_AHUNT"); break;
-
-    case eGameIDCaptureTheArtefact: return (isServer) ? TEXT2CLSID("SV_CTA") : TEXT2CLSID("CL_CTA"); break;
-
-    default: return (TEXT2CLSID("")); break;
-    }
+	return (isServer) ? TEXT2CLSID("SV_SINGL") : TEXT2CLSID("CL_SINGL");
 }
 
 void game_GameState::switch_Phase(u32 new_phase)
@@ -50,10 +36,10 @@ void game_GameState::switch_Phase(u32 new_phase)
 }
 
 ALife::_TIME_ID game_GameState::GetStartGameTime() { return (m_qwStartGameTime); }
+
 ALife::_TIME_ID game_GameState::GetGameTime()
 {
-    return (m_qwStartGameTime +
-        ALife::_TIME_ID(m_fTimeFactor * float(Level().timeServer_Async() - m_qwStartProcessorTime)));
+    return (m_qwStartGameTime + ALife::_TIME_ID(m_fTimeFactor * float(Level().timeServer_Async() - m_qwStartProcessorTime)));
 }
 
 float game_GameState::GetGameTimeFactor() { return (m_fTimeFactor); }

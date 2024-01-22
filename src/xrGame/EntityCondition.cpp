@@ -167,6 +167,7 @@ void CEntityCondition::ChangeRadiation(const float value) { m_fDeltaRadiation +=
 void CEntityCondition::ChangePsyHealth(const float value) { m_fDeltaPsyHealth += value; }
 void CEntityCondition::ChangeCircumspection(const float value) { m_fDeltaCircumspection += value; }
 void CEntityCondition::ChangeEntityMorale(const float value) { m_fDeltaEntityMorale += value; }
+
 void CEntityCondition::ChangeBleeding(const float percent)
 {
     //затянуть раны
@@ -191,13 +192,12 @@ bool RemoveWoundPred(CWound* pWound)
 void CEntityCondition::UpdateWounds()
 {
     //убрать все зашившие раны из списка
-    m_WoundVector.erase(
-        std::remove_if(m_WoundVector.begin(), m_WoundVector.end(), &RemoveWoundPred), m_WoundVector.end());
+    m_WoundVector.erase(std::remove_if(m_WoundVector.begin(), m_WoundVector.end(), &RemoveWoundPred), m_WoundVector.end());
 }
 
 void CEntityCondition::UpdateConditionTime()
 {
-    u64 _cur_time = (GameID() == eGameIDSingle) ? Level().GetGameTime() : Level().timeServer();
+    u64 _cur_time = Level().GetGameTime();
 
     if (m_bTimeValid)
     {

@@ -1606,9 +1606,6 @@
     <Filter Include="Core\Client\Objects\zones\ScriptZone">
       <UniqueIdentifier>{7a237c3f-7ca2-4dc7-844f-0928be1848ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Client\Objects\zones\TeamBaseZone">
-      <UniqueIdentifier>{2c1927e0-4d35-480c-a656-19a7114163cd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Client\Objects\zones\TorridZone">
       <UniqueIdentifier>{482cfc75-8689-4af7-ac85-7fb1215aaa8b}</UniqueIdentifier>
     </Filter>
@@ -5076,9 +5073,6 @@
     <ClInclude Include="script_zone.h">
       <Filter>Core\Client\Objects\zones\ScriptZone</Filter>
     </ClInclude>
-    <ClInclude Include="team_base_zone.h">
-      <Filter>Core\Client\Objects\zones\TeamBaseZone</Filter>
-    </ClInclude>
     <ClInclude Include="TorridZone.h">
       <Filter>Core\Client\Objects\zones\TorridZone</Filter>
     </ClInclude>
@@ -7703,9 +7697,6 @@
     </ClCompile>
     <ClCompile Include="script_zone_script.cpp">
       <Filter>Core\Client\Objects\zones\ScriptZone</Filter>
-    </ClCompile>
-    <ClCompile Include="team_base_zone.cpp">
-      <Filter>Core\Client\Objects\zones\TeamBaseZone</Filter>
     </ClCompile>
     <ClCompile Include="TorridZone.cpp">
       <Filter>Core\Client\Objects\zones\TorridZone</Filter>
