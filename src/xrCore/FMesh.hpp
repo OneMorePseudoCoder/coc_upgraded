@@ -117,7 +117,7 @@ struct XRCORE_API FSlideWindowItem
 {
     FSlideWindow* sw;
     u32 count;
-    u32 reserved[4];
+	u32 reserved[4] {};
     FSlideWindowItem() : sw(0), count(0){};
 };
 

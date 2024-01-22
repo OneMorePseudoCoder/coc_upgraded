@@ -703,7 +703,17 @@ void CRender::rmNormal()
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 CRender::CRender() : m_bFirstFrameAfterReset(false), Sectors_xrc("render") { init_cacades(); }
-CRender::~CRender() {}
+CRender::~CRender() 
+{
+	for (auto& it : SWIs) 
+	{
+		xr_free(it.sw);
+		it.sw = nullptr;
+		it.count = 0;
+	}
+	SWIs.clear();
+}
+
 void CRender::DumpStatistics(IGameFont& font, IPerformanceAlert* alert)
 {
     D3DXRenderBase::DumpStatistics(font, alert);

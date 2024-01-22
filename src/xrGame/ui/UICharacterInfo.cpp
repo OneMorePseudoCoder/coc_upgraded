@@ -300,8 +300,7 @@ void CUICharacterInfo::Update()
     {
         m_bForceUpdate = false;
 
-        CSE_ALifeTraderAbstract* T =
-            detail::object_exists_in_alife_registry(m_ownerID) ? ch_info_get_from_id(m_ownerID) : NULL;
+        CSE_ALifeTraderAbstract* T = detail::object_exists_in_alife_registry(m_ownerID) ? ch_info_get_from_id(m_ownerID) : NULL;
         if (NULL == T)
         {
             m_ownerID = u16(-1);

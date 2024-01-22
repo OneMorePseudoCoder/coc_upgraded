@@ -416,7 +416,17 @@ void CRender::rmNormal()
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 CRender::CRender() : m_bFirstFrameAfterReset(false), Sectors_xrc("render") {}
-CRender::~CRender() {}
+CRender::~CRender() 
+{
+	for (auto& it : SWIs) 
+	{
+		xr_free(it.sw);
+		it.sw = nullptr;
+		it.count = 0;
+	}
+	SWIs.clear();
+}
+
 extern float r_ssaDISCARD;
 extern float r_ssaDONTSORT;
 extern float r_ssaLOD_A, r_ssaLOD_B;

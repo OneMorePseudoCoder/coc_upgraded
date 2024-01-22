@@ -11,13 +11,14 @@ CUIMotionIcon::CUIMotionIcon()
     g_pMotionIcon = this;
     m_bchanged = true;
     m_luminosity = 0.0f;
-    cur_pos = 0.f;
+    cur_pos = 0.0f;
 }
 
 CUIMotionIcon::~CUIMotionIcon() { g_pMotionIcon = NULL; }
 void CUIMotionIcon::ResetVisibility()
 {
     m_npc_visibility.clear();
+	m_luminosity = 0.0f;
     m_bchanged = true;
 }
 

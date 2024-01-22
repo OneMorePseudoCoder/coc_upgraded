@@ -12,7 +12,14 @@ void free_vid_mode_list();
 
 CHW HW;
 
-CHW::CHW() {}
+CHW::CHW() 
+{
+	DEVMODE dmi;
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmi);
+	psCurrentVidMode[0] = dmi.dmPelsWidth;
+	psCurrentVidMode[1] = dmi.dmPelsHeight;
+}
+
 CHW::~CHW() {}
 
 //////////////////////////////////////////////////////////////////////

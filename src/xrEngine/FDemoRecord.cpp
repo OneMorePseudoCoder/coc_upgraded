@@ -62,12 +62,6 @@ CDemoRecord::CDemoRecord(const char* name, float life_time) : CEffectorCam(cefDe
     stored_red_text = g_bDisableRedText;
     g_bDisableRedText = TRUE;
     m_iLMScreenshotFragment = -1;
-    /*
-     stored_weapon = psHUD_Flags.test(HUD_WEAPON);
-     stored_cross = psHUD_Flags.test(HUD_CROSSHAIR);
-     psHUD_Flags.set(HUD_WEAPON, FALSE);
-     psHUD_Flags.set(HUD_CROSSHAIR, FALSE);
-     */
     m_b_redirect_input_to_level = false;
     xr_unlink(name);
     file = FS.w_open(name);
@@ -132,10 +126,8 @@ CDemoRecord::~CDemoRecord()
 }
 
 // +X, -X, +Y, -Y, +Z, -Z
-static Fvector cmNorm[6] = {
-    {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}};
-static Fvector cmDir[6] = {
-    {1.f, 0.f, 0.f}, {-1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, -1.f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 0.f, -1.f}};
+static Fvector cmNorm[6] = {{0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}};
+static Fvector cmDir[6] = {{1.f, 0.f, 0.f}, {-1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, -1.f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 0.f, -1.f}};
 
 void CDemoRecord::MakeScreenshotFace()
 {
