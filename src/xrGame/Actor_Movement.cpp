@@ -163,8 +163,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
     mstate_old = mstate_real;
     vControlAccel.set(0, 0, 0);
 
-    if (!(mstate_real & mcFall) &&
-        (character_physics_support()->movement()->Environment() == CPHMovementControl::peInAir))
+    if (!(mstate_real & mcFall) && (character_physics_support()->movement()->Environment() == CPHMovementControl::peInAir))
     {
         m_fFallTime -= dt;
         if (m_fFallTime <= 0.f)
@@ -489,7 +488,6 @@ bool CActor::g_LadderOrient()
     character_physics_support()->movement()->GroundNormal(leader_norm);
     if (_abs(leader_norm.y) > M_SQRT1_2)
         return false;
-    // leader_norm.y=0.f;
     float mag = leader_norm.magnitude();
     if (mag < EPS_L)
         return false;
@@ -501,27 +499,8 @@ bool CActor::g_LadderOrient()
     M.j.set(0.f, 1.f, 0.f);
     generate_orthonormal_basis1(M.k, M.j, M.i);
     M.i.invert();
-    // M.j.invert();
-
-    // Fquaternion q1,q2,q3;
-    // q1.set(XFORM());
-    // q2.set(M);
-    // q3.slerp(q1,q2,dt);
-    // Fvector angles1,angles2,angles3;
-    // XFORM().getHPB(angles1.x,angles1.y,angles1.z);
-    // M.getHPB(angles2.x,angles2.y,angles2.z);
-    ////angle_lerp(angles3.x,angles1.x,angles2.x,dt);
-    ////angle_lerp(angles3.y,angles1.y,angles2.y,dt);
-    ////angle_lerp(angles3.z,angles1.z,angles2.z,dt);
-
-    // angles3.lerp(angles1,angles2,dt);
-    ////angle_lerp(angles3.y,angles1.y,angles2.y,dt);
-    ////angle_lerp(angles3.z,angles1.z,angles2.z,dt);
-    // angle_lerp(angles3.x,angles1.x,angles2.x,dt);
-    // XFORM().setHPB(angles3.x,angles3.y,angles3.z);
     Fvector position;
     position.set(Position());
-    // XFORM().rotation(q3);
     VERIFY2(_valid(M), "Invalide matrix in g_LadderOrient");
     XFORM().set(M);
     VERIFY2(_valid(position), "Invalide position in g_LadderOrient");

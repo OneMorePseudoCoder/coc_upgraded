@@ -4803,9 +4803,6 @@
     <ClInclude Include="CameraRecoil.h">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Weapon Generic</Filter>
     </ClInclude>
-    <ClInclude Include="first_bullet_controller.h">
-      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Weapon Generic</Filter>
-    </ClInclude>
     <ClInclude Include="ShootingObject.h">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Weapon Generic</Filter>
     </ClInclude>
@@ -7410,9 +7407,6 @@
     <ClCompile Include="physic_item.cpp">
       <Filter>Core\Client\Objects\inventory\PhysicItem</Filter>
     </ClCompile>
-    <ClCompile Include="first_bullet_controller.cpp">
-      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Weapon Generic</Filter>
-    </ClCompile>
     <ClCompile Include="ShootingObject.cpp">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Weapon Generic</Filter>
     </ClCompile>
@@ -8423,9 +8417,6 @@
       <Filter>Core\Client\Objects\actor</Filter>
     </ClCompile>
     <ClCompile Include="actor_script.cpp">
-      <Filter>Core\Client\Objects\actor</Filter>
-    </ClCompile>
-    <ClCompile Include="Actor_Sleep.cpp">
       <Filter>Core\Client\Objects\actor</Filter>
     </ClCompile>
     <ClCompile Include="Actor_Weapon.cpp">

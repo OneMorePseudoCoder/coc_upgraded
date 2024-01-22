@@ -43,8 +43,6 @@ bool CActor::feel_touch_contact(IGameObject* O)
 
     if (inventory_owner && inventory_owner != smart_cast<CInventoryOwner*>(this))
     {
-        // CPhysicsShellHolder* sh=smart_cast<CPhysicsShellHolder*>(O);
-        // if(sh&&sh->character_physics_support()) m_feel_touch_characters++;
         return true;
     }
 
@@ -292,10 +290,6 @@ void CActor::Feel_Grenade_Update(float rad)
         if (grn->time_from_begin_throw() < m_fFeelGrenadeTime)
         {
             continue;
-        }
-        if (HUD().AddGrenade_ForMark(grn))
-        {
-            //.	Msg("__ __ Add new grenade! id = %d ", grn->ID() );
         }
     } // for it
 

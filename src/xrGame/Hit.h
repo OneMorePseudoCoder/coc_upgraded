@@ -2,8 +2,7 @@
 
 struct SHit
 {
-    SHit(float powerA, Fvector& dirA, IGameObject* whoA, u16 elementA, Fvector p_in_bone_spaceA, float impulseA,
-        ALife::EHitType hit_typeA, float armor_piercingA /*=0.0f*/, bool AimBullet /*=false*/);
+    SHit(float powerA, Fvector& dirA, IGameObject* whoA, u16 elementA, Fvector p_in_bone_spaceA, float impulseA, ALife::EHitType hit_typeA, float armor_piercingA, bool AimBullet);
 
     SHit();
     bool is_valide() const;

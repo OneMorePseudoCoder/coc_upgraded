@@ -200,7 +200,6 @@ void CRenderDevice::CalcFrameStats()
         if (fTimeDelta <= EPS_S)
             break;
         float fps = 1.f / fTimeDelta;
-        // if (Engine.External.tune_enabled) vtune.update (fps);
         float fOne = 0.3f;
         float fInv = 1.0f - fOne;
         stats.fFPS = fInv * stats.fFPS + fOne * fps;
@@ -275,7 +274,7 @@ void CRenderDevice::on_idle()
 	renderTotalReal.FrameStart();
 	renderTotalReal.Begin();
 	if (b_is_Active && Begin())
-		{
+	{
 		seqRender.Process();
 		CalcFrameStats();
 		Statistic->Show();
@@ -300,7 +299,6 @@ void CRenderDevice::on_idle()
 			const auto TimeToSleep = FpsLimitMs - FrameElapsedTime;
 			//std::this_thread::sleep_until(FrameEndTime + TimeToSleep); // часто спит больше, чем надо. Скорее всего из-за округлений в большую сторону.
 			Sleep(iFloor(TimeToSleep.count()));
-			//Msg("~~[%s] waited [%f] ms", __FUNCTION__, TimeToSleep.count());
 		}
 	}
 	
@@ -391,12 +389,6 @@ void CRenderDevice::FrameMove()
     dwTimeContinual = TimerMM.GetElapsed_ms() - app_inactive_time;
     if (psDeviceFlags.test(rsConstantFPS))
     {
-        // 20ms = 50fps
-        // fTimeDelta = 0.020f;
-        // fTimeGlobal += 0.020f;
-        // dwTimeDelta = 20;
-        // dwTimeGlobal += 20;
-        // 33ms = 30fps
         fTimeDelta = 0.033f;
         fTimeGlobal += 0.033f;
         dwTimeDelta = 33;
@@ -407,17 +399,14 @@ void CRenderDevice::FrameMove()
         // Timer
         float fPreviousFrameTime = Timer.GetElapsed_sec();
         Timer.Start(); // previous frame
-        fTimeDelta =
-            0.1f * fTimeDelta + 0.9f * fPreviousFrameTime; // smooth random system activity - worst case ~7% error
-        // fTimeDelta = 0.7f * fTimeDelta + 0.3f*fPreviousFrameTime; // smooth random system activity
+        fTimeDelta = 0.1f * fTimeDelta + 0.9f * fPreviousFrameTime; // smooth random system activity - worst case ~7% error
         if (fTimeDelta > .1f)
             fTimeDelta = .1f; // limit to 15fps minimum
         if (fTimeDelta <= 0.f)
             fTimeDelta = EPS_S + EPS_S; // limit to 15fps minimum
         if (Paused())
             fTimeDelta = 0.0f;
-        // u64 qTime = TimerGlobal.GetElapsed_clk();
-        fTimeGlobal = TimerGlobal.GetElapsed_sec(); // float(qTime)*CPU::cycles2seconds;
+        fTimeGlobal = TimerGlobal.GetElapsed_sec();
         u32 _old_global = dwTimeGlobal;
         dwTimeGlobal = TimerGlobal.GetElapsed_ms();
         dwTimeDelta = dwTimeGlobal - _old_global;
@@ -425,12 +414,8 @@ void CRenderDevice::FrameMove()
     // Frame move
     stats.EngineTotal.FrameStart();
     stats.EngineTotal.Begin();
-    // TODO: HACK to test loading screen.
-    // if(!g_bLoaded)
     Device.seqFrame.Process();
     g_bLoaded = TRUE;
-    // else
-    // seqFrame.Process(rp_Frame);
     stats.EngineTotal.End();
     stats.EngineTotal.FrameEnd();
 }

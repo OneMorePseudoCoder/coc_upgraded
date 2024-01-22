@@ -26,6 +26,7 @@ void* game_sv_GameState::get_client(u16 id) // if exist
 }
 
 CSE_Abstract* game_sv_GameState::get_entity_from_eid(u16 id) { return m_server->ID_to_entity(id); }
+
 // Utilities
 xr_vector<u16>* game_sv_GameState::get_children(ClientID id)
 {
@@ -60,7 +61,6 @@ float game_sv_GameState::get_option_f(LPCSTR lst, LPCSTR name, float def)
         int cnt = sscanf(found + xr_strlen(op), "%f", &val);
         VERIFY(cnt == 1);
         return val;
-        //.		return atoi	(strstr(lst,op)+xr_strlen(op));
     }
     else
         return def;
@@ -87,7 +87,9 @@ string64& game_sv_GameState::get_option_s(LPCSTR lst, LPCSTR name, LPCSTR def)
     }
     return ret;
 }
+
 void game_sv_GameState::signal_Syncronize() { sv_force_sync = TRUE; }
+
 // Network
 void game_sv_GameState::net_Export_State(NET_Packet& P, ClientID to)
 {

@@ -40,25 +40,6 @@ private:
     virtual void track_weather(float const& time);
     virtual float track_weather();
 
-    virtual XRay::Editor::property_holder_base* current_frame_property_holder();
-    virtual XRay::Editor::property_holder_base* blend_frame_property_holder();
-    virtual XRay::Editor::property_holder_base* target_frame_property_holder();
-
-    virtual void save_weathers();
-
-    virtual bool save_time_frame(char* buffer, u32 const& buffer_size);
-
-    virtual bool paste_current_time_frame(char const* buffer, u32 const& buffer_size);
-    virtual bool paste_target_time_frame(char const* buffer, u32 const& buffer_size);
-
-    virtual void reload_current_time_frame();
-    virtual void reload_target_time_frame();
-
-    virtual void reload_current_weather();
-    virtual void reload_weathers();
-
-    virtual bool add_time_frame(char const* buffer, u32 const& buffer_size);
-
     virtual char const* weather_current_time() const;
     virtual void weather_current_time(char const* time);
 

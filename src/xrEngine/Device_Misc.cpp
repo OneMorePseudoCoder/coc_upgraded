@@ -8,8 +8,9 @@ static struct _DF
 {
     pcstr name;
     u32 mask;
-} DF[] = {{"rsFullscreen", rsFullscreen}, {"rsClearBB", rsClearBB}, {"rsVSync", rsVSync}, {"rsWireframe", rsWireframe},
-    {nullptr, 0}};
+} 
+
+DF[] = {{"rsFullscreen", rsFullscreen}, {"rsClearBB", rsClearBB}, {"rsVSync", rsVSync}, {"rsWireframe", rsWireframe}, {nullptr, 0}};
 
 void CRenderDevice::DumpFlags()
 {

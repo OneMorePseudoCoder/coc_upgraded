@@ -176,9 +176,7 @@ void CBulletManager::Clear()
     m_Events.clear();
 }
 
-void CBulletManager::AddBullet(const Fvector& position, const Fvector& direction, float starting_speed, float power,
-    float impulse, u16 sender_id, u16 sendersweapon_id, ALife::EHitType e_hit_type, float maximum_distance,
-    const CCartridge& cartridge, float const air_resistance_factor, bool SendHit, bool AimBullet, int iShotNum)
+void CBulletManager::AddBullet(const Fvector& position, const Fvector& direction, float starting_speed, float power, float impulse, u16 sender_id, u16 sendersweapon_id, ALife::EHitType e_hit_type, float maximum_distance, const CCartridge& cartridge, float const air_resistance_factor, bool SendHit, bool AimBullet, int iShotNum)
 {
 #ifdef DEBUG
     VERIFY(m_thread_id == ThreadUtil::GetCurrThreadId());
@@ -189,7 +187,6 @@ void CBulletManager::AddBullet(const Fvector& position, const Fvector& direction
     SBullet& bullet = m_Bullets.back();
     bullet.Init(position, direction, starting_speed, power, impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, air_resistance_factor, SendHit, iShotNum);
     bullet.flags.aim_bullet = AimBullet;
-
 }
 
 void CBulletManager::UpdateWorkload()

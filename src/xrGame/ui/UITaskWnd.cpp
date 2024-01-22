@@ -172,12 +172,8 @@ void CUITaskWnd::ReloadTaskInfo()
         else if (spot == "primary_object")
             m_bPrimaryObjectsEnabled ? b->location->EnableSpot() : b->location->DisableSpot();
         else if (spot == "secondary_task_location" || spot == "secondary_task_location_complex_timer")
-            (/*b->location->SpotEnabled() && */ m_bSecondaryTasksEnabled) ? b->location->EnableSpot() :
-                                                                            b->location->DisableSpot();
-        else if (spot == "ui_pda2_trader_location" || spot == "ui_pda2_mechanic_location" ||
-            spot == "ui_pda2_scout_location" || spot == "ui_pda2_quest_npc_location" ||
-            spot == "ui_pda2_medic_location" || spot == "ui_pda2_actor_box_location" ||
-            spot == "ui_pda2_actor_sleep_location")
+            (m_bSecondaryTasksEnabled) ? b->location->EnableSpot() : b->location->DisableSpot();
+        else if (spot == "ui_pda2_trader_location" || spot == "ui_pda2_mechanic_location" || spot == "ui_pda2_scout_location" || spot == "ui_pda2_quest_npc_location" || spot == "ui_pda2_medic_location" || spot == "ui_pda2_actor_box_location" || spot == "ui_pda2_actor_sleep_location")
             m_bQuestNpcsEnabled ? b->location->EnableSpot() : b->location->DisableSpot();
     }
 

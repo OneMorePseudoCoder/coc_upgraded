@@ -83,7 +83,6 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
             }
 
             // and load all motions for it
-
             for (u32 i = 0; i <= 8; ++i)
             {
                 if (i == 0)
@@ -97,9 +96,6 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
                     pm->m_animations.resize(pm->m_animations.size() + 1);
                     pm->m_animations.back().mid = motion_ID;
                     pm->m_animations.back().name = buff;
-#ifdef DEBUG
-					//					Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
-#endif // #ifdef DEBUG
                 }
             }
             R_ASSERT2(pm->m_animations.size(), make_string("motion not found [%s]", pm->m_base_name.c_str()).c_str());
@@ -113,7 +109,9 @@ Fvector& attachable_hud_item::hands_attach_pos()
     v.set(m_measures.m_hands_attach[0]).add(m_hand_offset_pos);
     return v;
 }
+
 Fvector& attachable_hud_item::hands_attach_rot() { return m_measures.m_hands_attach[1]; }
+
 Fvector& attachable_hud_item::hands_offset_pos()
 {
     u8 idx = m_parent_hud_item->GetCurrentHudOffsetIdx();
@@ -137,9 +135,7 @@ bool attachable_hud_item::set_bone_visible(const shared_str& bone_name, BOOL bVi
     {
         if (bSilent)
             return false;
-        R_ASSERT2(0, make_string("model [%s] has no bone [%s]", pSettings->r_string(m_sect_name, "item_visual"),
-                         bone_name.c_str())
-                         .c_str());
+        R_ASSERT2(0, make_string("model [%s] has no bone [%s]", pSettings->r_string(m_sect_name, "item_visual"), bone_name.c_str()).c_str());
     }
     bVisibleNow = m_model->LL_GetBoneVisible(bone_id);
     if (bVisibleNow != bVisibility)
@@ -538,8 +534,7 @@ u32 player_hud::motion_length(const shared_str& anim_name, const shared_str& hud
     player_hud_motion* pm = pi->m_hand_motions.find_motion(anim_name);
     if (!pm)
         return 100; // ms TEMPORARY
-    R_ASSERT2(pm,
-        make_string("hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str()).c_str());
+    R_ASSERT2(pm, make_string("hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str()).c_str());
     return motion_length(pm->m_animations[0].mid, md, speed);
 }
 
@@ -554,6 +549,7 @@ u32 player_hud::motion_length(const MotionID& M, const CMotionDef*& md, float sp
     }
     return 0;
 }
+
 const Fvector& player_hud::attach_rot() const
 {
     if (m_attached_items[0])

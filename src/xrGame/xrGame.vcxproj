@@ -756,7 +756,6 @@
     <ClInclude Include="F1.h" />
     <ClInclude Include="FadedBall.h" />
     <ClInclude Include="fire_disp_controller.h" />
-    <ClInclude Include="first_bullet_controller.h" />
     <ClInclude Include="flare.h" />
     <ClInclude Include="Flashlight.h" />
     <ClInclude Include="FoodItem.h" />
@@ -1529,7 +1528,6 @@
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="Actor_Sleep.cpp" />
     <ClCompile Include="actor_statistic_mgr.cpp" />
     <ClCompile Include="Actor_Weapon.cpp" />
     <ClCompile Include="AdvancedDetector.cpp" />
@@ -2061,7 +2059,6 @@
     </ClCompile>
     <ClCompile Include="FadedBall.cpp" />
     <ClCompile Include="fire_disp_controller.cpp" />
-    <ClCompile Include="first_bullet_controller.cpp" />
     <ClCompile Include="flare.cpp" />
     <ClCompile Include="Flashlight.cpp" />
     <ClCompile Include="FoodItem.cpp" />

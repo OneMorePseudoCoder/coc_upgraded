@@ -35,7 +35,6 @@ struct _SoundProcessor : public pureFrame
 {
     virtual void OnFrame()
     {
-        // Msg ("------------- sound: %d [%3.2f,%3.2f,%3.2f]",u32(Device.dwFrame),VPUSH(Device.vCameraPosition));
         GEnv.Sound->update(Device.vCameraPosition, Device.vCameraDirection, Device.vCameraTop);
     }
 } SoundProcessor;
@@ -46,13 +45,6 @@ LPCSTR _GetFontTexName(LPCSTR section)
     int def_idx = 1; // default 1024x768
     int idx = def_idx;
 
-#if 0
-    u32 w = Device.dwWidth;
-
-    if (w <= 800) idx = 0;
-    else if (w <= 1280)idx = 1;
-    else idx = 2;
-#else
     u32 h = Device.dwHeight;
 
     if (h <= 600)
@@ -61,7 +53,6 @@ LPCSTR _GetFontTexName(LPCSTR section)
         idx = 1;
     else
         idx = 2;
-#endif
 
     while (idx >= 0)
     {
@@ -255,8 +246,6 @@ void CApplication::SetLoadingScreen(ILoadingScreen* newScreen)
 {
     if (loadingScreen)
     {
-//        Log("! Trying to create new loading screen, but there is already one..");
-//        DEBUG_BREAK;
         DestroyLoadingScreen();
     }
 
@@ -317,6 +306,7 @@ void CApplication::LoadStage()
 }
 
 void CApplication::LoadSwitch() {}
+
 // Sequential
 void CApplication::OnFrame()
 {
@@ -334,8 +324,7 @@ void CApplication::Level_Append(LPCSTR folder)
     strconcat(sizeof(N2), N2, folder, "level.ltx");
     strconcat(sizeof(N3), N3, folder, "level.geom");
     strconcat(sizeof(N4), N4, folder, "level.cform");
-    if (FS.exist("$game_levels$", N1) && FS.exist("$game_levels$", N2) && FS.exist("$game_levels$", N3) &&
-        FS.exist("$game_levels$", N4))
+    if (FS.exist("$game_levels$", N1) && FS.exist("$game_levels$", N2) && FS.exist("$game_levels$", N3) && FS.exist("$game_levels$", N4))
     {
         sLevelInfo LI;
         LI.folder = xr_strdup(folder);
@@ -354,7 +343,6 @@ void CApplication::Level_Scan()
     Levels.clear();
 
     xr_vector<char*>* folder = FS.file_list_open("$game_levels$", FS_ListFolders | FS_RootOnly);
-    //. R_ASSERT (folder&&folder->size());
 
     for (u32 i = 0; i < folder->size(); ++i)
         Level_Append((*folder)[i]);
