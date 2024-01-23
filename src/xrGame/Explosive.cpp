@@ -320,9 +320,8 @@ float CExplosive::TestPassEffect(const Fvector& source_p, const Fvector& dir, fl
 void CExplosive::Explode()
 {
     VERIFY(0xffff != Initiator());
-    VERIFY(m_explosion_flags.test(flReadyToExplode)); // m_bReadyToExplode
+    VERIFY(m_explosion_flags.test(flReadyToExplode));
     VERIFY(!physics_world()->Processing());
-    // m_bExploding = true;
     m_explosion_flags.set(flExploding, TRUE);
     cast_game_object()->processing_activate();
 
@@ -337,6 +336,7 @@ void CExplosive::Explode()
 #endif
 
     OnBeforeExplosion();
+	
     //играем звук взрыва
 #ifdef LAYERED_SND_SHOOT
     m_layered_sounds.PlaySound("sndExplode", pos, smart_cast<IGameObject*>(this), false, false, (u8)-1);
@@ -393,8 +393,7 @@ void CExplosive::Explode()
         cartridge.bullet_material_idx = GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
         cartridge.m_flags.set(CCartridge::cfTracer, FALSE);
 
-        Level().BulletManager().AddBullet(pos, frag_dir, m_fFragmentSpeed, m_fFragHit, m_fFragHitImpulse, Initiator(),
-            cast_game_object()->ID(), m_eHitTypeFrag, m_fFragsRadius, cartridge, 1.f, SendHits);
+        Level().BulletManager().AddBullet(pos, frag_dir, m_fFragmentSpeed, m_fFragHit, m_fFragHitImpulse, Initiator(), cast_game_object()->ID(), m_eHitTypeFrag, m_fFragsRadius, cartridge, 1.f, SendHits);
     }
 
     if (cast_game_object()->Remote())
@@ -554,6 +553,9 @@ void CExplosive::OnEvent(NET_Packet& P, u16 type)
     {
     case GE_GRENADE_EXPLODE:
     {
+		if (m_explosion_flags.test(flExploding))
+			break;
+
         Fvector pos, normal;
         u16 parent_id;
         P.r_u16(parent_id);

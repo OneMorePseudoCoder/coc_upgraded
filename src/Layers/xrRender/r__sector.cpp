@@ -19,6 +19,12 @@ CPortal::CPortal()
 #endif
 }
 
+CSector::CSector() 
+{
+	m_root = nullptr;
+	r_marker = 0xffffffff;
+}
+
 CPortal::~CPortal()
 {
 #ifdef DEBUG

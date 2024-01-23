@@ -4,7 +4,7 @@
 #include "xrCore/_flags.h"
 #include "xrCore/xr_resource.h"
 #include "xrCore/_vector3d.h"
-#include "xrCommon/xr_vector.h" // DEFINE_VECTOR
+#include "xrCommon/xr_vector.h"
 
 constexpr pcstr SNDENV_FILENAME = "sEnvironment.xr";
 #define OGG_COMMENT_VERSION 0x0003
@@ -86,6 +86,7 @@ public:
     virtual pcstr file_name() const = 0;
     virtual u16 channels_num() const = 0;
     virtual u32 bytes_total() const = 0;
+	virtual float max_distance() const = 0;
 };
 
 /// definition (Sound Source)
@@ -176,8 +177,7 @@ public:
 
     virtual void play(ref_sound& S, IGameObject* O, u32 flags = 0, float delay = 0.f) = 0;
     virtual void play_at_pos(ref_sound& S, IGameObject* O, const Fvector& pos, u32 flags = 0, float delay = 0.f) = 0;
-    virtual void play_no_feedback(ref_sound& S, IGameObject* O, u32 flags = 0, float delay = 0.f, Fvector* pos = nullptr,
-        float* vol = nullptr, float* freq = nullptr, Fvector2* range = nullptr) = 0;
+    virtual void play_no_feedback(ref_sound& S, IGameObject* O, u32 flags = 0, float delay = 0.f, Fvector* pos = nullptr, float* vol = nullptr, float* freq = nullptr, Fvector2* range = nullptr) = 0;
 
     virtual void set_master_volume(float f = 1.f) = 0;
     virtual void set_geometry_env(IReader* I) = 0;

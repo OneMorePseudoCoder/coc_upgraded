@@ -38,6 +38,7 @@ IC float recon_mindist() { return 2.f; }
 IC float recon_maxdist() { return 50.f; }
 IC float recon_minspeed() { return 0.5f; }
 IC float recon_maxspeed() { return 10.f; }
+
 CHUDTarget::CHUDTarget()
 {
     fuzzyShowInfo = 0.f;
@@ -53,12 +54,11 @@ CHUDTarget::CHUDTarget()
 CHUDTarget::~CHUDTarget() {}
 void CHUDTarget::Load() { HUDCrosshair.Load(); }
 void CHUDTarget::ShowCrosshair(bool b) { m_bShowCrosshair = b; }
-//. fVisTransparencyFactor
+
 float fCurrentPickPower;
 ICF static BOOL pick_trace_callback(collide::rq_result& result, LPVOID params)
 {
     SPickParam* pp = (SPickParam*)params;
-    //	collide::rq_result* RQ	= pp->RQ;
     ++pp->pass;
 
     if (result.O)
@@ -77,8 +77,6 @@ ICF static BOOL pick_trace_callback(collide::rq_result& result, LPVOID params)
         {
             return TRUE;
         }
-        //.		if (mtl->Flags.is(SGameMtl::flPassable))
-        //.			return TRUE;
     }
     pp->RQ = result;
     return FALSE;

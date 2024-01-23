@@ -51,11 +51,10 @@ bool CItemManager::useful(const CGameObject* object) const
         return (false);
 
     const CInventoryItem* inventory_item = smart_cast<const CInventoryItem*>(object);
-    if (inventory_item && !inventory_item->useful_for_NPC())
+    if (!inventory_item || !inventory_item->useful_for_NPC())
         return (false);
 
-    if (m_stalker && (!m_stalker->can_take(inventory_item) ||
-                         !m_stalker->movement().restrictions().accessible(inventory_item->object().Position())))
+    if (m_stalker && (!m_stalker->can_take(inventory_item) || !m_stalker->movement().restrictions().accessible(inventory_item->object().Position())))
         return (false);
 
     if (!ai().get_level_graph())

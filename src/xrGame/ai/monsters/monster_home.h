@@ -19,8 +19,7 @@ class CMonsterHome
 public:
     CMonsterHome(CBaseMonster* obj) : m_object(obj) {}
     void load(LPCSTR line);
-    void setup(
-        LPCSTR path_name, float min_radius, float max_radius, bool aggressive = false, float middle_radius = 0.f);
+    void setup(LPCSTR path_name, float min_radius, float max_radius, bool aggressive = false, float middle_radius = 0.f);
     void setup(u32 lv_ID, float min_radius, float max_radius, bool aggressive = false, float middle_radius = 0.f);
     void remove_home();
     void set_move_dists(u32 min_dist, u32 max_dist);
@@ -40,6 +39,6 @@ public:
     float get_min_radius() { return m_radius_min; }
     float get_mid_radius() { return m_radius_middle; }
     float get_max_radius() { return m_radius_max; };
-    IC bool has_home() { return (m_path != 0) && (m_level_vertex_id != u32(-1)); }
+    IC bool has_home() { return (m_path != 0) || (m_level_vertex_id != u32(-1)); }
     IC bool is_aggressive() { return m_aggressive; }
 };

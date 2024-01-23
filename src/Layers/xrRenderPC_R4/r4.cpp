@@ -887,11 +887,9 @@ public:
     }
 };
 
-static inline bool match_shader_id(
-    LPCSTR const debug_shader_id, LPCSTR const full_shader_id, FS_FileSet const& file_set, string_path& result);
+static inline bool match_shader_id(LPCSTR const debug_shader_id, LPCSTR const full_shader_id, FS_FileSet const& file_set, string_path& result);
 
-HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName,
-    LPCSTR pTarget, DWORD Flags, void*& result)
+HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName, LPCSTR pTarget, DWORD Flags, void*& result)
 {
     D3D_SHADER_MACRO defines[128];
     int def_it = 0;
@@ -1094,16 +1092,7 @@ HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName,
     if (o.dx10_msaa)
     {
         static char def[256];
-        // if( m_MSAASample < 0 )
-        //{
         def[0] = '0';
-        //	sh_name[len]='0'; ++len;
-        //}
-        // else
-        //{
-        //	def[0]= '0' + char(m_MSAASample);
-        //	sh_name[len]='0' + char(m_MSAASample); ++len;
-        //}
         def[1] = 0;
         defines[def_it].Name = "ISAMPLE";
         defines[def_it].Definition = def;
@@ -1288,7 +1277,6 @@ HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName,
     sh_name[len] = '0' + char(o.dx10_gbuffer_opt);
     ++len;
 
-    // R_ASSERT						( !o.dx10_sm4_1 );
     if (o.dx10_sm4_1)
     {
         defines[def_it].Name = "SM_4_1";

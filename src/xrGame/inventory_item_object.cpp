@@ -23,23 +23,6 @@ void CInventoryItemObject::Load(LPCSTR section)
     CPhysicItem::Load(section);
     CInventoryItem::Load(section);
 }
-/* remove
-LPCSTR CInventoryItemObject::Name			()
-{
-    return						(CInventoryItem::Name());
-}
-
-LPCSTR CInventoryItemObject::NameShort		()
-{
-    return						(CInventoryItem::NameShort());
-}
-*/
-/*
-LPCSTR CInventoryItemObject::NameComplex	()
-{
-    return						(CInventoryItem::NameComplex());
-}
-*/
 
 void CInventoryItemObject::Hit(SHit* pHDS)
 {

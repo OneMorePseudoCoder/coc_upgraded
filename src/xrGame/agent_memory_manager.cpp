@@ -14,6 +14,8 @@
 #include "xrAICore/Navigation/level_graph.h"
 #include "entity_alive.h"
 #include "memory_space_impl.h"
+#include "holder_custom.h"
+#include "actor.h"
 
 void CAgentMemoryManager::update() { reset_memory_masks(); }
 void CAgentMemoryManager::remove_links(IGameObject* object) {}
@@ -65,6 +67,9 @@ void CAgentMemoryManager::update_memory_masks(const squad_mask_type& mask)
 
 void CAgentMemoryManager::object_information(const IGameObject* object, u32& level_time, Fvector& position)
 {
+	if (Actor()->Holder() && smart_cast<const CActor*>(object))
+        object = smart_cast<const IGameObject*>(Actor()->Holder());
+
     {
         VISIBLES::const_iterator I = std::find(visibles().begin(), visibles().end(), object_id(object));
         if (visibles().end() != I)

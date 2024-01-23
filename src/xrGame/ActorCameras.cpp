@@ -295,7 +295,10 @@ void CActor::cam_Update(float dt, float fFOV)
     // Alex ADD: smooth crouch fix
     float HeightInterpolationSpeed = 4.f;
 
-    if (CurrentHeight != CameraHeight())
+    if (CurrentHeight < 0.0f)
+        CurrentHeight = CameraHeight();
+
+    if (!fsimilar(CurrentHeight, CameraHeight()))
         CurrentHeight = (CurrentHeight * (1.0f - HeightInterpolationSpeed*dt)) + (CameraHeight() * HeightInterpolationSpeed*dt);
 
     Fvector point = { 0, CurrentHeight, 0 };

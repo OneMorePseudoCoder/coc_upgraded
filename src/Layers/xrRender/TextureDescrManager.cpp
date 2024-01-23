@@ -36,10 +36,6 @@ void CTextureDescrMngr::LoadTHM(LPCSTR initial)
 
     for (auto& it : flist)
     {
-#if 0//def DEBUG // XXX: make it as an option
-        //Alundaio: Print list of *.thm to find bad .thms!
-        Msg("%s", it.name.c_str());
-#endif
         string_path fn;
         FS.update_path(fn, initial, it.name.c_str());
         IReader* F = FS.r_open(fn);
@@ -51,8 +47,7 @@ void CTextureDescrMngr::LoadTHM(LPCSTR initial)
         STextureParams tp;
         tp.Load(*F);
         FS.r_close(F);
-        if (STextureParams::ttImage == tp.type || STextureParams::ttTerrain == tp.type ||
-            STextureParams::ttNormalMap == tp.type)
+        if (STextureParams::ttImage == tp.type || STextureParams::ttTerrain == tp.type || STextureParams::ttNormalMap == tp.type)
         {
             texture_desc& desc = m_texture_details[fn];
             cl_dt_scaler*& dts = m_detail_scalers[fn];

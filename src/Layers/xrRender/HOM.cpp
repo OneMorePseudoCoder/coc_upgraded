@@ -325,31 +325,29 @@ BOOL CHOM::visible(Fbox2& B, float depth)
 
 BOOL CHOM::visible(vis_data& vis)
 {
-    if (Device.dwFrame < vis.hom_frame)
-        return TRUE; // not at this time :)
     if (!bEnabled)
         return TRUE; // return - everything visible
-    stats.Total.Begin();
-    // Now, the test time comes
+ 
+	stats.Total.Begin();
+    
+    if (vis.hom_tested == Device.dwFrame)
+        return vis.hom_frame > vis.hom_tested;
+
+    if (Device.dwFrame < vis.hom_frame)
+        return TRUE; // not at this time :)
+
+	// Now, the test time comes
     // 0. The object was hidden, and we must prove that each frame	- test		| frame-old, tested-new, hom_res =
     // false;
     // 1. The object was visible, but we must to re-check it		- test		| frame-new, tested-???, hom_res = true;
     // 2. New object slides into view								- delay test| frame-old, tested-old, hom_res = ???;
     u32 frame_current = Device.dwFrame;
-    // u32	frame_prev		= frame_current-1;
-
     BOOL result = _visible(vis.box, m_xform_01);
-    u32 delay = 1;
     if (result)
-    {
-        // visible	- delay next test
-        delay = ::Random.randI(5 * 2, 5 * 5);
-    }
+        vis.hom_frame = frame_current + ::Random.randI(5 * 2, 5 * 5); // visible - delay next test
     else
-    {
-        // hidden	- shedule to next frame
-    }
-    vis.hom_frame = frame_current + delay;
+		vis.hom_frame = frame_current; // hidden - shedule to next frame
+
     vis.hom_tested = frame_current;
     stats.Total.End();
     return result;

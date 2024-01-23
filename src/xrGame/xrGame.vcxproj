@@ -767,8 +767,6 @@
     <ClInclude Include="GameTaskDefs.h" />
     <ClInclude Include="GametaskManager.h" />
     <ClInclude Include="game_base.h" />
-    <ClInclude Include="game_base_kill_type.h" />
-    <ClInclude Include="game_base_menu_events.h" />
     <ClInclude Include="game_cl_base.h" />
     <ClInclude Include="game_cl_single.h" />
     <ClInclude Include="game_location_selector.h" />

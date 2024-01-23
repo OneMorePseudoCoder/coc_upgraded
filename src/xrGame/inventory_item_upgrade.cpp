@@ -179,8 +179,7 @@ bool CInventoryItem::install_upgrade_impl(LPCSTR section, bool test)
         }
         result |= result2;
 
-        result |=
-            process_if_exists(section, "control_inertion_factor", &CInifile::r_float, m_fControlInertionFactor, test);
+        result |= process_if_exists(section, "control_inertion_factor", &CInifile::r_float, m_fControlInertionFactor, test);
     }
 
     pcstr str;

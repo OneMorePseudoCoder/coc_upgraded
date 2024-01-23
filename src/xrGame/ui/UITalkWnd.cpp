@@ -121,7 +121,7 @@ void CUITalkWnd::UpdateQuestions()
             //сказать (игрок сам не производит никаких действий)
             if (!m_pCurrentDialog->PhraseList().empty() && m_pCurrentDialog->allIsDummy())
             {
-                CPhrase* phrase = m_pCurrentDialog->PhraseList()[Random.randI(m_pCurrentDialog->PhraseList().size())];
+                CPhrase* phrase = m_pCurrentDialog->PhraseList().front();
                 SayPhrase(phrase->GetID());
             };
 
@@ -129,12 +129,10 @@ void CUITalkWnd::UpdateQuestions()
             if (m_pCurrentDialog && !m_pCurrentDialog->allIsDummy())
             {
                 int number = 0;
-                for (PHRASE_VECTOR::const_iterator it = m_pCurrentDialog->PhraseList().begin();
-                     it != m_pCurrentDialog->PhraseList().end(); ++it, ++number)
+                for (PHRASE_VECTOR::const_iterator it = m_pCurrentDialog->PhraseList().begin(); it != m_pCurrentDialog->PhraseList().end(); ++it, ++number)
                 {
                     CPhrase* phrase = *it;
-                    AddQuestion(m_pCurrentDialog->GetPhraseText(phrase->GetID()), phrase->GetID(), number,
-                        phrase->IsFinalizer());
+                    AddQuestion(m_pCurrentDialog->GetPhraseText(phrase->GetID()), phrase->GetID(), number, phrase->IsFinalizer());
                 }
             }
             else

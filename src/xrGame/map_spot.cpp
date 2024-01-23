@@ -301,20 +301,12 @@ void CComplexMapSpot::Update()
     if (m_last_delay > 310)
     {
         m_last_delay = 0;
-        if (Level().GetGameTime() > m_timer_finish)
-        {
-            /*if ( !m_infinity_time )
-            {
-                MapLocation()->DisableSpot();
-            }*/
-        }
-        else
+        if (Level().GetGameTime() < m_timer_finish)
         {
             if (!m_infinity_time)
             {
                 ALife::_TIME_ID dt = m_timer_finish - Level().GetGameTime();
-                m_timer->TextItemControl()->SetText(
-                    GetTimeAsString(dt, InventoryUtilities::etpTimeToMinutes, ':', false).c_str());
+                m_timer->TextItemControl()->SetText(GetTimeAsString(dt, InventoryUtilities::etpTimeToMinutes, ':', false).c_str());
             }
         }
     }

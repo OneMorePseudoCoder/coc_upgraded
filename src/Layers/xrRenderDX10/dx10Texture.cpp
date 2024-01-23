@@ -11,8 +11,7 @@
 void fix_texture_name(LPSTR fn)
 {
     LPSTR _ext = strext(fn);
-    if (_ext && (!xr_stricmp(_ext, ".tga") || !xr_stricmp(_ext, ".dds") || !xr_stricmp(_ext, ".bmp") ||
-        !xr_stricmp(_ext, ".ogm")))
+    if (_ext && (!xr_stricmp(_ext, ".tga") || !xr_stricmp(_ext, ".dds") || !xr_stricmp(_ext, ".bmp") || !xr_stricmp(_ext, ".ogm")))
     {
         *_ext = 0;
     }
@@ -122,12 +121,9 @@ ID3DBaseTexture* CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStag
     bStaging &= bAllowStaging;
 
     ID3DBaseTexture* pTexture2D = NULL;
-    // IDirect3DCubeTexture9*   pTextureCUBE    = NULL;
     string_path fn;
-    // u32                      dwWidth,dwHeight;
     u32 img_size = 0;
     int img_loaded_lod = 0;
-    // D3DFORMAT                fmt;
     u32 mip_cnt = u32(-1);
     // validation
     R_ASSERT(fRName);
@@ -156,27 +152,22 @@ ID3DBaseTexture* CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStag
     R_ASSERT(FS.exist(fn, "$game_textures$", "ed\\ed_not_existing_texture", ".dds"));
     goto _DDS;
 
-//  xrDebug::Fatal(DEBUG_INFO,"Can't find texture '%s'",fname);
-
 #endif
 
 _DDS:
 {
     // Load and get header
-
     S = FS.r_open(fn);
 #ifdef DEBUG
     Msg("* Loaded: %s[%d]", fn, S->length());
 #endif // DEBUG
     img_size = S->length();
     R_ASSERT(S);
-// R_CHK2                   (D3DXGetImageInfoFromFileInMemory   (S->pointer(),S->length(),&IMG), fn);
 #ifdef USE_DX11
     R_CHK2(D3DX11GetImageInfoFromMemory(S->pointer(), S->length(), 0, &IMG, 0), fn);
 #else
     R_CHK2(D3DX10GetImageInfoFromMemory(S->pointer(), S->length(), 0, &IMG, 0), fn);
 #endif
-    // if (IMG.ResourceType == D3DRTYPE_CUBETEXTURE)            goto _DDS_CUBE;
     if (IMG.MiscFlags & D3D_RESOURCE_MISC_TEXTURECUBE)
         goto _DDS_CUBE;
     else
@@ -184,19 +175,6 @@ _DDS:
 
 _DDS_CUBE:
 {
-// R_CHK(D3DXCreateCubeTextureFromFileInMemoryEx(
-//  HW.pDevice,
-//  S->pointer(),S->length(),
-//  D3DX_DEFAULT,
-//  IMG.MipLevels,0,
-//  IMG.Format,
-//  D3DPOOL_MANAGED,
-//  D3DX_DEFAULT,
-//  D3DX_DEFAULT,
-//  0,&IMG,0,
-//  &pTextureCUBE
-//  ));
-
 //  Inited to default by provided default constructor
 #ifdef USE_DX11
     D3DX11_IMAGE_LOAD_INFO LoadInfo;
@@ -236,21 +214,6 @@ _DDS_2D:
     // Check for LMAP and compress if needed
     xr_strlwr(fn);
 
-    // Load   SYS-MEM-surface, bound to device restrictions
-    // ID3DTexture2D*       T_sysmem;
-    // R_CHK2(D3DXCreateTextureFromFileInMemoryEx
-    //  (
-    //  HW.pDevice,S->pointer(),S->length(),
-    //  D3DX_DEFAULT,D3DX_DEFAULT,
-    //  IMG.MipLevels,0,
-    //  IMG.Format,
-    //  D3DPOOL_SYSTEMMEM,
-    //  D3DX_DEFAULT,
-    //  D3DX_DEFAULT,
-    //  0,&IMG,0,
-    //  &T_sysmem
-    //  ), fn);
-
     img_loaded_lod = get_texture_load_lod(fn);
 
 //  Inited to default by provided default constructor
@@ -259,6 +222,7 @@ _DDS_2D:
 #else
     D3DX10_IMAGE_LOAD_INFO LoadInfo;
 #endif
+	LoadInfo.MipLevels = IMG.MipLevels;
     LoadInfo.Width = IMG.Width;
     LoadInfo.Height = IMG.Height;
 
@@ -270,7 +234,6 @@ _DDS_2D:
         Reduce(LoadInfo.Width, LoadInfo.Height, IMG.MipLevels, img_loaded_lod);
 #endif
 
-    // LoadInfo.Usage = D3D_USAGE_IMMUTABLE;
     if (bStaging)
     {
         LoadInfo.Usage = D3D_USAGE_STAGING;
@@ -299,7 +262,6 @@ _DDS_2D:
 
 _BUMP_from_base:
 {
-    // Msg          ("! auto-generated bump map: %s",fname);
     Msg("! Fallback to default bump map: %s", fname);
     //////////////////
     if (strstr(fname, "_bump#"))

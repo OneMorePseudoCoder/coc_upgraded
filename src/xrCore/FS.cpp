@@ -32,8 +32,6 @@ void register_file_mapping(void* address, const u32& size, LPCSTR file_name)
     VERIFY(I == g_file_mappings.end());
     g_file_mappings.insert(std::make_pair(*(u32*)&address, std::make_pair(size, shared_str(file_name))));
 
-    // Msg ("++register_file_mapping(%2d): [0x%08x]%s", g_file_mapped_count + 1, *((u32*)&address), file_name);
-
     g_file_mapped_memory += size;
     ++g_file_mapped_count;
 #ifdef USE_MEMORY_MONITOR
@@ -48,14 +46,8 @@ void unregister_file_mapping(void* address, const u32& size)
 {
     FILE_MAPPINGS::iterator I = g_file_mappings.find(*(u32*)&address);
     VERIFY(I != g_file_mappings.end());
-    // VERIFY2 ((*I).second.first == size,make_string("file mapping sizes are different: %d ->
-    // %d",(*I).second.first,size));
     g_file_mapped_memory -= (*I).second.first;
     --g_file_mapped_count;
-
-    // Msg ("--unregister_file_mapping(%2d): [0x%08x]%s", g_file_mapped_count + 1, *((u32*)&address),
-    // (*I).second.second.c_str());
-
     g_file_mappings.erase(I);
 
 #ifdef USE_MEMORY_MONITOR
@@ -130,12 +122,7 @@ void* FileDownload(LPCSTR file_name, const int& file_handle, u32& file_size)
     void* buffer = xr_malloc(file_size);
 
     int r_bytes = _read(file_handle, buffer, file_size);
-    R_ASSERT3(
-        // !file_size ||
-        // (r_bytes && (file_size >= (u32)r_bytes)),
-        file_size == (u32)r_bytes, "can't read from file : ", file_name);
-
-    // file_size = r_bytes;
+    R_ASSERT3(file_size == (u32)r_bytes, "can't read from file : ", file_name);
 
     R_ASSERT3(!_close(file_handle), "can't close file : ", file_name);
 
@@ -233,6 +220,7 @@ void IWriter::open_chunk(u32 type)
     chunk_pos.push(tell());
     w_u32(0); // the place for 'size'
 }
+
 void IWriter::close_chunk()
 {
     VERIFY(!chunk_pos.empty());
@@ -346,6 +334,7 @@ find_chunk_counter g_find_chunk_counter;
 #endif // FIND_CHUNK_BENCHMARK_ENABLE
 
 u32 IReader::find_chunk(u32 ID, BOOL* bCompressed) { return inherited::find_chunk(ID, bCompressed); }
+
 IReader* IReader::open_chunk_iterator(u32& ID, IReader* _prev)
 {
     if (0 == _prev)

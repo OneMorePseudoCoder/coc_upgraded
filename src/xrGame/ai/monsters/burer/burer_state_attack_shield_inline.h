@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../stalker/ai_stalker.h"
+
 template <class Object>
 CStateBurerShield<Object>::CStateBurerShield(Object* obj) : inherited(obj), m_started(false)
 {
@@ -24,7 +26,7 @@ void CStateBurerShield<Object>::initialize()
 template <class Object>
 void CStateBurerShield<Object>::execute()
 {
-    if (!m_started) // && current_time() > m_last_shield_started + TTime(m_shield_start_anim_length_sec*1000) )
+    if (!m_started)
     {
         m_started = true;
         this->object->ActivateShield();
@@ -32,8 +34,7 @@ void CStateBurerShield<Object>::execute()
 
     if (m_started && this->object->m_shield_keep_particle != 0 && current_time() > m_next_particle_allowed)
     {
-        this->object->CParticlesPlayer::StartParticles(
-            this->object->m_shield_keep_particle, Fvector().set(0, 1, 0), this->object->ID(), -1, true);
+        this->object->CParticlesPlayer::StartParticles(this->object->m_shield_keep_particle, Fvector().set(0, 1, 0), this->object->ID(), -1, true);
 
         m_next_particle_allowed = current_time() + this->object->m_shield_keep_particle_period;
     }
@@ -65,6 +66,11 @@ bool CStateBurerShield<Object>::check_start_conditions()
 {
     if (current_time() < m_last_shield_started + this->object->m_shield_time + this->object->m_shield_cooldown)
         return false;
+
+	const CEntityAlive* enemy = object->EnemyMan.get_enemy();
+	const CAI_Stalker* stalker = smart_cast<const CAI_Stalker*>( enemy );
+	if (!enemy || !(stalker || enemy == Actor()))
+		return false;
 
     if (!this->object->EnemyMan.enemy_see_me_now())
         return false;

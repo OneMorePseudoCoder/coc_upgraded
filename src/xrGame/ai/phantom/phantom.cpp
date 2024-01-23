@@ -156,14 +156,7 @@ void CPhantom::SwitchToState_internal(EState new_state)
         {
             SStateData& sdata = m_state_data[m_CurState];
             PlayParticles(sdata.particles.c_str(), FALSE, xform);
-            Fvector vE, vP;
-            m_enemy->Center(vE);
-            Center(vP);
-            if (vP.distance_to_sqr(vE) < _sqr(Radius()))
-            {
-                // hit enemy
-                PsyHit(m_enemy, fContactHit);
-            }
+			PsyHit(m_enemy, fContactHit);
         }
         break;
         case stShoot:

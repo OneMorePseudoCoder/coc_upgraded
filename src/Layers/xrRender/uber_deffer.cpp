@@ -2,12 +2,11 @@
 #include "uber_deffer.h"
 void fix_texture_name(LPSTR fn);
 
-void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOOL _aref, LPCSTR _detail_replace,
-    bool DO_NOT_FINISH)
+void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOOL _aref, LPCSTR _detail_replace, bool DO_NOT_FINISH)
 {
     // Uber-parse
     string256 fname, fnameA, fnameB;
-    xr_strcpy(fname, *C.L_textures[0]); //. andy if (strext(fname)) *strext(fname)=0;
+    xr_strcpy(fname, *C.L_textures[0]);
     fix_texture_name(fname);
     ref_texture _t;
     _t.create(fname);
@@ -32,8 +31,7 @@ void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOO
     xr_strcpy(dt, sizeof(dt), _detail_replace ? _detail_replace : (C.detail_texture ? C.detail_texture : ""));
 
     // detect detail bump
-    string256 texDetailBump = {'\0'};
-    string256 texDetailBumpX = {'\0'};
+	string256 texDetailBump{}, texDetailBumpX{};
     bool bHasDetailBump = false;
     if (C.bDetail_Bump)
     {
@@ -144,6 +142,7 @@ void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOO
         VERIFY(strstr(vs, "bump") != 0);
         VERIFY(strstr(ps, "bump") != 0);
         C.r_TessPass(vs, hs, ds, "null", ps, FALSE);
+		C.r_ComputePass("null");
         RImplementation.clearAllShaderOptions();
         u32 stage = C.r_dx10Sampler("smp_bump_ds");
         if (stage != -1)
@@ -163,21 +162,7 @@ void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOO
     else
 #endif
         C.r_Pass(vs, ps, FALSE);
-    // C.r_Sampler("s_base", C.L_textures[0], false, D3DTADDRESS_WRAP,
-    // D3DTEXF_ANISOTROPIC,D3DTEXF_LINEAR,
-    // D3DTEXF_ANISOTROPIC);
-    // C.r_Sampler("s_bumpX", fnameB, false, D3DTADDRESS_WRAP,
-    // D3DTEXF_ANISOTROPIC,D3DTEXF_LINEAR,
-    // D3DTEXF_ANISOTROPIC); // should be before base bump
-    // C.r_Sampler("s_bump", fnameA, false, D3DTADDRESS_WRAP,
-    // D3DTEXF_ANISOTROPIC,D3DTEXF_LINEAR,
-    // D3DTEXF_ANISOTROPIC);
-    // C.r_Sampler("s_bumpD", dt, false, D3DTADDRESS_WRAP,
-    // D3DTEXF_ANISOTROPIC,D3DTEXF_LINEAR,
-    // D3DTEXF_ANISOTROPIC);
-    // C.r_Sampler("s_detail", dt, false, D3DTADDRESS_WRAP,
-    // D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR,
-    // D3DTEXF_ANISOTROPIC);
+
     C.r_dx10Texture("s_base", C.L_textures[0]);
     C.r_dx10Texture("s_bumpX", fnameB); // should be before base bump
     C.r_dx10Texture("s_bump", fnameA);
@@ -193,8 +178,6 @@ void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOO
     C.r_dx10Sampler("smp_base");
     if (lmap)
     {
-        // C.r_Sampler("s_hemi", C.L_textures[2], false, D3DTADDRESS_CLAMP, D3DTEXF_LINEAR, D3DTEXF_NONE,
-        // D3DTEXF_LINEAR);
         C.r_dx10Texture("s_hemi", C.L_textures[2]);
         C.r_dx10Sampler("smp_rtlinear");
     }
@@ -211,19 +194,15 @@ void uber_deffer(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BOO
         VERIFY2(xr_strlen(texDetailBump), C.L_textures[0].c_str());
         VERIFY2(xr_strlen(texDetailBumpX), C.L_textures[0].c_str());
     }
-    C.r_Sampler(
-        "s_base", C.L_textures[0], false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
-    C.r_Sampler("s_bumpX", fnameB, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR,
-        D3DTEXF_ANISOTROPIC); // should be before base bump
+    C.r_Sampler("s_base", C.L_textures[0], false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
+    C.r_Sampler("s_bumpX", fnameB, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC); // should be before base bump
     C.r_Sampler("s_bump", fnameA, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
     C.r_Sampler("s_bumpD", dt, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
     C.r_Sampler("s_detail", dt, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
     if (bHasDetailBump)
     {
-        C.r_Sampler("s_detailBump", texDetailBump, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR,
-            D3DTEXF_ANISOTROPIC);
-        C.r_Sampler("s_detailBumpX", texDetailBumpX, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR,
-            D3DTEXF_ANISOTROPIC);
+        C.r_Sampler("s_detailBump", texDetailBump, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
+        C.r_Sampler("s_detailBumpX", texDetailBumpX, false, D3DTADDRESS_WRAP, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
     }
     if (lmap)
         C.r_Sampler("s_hemi", C.L_textures[2], false, D3DTADDRESS_CLAMP, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
@@ -289,7 +268,7 @@ void uber_shadow(CBlender_Compile& C, LPCSTR _vspec)
 
     if (bump && RImplementation.o.dx11_enable_tessellation && C.TessMethod != 0)
     {
-        char hs[256], ds[256]; // = "DX11\\tess", ds[256] = "DX11\\tess";
+        char hs[256], ds[256];
         char params[256] = "(";
 
         if (C.TessMethod == CBlender_Compile::TESS_PN || C.TessMethod == CBlender_Compile::TESS_PN_HM)
@@ -329,6 +308,7 @@ void uber_shadow(CBlender_Compile& C, LPCSTR _vspec)
         strconcat(sizeof(ds), ds, "DX11\\tess_shadow", params);
 
         C.r_TessPass(vs, hs, ds, "null", "dumb", FALSE, TRUE, TRUE, FALSE);
+		C.r_ComputePass("null");
         RImplementation.clearAllShaderOptions();
         C.r_dx10Texture("s_base", C.L_textures[0]);
         C.r_dx10Texture("s_bumpX", fnameB); // should be before base bump

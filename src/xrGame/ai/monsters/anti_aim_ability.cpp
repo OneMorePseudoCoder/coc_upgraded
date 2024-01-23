@@ -72,6 +72,11 @@ bool anti_aim_ability::check_start_condition()
         return false;
     }
 
+	if (!check_update_condition())
+	{
+		return false;
+	}
+	
     if (m_object->GetScriptControl() && !m_object->get_force_anti_aim())
     {
         return false;
@@ -137,8 +142,7 @@ void anti_aim_ability::activate()
 
     m_last_activated_tick = Device.dwTimeGlobal;
 
-    m_animation_hit_tick =
-        Device.dwTimeGlobal + (TTime)(m_object->anim().get_animation_hit_time(eAnimAntiAimAbility, 0) * 1000);
+    m_animation_hit_tick = Device.dwTimeGlobal + (TTime)(m_object->anim().get_animation_hit_time(eAnimAntiAimAbility, 0) * 1000);
 
     MotionID motion;
     float anim_length;

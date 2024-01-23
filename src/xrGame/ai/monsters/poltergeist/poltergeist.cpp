@@ -358,9 +358,15 @@ BOOL CPoltergeist::net_Spawn(CSE_Abstract* DC)
     VERIFY(character_physics_support());
     VERIFY(character_physics_support()->movement());
     character_physics_support()->movement()->DestroyCharacter();
-    // спаунится нивидимым
-    setVisible(false);
-    ability()->on_hide();
+
+    if (g_Alive())
+    {
+        // спаунится нивидимым
+        setVisible(false);
+        ability()->on_hide();
+    }
+    else
+        OnDie();
 
     return (TRUE);
 }
@@ -374,7 +380,7 @@ void CPoltergeist::net_Destroy()
     ability()->on_destroy();
 }
 
-void CPoltergeist::Die(IGameObject* who)
+void CPoltergeist::OnDie()
 {
     if (m_tele)
     {
@@ -394,11 +400,16 @@ void CPoltergeist::Die(IGameObject* who)
 		}
 	}
 
-    inherited::Die(who);
-	CTelekinesis::deactivate();
     Energy::disable();
-
+    CTelekinesis::deactivate();
     ability()->on_die();
+}
+
+
+void CPoltergeist::Die(IGameObject* who)
+{
+    inherited::Die(who);
+    OnDie();
 }
 
 void CPoltergeist::Hit(SHit* pHDS)
@@ -503,8 +514,7 @@ CBaseMonster::SDebugInfo CPoltergeist::show_debug_info()
     string128 text;
     xr_sprintf(text, "Invisibility Value = [%f]", Energy::get_value());
     DBG().text(this).add_item(text, info.x, info.y += info.delta_y, info.color);
-    DBG().text(this).add_item(
-        "---------------------------------------", info.x, info.y += info.delta_y, info.delimiter_color);
+    DBG().text(this).add_item("---------------------------------------", info.x, info.y += info.delta_y, info.delimiter_color);
 
     return CBaseMonster::SDebugInfo();
 }

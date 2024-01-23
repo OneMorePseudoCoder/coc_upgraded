@@ -34,17 +34,18 @@ CROS_impl::CROS_impl()
     sun_value = 0.2f;
     sun_smooth = 0.2f;
 
+	for (size_t i = 0; i < NUM_FACES; ++i)
+	{
+		hemi_cube[i] = hemi_cube_smooth[i] = 0;
+	}
+
 #if RENDER != R_R1
     last_position.set(0.0f, 0.0f, 0.0f);
     ticks_to_update = 0;
     sky_rays_uptodate = 0;
 #endif // RENDER!=R_R1
 
-    //#if RENDER==R_R1
     MODE = IRender_ObjectSpecific::TRACE_ALL;
-    //#else
-    //	MODE				= IRender_ObjectSpecific::TRACE_HEMI + IRender_ObjectSpecific::TRACE_SUN	;
-    //#endif
 }
 
 void CROS_impl::add(light* source)
@@ -74,36 +75,6 @@ IC bool pred_energy(const CROS_impl::Light& L1, const CROS_impl::Light& L2) { re
 #pragma warning(push)
 #pragma warning(disable : 4305)
 
-// const float		hdir		[lt_hemisamples][3] =
-// {
-// 	{0.00000,	1.00000,	0.00000	},
-// 	{0.52573,	0.85065,	0.00000	},
-// 	{0.16246,	0.85065,	0.50000	},
-// 	{-0.42533,	0.85065,	0.30902	},
-// 	{-0.42533,	0.85065,	-0.30902},
-// 	{0.16246,	0.85065,	-0.50000},
-// 	{0.89443,	0.44721,	0.00000	},
-// 	{0.27639,	0.44721,	0.85065	},
-// 	{-0.72361,	0.44721,	0.52573	},
-// 	{-0.72361,	0.44721,	-0.52573},
-// 	{0.27639,	0.44721,	-0.85065},
-// 	{0.68819,	0.52573,	0.50000	},
-// 	{-0.26287,	0.52573,	0.80902	},
-// 	{-0.85065,	0.52573,	-0.00000},
-// 	{-0.26287,	0.52573,	-0.80902},
-// 	{0.68819,	0.52573,	-0.50000},
-// 	{0.95106,	0.00000,	0.30902	},
-// 	{0.58779,	0.00000,	0.80902	},
-// 	{-0.00000,	0.00000,	1.00000	},
-// 	{-0.58779,	0.00000,	0.80902	},
-// 	{-0.95106,	0.00000,	0.30902	},
-// 	{-0.95106,	0.00000,	-0.30902},
-// 	{-0.58779,	0.00000,	-0.80902},
-// 	{0.00000,	0.00000,	-1.00000},
-// 	{0.58779,	0.00000,	-0.80902},
-// 	{0.95106,	0.00000,	-0.30902}
-// };
-
 const float hdir[lt_hemisamples][3] = {
     {-0.26287, 0.52573, 0.80902}, {0.27639, 0.44721, 0.85065}, {-0.95106, 0.00000, 0.30902},
     {-0.95106, 0.00000, -0.30902}, {0.58779, 0.00000, -0.80902}, {0.58779, 0.00000, 0.80902},
@@ -120,24 +91,6 @@ const float hdir[lt_hemisamples][3] = {
     {-0.42533, 0.85065, -0.30902}, {0.68819, 0.52573, 0.50000},
 };
 #pragma warning(pop)
-
-// inline CROS_impl::CubeFaces CROS_impl::get_cube_face(Fvector3& dir)
-//{
-//	float x2 = dir.x*dir.x;
-//	float y2 = dir.y*dir.y;
-//	float z2 = dir.z*dir.z;
-//
-//	if (x2 >= y2 + z2)
-//	{
-//		return (dir.x > 0) ? CUBE_FACE_POS_X : CUBE_FACE_NEG_X;
-//	}
-//	else if (y2 >= z2 + x2)
-//	{
-//		return (dir.y > 0) ? CUBE_FACE_POS_Y : CUBE_FACE_NEG_Y;
-//	}
-//	/*else*/
-//	return (dir.z > 0) ? CUBE_FACE_POS_Z : CUBE_FACE_NEG_Z;
-//}
 
 inline void CROS_impl::accum_hemi(float* hemi_cube, Fvector3& dir, float scale)
 {
@@ -169,7 +122,6 @@ void CROS_impl::update(IRenderable* O)
     if (nullptr == O->GetRenderData().visual)
         return;
     VERIFY(dynamic_cast<CROS_impl*>(O->renderable_ROS()));
-    // float	dt			=	Device.fTimeDelta;
 
     IGameObject* _object = dynamic_cast<IGameObject*>(O);
 
@@ -180,8 +132,6 @@ void CROS_impl::update(IRenderable* O)
     position.y += .3f * vis.sphere.R;
     Fvector direction;
     direction.random_dir();
-    //.			position.mad(direction,0.25f*radius);
-    //.			position.mad(direction,0.025f*radius);
 
     // function call order is important at least for r1
     for (size_t i = 0; i < NUM_FACES; ++i)
@@ -223,8 +173,7 @@ void CROS_impl::update(IRenderable* O)
             float d = L->position.distance_to(position);
 
 #if RENDER != R_R1
-            float a = (1 / (L->attenuation0 + L->attenuation1 * d + L->attenuation2 * d * d) - d * L->falloff) *
-                (L->flags.bStatic ? 1.f : 2.f);
+            float a = (1 / (L->attenuation0 + L->attenuation1 * d + L->attenuation2 * d * d) - d * L->falloff) * (L->flags.bStatic ? 1.f : 2.f);
             a = (a > 0) ? a : 0.0f;
 
             Fvector3 dir;
@@ -232,8 +181,7 @@ void CROS_impl::update(IRenderable* O)
             dir.normalize_safe();
 
             // multiply intensity on attenuation and accumulate result in hemi cube face
-            float koef =
-                (lights[lit].color.r + lights[lit].color.g + lights[lit].color.b) / 3.0f * a * ps_r2_dhemi_light_scale;
+            float koef = (lights[lit].color.r + lights[lit].color.g + lights[lit].color.b) / 3.0f * a * ps_r2_dhemi_light_scale;
 
             accum_hemi(hemi_cube_light, dir, koef);
 #else
@@ -254,22 +202,16 @@ void CROS_impl::update(IRenderable* O)
 
         for (size_t i = 0; i < NUM_FACES; ++i)
         {
-            hemi_cube[i] += hemi_cube_light[i] * (1 - ps_r2_dhemi_light_flow) +
-                ps_r2_dhemi_light_flow * hemi_cube_light[(i + NUM_FACES / 2) % NUM_FACES];
+            hemi_cube[i] += hemi_cube_light[i] * (1 - ps_r2_dhemi_light_flow) + ps_r2_dhemi_light_flow * hemi_cube_light[(i + NUM_FACES / 2) % NUM_FACES];
             hemi_cube[i] = std::max(hemi_cube[i], minHemiValue);
         }
 #endif
 
-        //		lacc.x		*= desc.lmap_color.x;
-        //		lacc.y		*= desc.lmap_color.y;
-        //		lacc.z		*= desc.lmap_color.z;
-        //		Msg				("- rgb[%f,%f,%f]",lacc.x,lacc.y,lacc.z);
         accum.add(lacc);
     }
     else
         accum.set(.1f, .1f, .1f);
 
-    // clamp(hemi_value, 0.0f, 1.0f); //Possibly can change hemi value
     if (bFirstTime)
     {
         hemi_smooth = hemi_value;
@@ -377,10 +319,7 @@ void CROS_impl::calc_sun_value(Fvector& position, IGameObject* _object)
             result_sun += ::Random.randI(lt_hemisamples / 4, lt_hemisamples / 2);
             Fvector direction;
             direction.set(sun->direction).invert().normalize();
-            sun_value = !(g_pGameLevel->ObjectSpace.RayTest(
-                            position, direction, 500.f, collide::rqtBoth, &cache_sun, _object)) ?
-                1.f :
-                0.f;
+            sun_value = !(g_pGameLevel->ObjectSpace.RayTest(position, direction, 500.f, collide::rqtBoth, &cache_sun, _object)) ? 1.f : 0.f;
         }
     }
 }
@@ -412,16 +351,11 @@ void CROS_impl::calc_sky_hemi_value(Fvector& position, IGameObject* _object)
             // take sample
             Fvector direction;
             direction.set(hdir[sample][0], hdir[sample][1], hdir[sample][2]).normalize();
-            //.			result[sample]	=
-            //! g_pGameLevel->ObjectSpace.RayTest(position,direction,50.f,collide::rqtBoth,&cache[sample],_object);
-            result[sample] = !g_pGameLevel->ObjectSpace.RayTest(
-                position, direction, 50.f, collide::rqtStatic, &cache[sample], _object);
-            //	Msg				("%d:-- %s",sample,result[sample]?"true":"false");
+            result[sample] = !g_pGameLevel->ObjectSpace.RayTest(position, direction, 50.f, collide::rqtStatic, &cache[sample], _object);
         }
     }
+
     // hemi & sun: update and smooth
-    //	float	l_f				=	dt*lt_smooth;
-    //	float	l_i				=	1.f-l_f;
     int _pass = 0;
     for (int it = 0; it < result_count; it++)
         if (result[it])

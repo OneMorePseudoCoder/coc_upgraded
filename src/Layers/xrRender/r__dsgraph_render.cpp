@@ -392,7 +392,12 @@ IC void __fastcall render_item(const T& item)
     RImplementation.apply_lmaterial();
     //--#SM+#-- Обновляем шейдерные данные модели [update shader values for this model]
     RCache.hemi.c_update(V);
-    V->Render(calcLOD(item.first, V->vis.sphere.R));
+
+	const float LOD = calcLOD(item.first, V->vis.sphere.R);
+#ifdef USE_DX11
+	RCache.LOD.set_LOD(LOD);
+#endif
+	V->Render(LOD);
 }
 
 template<class T>

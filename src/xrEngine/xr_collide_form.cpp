@@ -13,8 +13,7 @@
 #ifdef DEBUG
 IC float DET(const Fmatrix& a)
 {
-    return ((a._11 * (a._22 * a._33 - a._23 * a._32) - a._12 * (a._21 * a._33 - a._23 * a._31) +
-        a._13 * (a._21 * a._32 - a._22 * a._31)));
+    return ((a._11 * (a._22 * a._33 - a._23 * a._32) - a._12 * (a._21 * a._33 - a._23 * a._31) + a._13 * (a._21 * a._32 - a._22 * a._31)));
 }
 #include "objectdump.h"
 #endif
@@ -111,7 +110,8 @@ void CCF_Skeleton::BuildState()
     dwFrame = Device.dwFrame;
     IRenderVisual* pVisual = owner->Visual();
     IKinematics* K = PKinematics(pVisual);
-    K->CalculateBones();
+    K->CalculateBones_Invalidate();
+    K->CalculateBones(TRUE);
     const Fmatrix& L2W = owner->XFORM();
 
     if (vis_mask != K->LL_GetBonesVisible())

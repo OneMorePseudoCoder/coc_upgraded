@@ -100,6 +100,7 @@ void CLevel::remove_objects()
     }
 
     g_pGamePersistent->destroy_particles(false);
+	GEnv.Sound->stop_emitters();
 }
 
 #ifdef DEBUG
@@ -172,34 +173,32 @@ u32 CLevel::Objects_net_Save(NET_Packet* _Packet, u32 start, u32 max_object_size
 {
     NET_Packet& Packet = *_Packet;
     u32 position;
-    for (; start < Objects.o_count(); start++)
+    while (start < Objects.o_count())
     {
         IGameObject* _P = Objects.o_get_by_iterator(start);
         CGameObject* P = smart_cast<CGameObject*>(_P);
-        //		Msg			("save:iterating:%d:%s, size[%d]",P->ID(),*P->cName(), Packet.w_tell() );
         if (P && !P->getDestroy() && P->net_SaveRelevant())
         {
             Packet.w_u16(u16(P->ID()));
             Packet.w_chunk_open16(position);
-            //			Msg						("save:saving:%d:%s",P->ID(),*P->cName());
             P->net_Save(Packet);
 #ifdef DEBUG
             u32 size = u32(Packet.w_tell() - position) - sizeof(u16);
-            //			Msg						("save:saved:%d bytes:%d:%s",size,P->ID(),*P->cName());
             if (size >= 65536)
             {
-                xrDebug::Fatal(DEBUG_INFO, "Object [%s][%d] exceed network-data limit\n size=%d, Pend=%d, Pstart=%d",
-                    *P->cName(), P->ID(), size, Packet.w_tell(), position);
+                xrDebug::Fatal(DEBUG_INFO, "Object [%s][%d] exceed network-data limit\n size=%d, Pend=%d, Pstart=%d", *P->cName(), P->ID(), size, Packet.w_tell(), position);
             }
 #endif
             Packet.w_chunk_close16(position);
-            //			if (0==(--count))
-            //				break;
-            if (max_object_size >= (NET_PacketSizeLimit - Packet.w_tell()))
-                break;
+			if (max_object_size > (NET_PacketSizeLimit - Packet.w_tell())) 
+			{
+				start++;
+				break;
+			}
         }
+		start++;
     }
-    return ++start;
+    return start;
 }
 
 void CLevel::ClientSave()

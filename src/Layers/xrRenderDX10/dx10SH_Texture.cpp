@@ -94,7 +94,6 @@ void CTexture::surface_set(ID3DBaseTexture* surf)
             }
 
             // this would be supported by DX10.1 but is not needed for stalker
-            // if( ViewDesc.Format != DXGI_FORMAT_R24_UNORM_X8_TYPELESS )
             if ((desc.SampleDesc.Count <= 1) || (ViewDesc.Format != DXGI_FORMAT_R24_UNORM_X8_TYPELESS))
                 CHK_DX(HW.pDevice->CreateShaderResourceView(pSurface, &ViewDesc, &m_pSRView));
             else
@@ -159,9 +158,7 @@ void CTexture::ProcessStaging()
 
         T = 0;
 
-        CHK_DX(HW.pDevice->CreateTexture2D(&TexDesc, // Texture desc
-            NULL, // Initial data
-            &T)); // [out] Texture
+        CHK_DX(HW.pDevice->CreateTexture2D(&TexDesc, NULL, &T));
 
         pTargetSurface = T;
     }
@@ -177,9 +174,7 @@ void CTexture::ProcessStaging()
 
         T = 0;
 
-        CHK_DX(HW.pDevice->CreateTexture3D(&TexDesc, // Texture desc
-            NULL, // Initial data
-            &T)); // [out] Texture
+        CHK_DX(HW.pDevice->CreateTexture3D(&TexDesc, NULL, &T));
 
         pTargetSurface = T;
     }
@@ -188,21 +183,6 @@ void CTexture::ProcessStaging()
     }
 
     HW.pContext->CopyResource(pTargetSurface, pSurface);
-    /*
-    for( int i=0; i<iNumSubresources; ++i)
-    {
-        HW.pDevice->CopySubresourceRegion(
-            pTargetSurface,
-            i,
-            0,
-            0,
-            0,
-            pSurface,
-            i,
-            0
-            );
-    }
-    */
 
     flags.bLoadedAsStaging = FALSE;
 
@@ -222,27 +202,16 @@ void CTexture::Apply(u32 dwStage)
     if (flags.bLoadedAsStaging)
         ProcessStaging();
 
-    // if( !RImplementation.o.dx10_msaa )
-    //   VERIFY( !((!pSurface)^(!m_pSRView)) );	//	Both present or both missing
-    // else
-    //{
-    // if( ((!pSurface)^(!m_pSRView)) )
-    //   return;
-    //}
-
     if (dwStage < rstVertex) //	Pixel shader stage resources
     {
-        // HW.pDevice->PSSetShaderResources(dwStage, 1, &m_pSRView);
         SRVSManager.SetPSResource(dwStage, m_pSRView);
     }
     else if (dwStage < rstGeometry) //	Vertex shader stage resources
     {
-        // HW.pDevice->VSSetShaderResources(dwStage-rstVertex, 1, &m_pSRView);
         SRVSManager.SetVSResource(dwStage - rstVertex, m_pSRView);
     }
     else if (dwStage < rstHull) //	Geometry shader stage resources
     {
-        // HW.pDevice->GSSetShaderResources(dwStage-rstGeometry, 1, &m_pSRView);
         SRVSManager.SetGSResource(dwStage - rstGeometry, m_pSRView);
     }
 #ifdef USE_DX11
@@ -280,18 +249,15 @@ void CTexture::apply_theora(u32 dwStage)
 
         u32 _w = pTheora->Width(false);
 
-// R_CHK				(T2D->LockRect(0,&R,&rect,0));
 #ifdef USE_DX11
         R_CHK(HW.pContext->Map(T2D, 0, D3D_MAP_WRITE_DISCARD, 0, &mapData));
 #else
         R_CHK(T2D->Map(0, D3D_MAP_WRITE_DISCARD, 0, &mapData));
 #endif
-        // R_ASSERT			(R.Pitch == int(pTheora->Width(false)*4));
         R_ASSERT(mapData.RowPitch == int(pTheora->Width(false) * 4));
         int _pos = 0;
         pTheora->DecompressFrame((u32*)mapData.pData, _w - rect.right, _pos);
         VERIFY(u32(_pos) == rect.bottom * _w);
-// R_CHK				(T2D->UnlockRect(0));
 #ifdef USE_DX11
         HW.pContext->Unmap(T2D, 0);
 #else
@@ -299,8 +265,8 @@ void CTexture::apply_theora(u32 dwStage)
 #endif
     }
     Apply(dwStage);
-    // CHK_DX(HW.pDevice->SetTexture(dwStage,pSurface));
 };
+
 void CTexture::apply_avi(u32 dwStage)
 {
     if (pAVI->NeedUpdate())
@@ -311,8 +277,7 @@ void CTexture::apply_avi(u32 dwStage)
         ID3DTexture2D* T2D = (ID3DTexture2D*)pSurface;
         D3D_MAPPED_TEXTURE2D mapData;
 
-// AVI
-// R_CHK	(T2D->LockRect(0,&R,NULL,0));
+		// AVI
 #ifdef USE_DX11
         R_CHK(HW.pContext->Map(T2D, 0, D3D_MAP_WRITE_DISCARD, 0, &mapData));
 #else
@@ -322,20 +287,19 @@ void CTexture::apply_avi(u32 dwStage)
         BYTE* ptr;
         pAVI->GetFrame(&ptr);
         CopyMemory(mapData.pData, ptr, pAVI->m_dwWidth * pAVI->m_dwHeight * 4);
-// R_CHK	(T2D->UnlockRect(0));
 #ifdef USE_DX11
         HW.pContext->Unmap(T2D, 0);
 #else
         T2D->Unmap(0);
 #endif
     }
-    // CHK_DX(HW.pDevice->SetTexture(dwStage,pSurface));
+
     Apply(dwStage);
 };
 void CTexture::apply_seq(u32 dwStage)
 {
     // SEQ
-    u32 frame = Device.dwTimeContinual / seqMSPF; // Device.dwTimeGlobal
+    u32 frame = Device.dwTimeContinual / seqMSPF;
     u32 frame_data = seqDATA.size();
     if (flags.seqCycles)
     {
@@ -351,12 +315,12 @@ void CTexture::apply_seq(u32 dwStage)
         pSurface = seqDATA[frame_id];
         m_pSRView = m_seqSRView[frame_id];
     }
-    // CHK_DX(HW.pDevice->SetTexture(dwStage,pSurface));
+
     Apply(dwStage);
 };
+
 void CTexture::apply_normal(u32 dwStage)
 {
-    // CHK_DX(HW.pDevice->SetTexture(dwStage,pSurface));
     Apply(dwStage);
 };
 
@@ -410,8 +374,6 @@ void CTexture::Load()
             u32 _w = pTheora->Width(false);
             u32 _h = pTheora->Height(false);
 
-            //			HRESULT hrr = HW.pDevice->CreateTexture(
-            //				_w, _h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTexture, NULL );
             D3D_TEXTURE2D_DESC desc;
             desc.Width = _w;
             desc.Height = _h;
@@ -457,10 +419,6 @@ void CTexture::Load()
 
             // Now create texture
             ID3DTexture2D* pTexture = 0;
-            // HRESULT hrr = HW.pDevice->CreateTexture(
-            // pAVI->m_dwWidth,pAVI->m_dwHeight,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,
-            //	&pTexture,NULL
-            //	);
             D3D_TEXTURE2D_DESC desc;
             desc.Width = pAVI->m_dwWidth;
             desc.Height = pAVI->m_dwHeight;
@@ -517,7 +475,6 @@ void CTexture::Load()
                 pSurface = ::RImplementation.texture_load(buffer, mem);
                 if (pSurface)
                 {
-                    // pSurface->SetPriority	(PRIORITY_LOW);
                     seqDATA.push_back(pSurface);
                     m_seqSRView.push_back(0);
                     HW.pDevice->CreateShaderResourceView(seqDATA.back(), NULL, &m_seqSRView.back());
@@ -532,7 +489,6 @@ void CTexture::Load()
     {
         // Normal texture
         u32 mem = 0;
-        // pSurface = ::RImplementation.texture_load	(*cName,mem);
         pSurface = ::RImplementation.texture_load(*cName, mem, true);
 
         if (GetUsage() == D3D_USAGE_STAGING)
@@ -544,7 +500,6 @@ void CTexture::Load()
         // Calc memory usage and preload into vid-mem
         if (pSurface)
         {
-            // pSurface->SetPriority	(PRIORITY_NORMAL);
             flags.MemoryUsage = mem;
             if (bCreateView)
 				CHK_DX(HW.pDevice->CreateShaderResourceView(pSurface, nullptr, &m_pSRView));

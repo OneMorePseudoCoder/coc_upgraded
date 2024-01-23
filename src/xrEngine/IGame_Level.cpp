@@ -30,7 +30,6 @@ IGame_Level::IGame_Level()
 IGame_Level::~IGame_Level()
 {
     if (strstr(Core.Params, "-nes_texture_storing"))
-        // Device.Resources->StoreNecessaryTextures();
         GEnv.Render->ResourcesStoreNecessaryTextures();
     xr_delete(pLevel);
 
@@ -72,6 +71,7 @@ void __stdcall _sound_event(ref_sound_data_ptr S, float range)
     if (g_pGameLevel && S && S->feedback)
         g_pGameLevel->SoundEvent_Register(S, range);
 }
+
 static void __stdcall build_callback(Fvector* V, int Vcnt, CDB::TRI* T, int Tcnt, void* params)
 {
     g_pGameLevel->Load_GameSpecific_CFORM(T, Tcnt);
@@ -101,7 +101,6 @@ bool IGame_Level::Load(u32 dwNum)
     g_pGamePersistent->SetLoadStageTitle("st_loading_cform");
     g_pGamePersistent->LoadTitle();
     ObjectSpace.Load(build_callback);
-    // GEnv.Sound->set_geometry_occ ( &Static );
     GEnv.Sound->set_geometry_occ(ObjectSpace.GetStaticModel());
     GEnv.Sound->set_handler(_sound_event);
 
@@ -113,14 +112,11 @@ bool IGame_Level::Load(u32 dwNum)
 
     // Render-level Load
     GEnv.Render->level_Load(LL_Stream);
-    // tscreate.FrameEnd ();
-    // Msg ("* S-CREATE: %f ms, %d times",tscreate.result,tscreate.count);
 
     // Objects
     g_pGamePersistent->Environment().mods_load();
     R_ASSERT(Load_GameSpecific_Before());
     Objects.Load();
-    //. ANDY R_ASSERT (Load_GameSpecific_After ());
 
     // Done
     FS.r_close(LL_Stream);
@@ -153,17 +149,10 @@ void IGame_Level::OnRender()
 #ifdef _GPA_ENABLED
     TAL_RetireID(rtID);
 #endif // _GPA_ENABLED
-
-    // Font
-    // pApp->pFontSystem->SetSizeI(0.023f);
-    // pApp->pFontSystem->OnRender();
 }
 
 void IGame_Level::OnFrame()
 {
-    // Log ("- level:on-frame: ",u32(Device.dwFrame));
-    // if (_abs(Device.fTimeDelta)<EPS_S) return;
-
     // Update all objects
     VERIFY(bReady);
     Objects.Update(false);
@@ -290,7 +279,7 @@ void IGame_Level::SoundEvent_Register(ref_sound_data_ptr S, float range)
             Power *= occ;
             if (Power > EPS_S)
             {
-                _esound_delegate D = {L, S, Power};
+                _esound_delegate D = {L, S, Power, snd_position};
                 snd_Events.push_back(D);
             }
         }
@@ -306,10 +295,7 @@ void IGame_Level::SoundEvent_Dispatch()
         VERIFY(D.dest && D.source);
         if (D.source->feedback)
         {
-            D.dest->feel_sound_new(D.source->g_object, D.source->g_type, D.source->g_userdata,
-
-                D.source->feedback->is_2D() ? Device.vCameraPosition : D.source->feedback->get_params()->position,
-                D.power);
+            D.dest->feel_sound_new(D.source->g_object, D.source->g_type, D.source->g_userdata, D.position, D.power);
         }
         snd_Events.pop_back();
     }

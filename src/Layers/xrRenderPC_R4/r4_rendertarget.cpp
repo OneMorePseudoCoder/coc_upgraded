@@ -696,16 +696,6 @@ CRenderTarget::CRenderTarget()
         {
             rt_ssao_temp.create(r2_RT_ssao_temp, w, h, D3DFMT_G16R16F, SampleCount);
             s_ssao.create(b_ssao, "r2\\ssao");
-
-
-            /* Should be used in r4_rendertarget_phase_ssao.cpp but it's commented there.
-            if (RImplementation.o.dx10_msaa)
-            {
-                const int bound = RImplementation.o.dx10_msaa_opt ? 1 : RImplementation.o.dx10_msaa_samples;
-
-                for (int i = 0; i < bound; ++i)
-                    s_ssao_msaa[i].create(b_ssao_msaa[i], "null");
-            }*/
         }
     }
 
@@ -724,13 +714,10 @@ CRenderTarget::CRenderTarget()
         g_combine_2UV.create(FVF::F_TL2uv, RCache.Vertex.Buffer(), RCache.QuadIB);
         g_combine_cuboid.create(dwDecl, RCache.Vertex.Buffer(), RCache.Index.Buffer());
 
-        u32 fvf_aa_blur = D3DFVF_XYZRHW | D3DFVF_TEX4 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE2(1) |
-            D3DFVF_TEXCOORDSIZE2(2) | D3DFVF_TEXCOORDSIZE2(3);
+        u32 fvf_aa_blur = D3DFVF_XYZRHW | D3DFVF_TEX4 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE2(1) | D3DFVF_TEXCOORDSIZE2(2) | D3DFVF_TEXCOORDSIZE2(3);
         g_aa_blur.create(fvf_aa_blur, RCache.Vertex.Buffer(), RCache.QuadIB);
 
-        u32 fvf_aa_AA = D3DFVF_XYZRHW | D3DFVF_TEX7 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE2(1) |
-            D3DFVF_TEXCOORDSIZE2(2) | D3DFVF_TEXCOORDSIZE2(3) | D3DFVF_TEXCOORDSIZE2(4) | D3DFVF_TEXCOORDSIZE4(5) |
-            D3DFVF_TEXCOORDSIZE4(6);
+        u32 fvf_aa_AA = D3DFVF_XYZRHW | D3DFVF_TEX7 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE2(1) | D3DFVF_TEXCOORDSIZE2(2) | D3DFVF_TEXCOORDSIZE2(3) | D3DFVF_TEXCOORDSIZE2(4) | D3DFVF_TEXCOORDSIZE4(5) | D3DFVF_TEXCOORDSIZE4(6);
         g_aa_AA.create(fvf_aa_AA, RCache.Vertex.Buffer(), RCache.QuadIB);
 		
         t_envmap_0.create(r2_T_envs0);
@@ -758,15 +745,6 @@ CRenderTarget::CRenderTarget()
         }
         // Build material(s)
         {
-            //	Create immutable texture.
-            //	So we need to init data _before_ the creation.
-            // Surface
-            // R_CHK
-            // (D3DXCreateVolumeTexture(HW.pDevice,TEX_material_LdotN,TEX_material_LdotH,4,1,0,D3DFMT_A8L8,D3DPOOL_MANAGED,&t_material_surf));
-            // t_material					= dxRenderDeviceRender::Instance().Resources->_CreateTexture(r2_material);
-            // t_material->surface_set		(t_material_surf);
-            //	Use DXGI_FORMAT_R8G8_UNORM
-
             u16 tempData[TEX_material_LdotN * TEX_material_LdotH * TEX_material_Count];
 
             D3D_TEXTURE3D_DESC desc;
@@ -786,17 +764,13 @@ CRenderTarget::CRenderTarget()
             subData.SysMemPitch = desc.Width * 2;
             subData.SysMemSlicePitch = desc.Height * subData.SysMemPitch;
 
-            // Fill it (addr: x=dot(L,N),y=dot(L,H))
-            // D3DLOCKED_BOX				R;
-            // R_CHK						(t_material_surf->LockBox	(0,&R,0,0));
             for (u32 slice = 0; slice < TEX_material_Count; slice++)
             {
                 for (u32 y = 0; y < TEX_material_LdotH; y++)
                 {
                     for (u32 x = 0; x < TEX_material_LdotN; x++)
                     {
-                        u16* p = (u16*)(LPBYTE(subData.pSysMem) + slice * subData.SysMemSlicePitch +
-                            y * subData.SysMemPitch + x * 2);
+                        u16* p = (u16*)(LPBYTE(subData.pSysMem) + slice * subData.SysMemSlicePitch + y * subData.SysMemPitch + x * 2);
                         float ld = float(x) / float(TEX_material_LdotN - 1);
                         float ls = float(y) / float(TEX_material_LdotH - 1) + EPS_S;
                         ls *= powf(ld, 1 / 32.f);
@@ -845,39 +819,15 @@ CRenderTarget::CRenderTarget()
                     }
                 }
             }
-            // R_CHK		(t_material_surf->UnlockBox	(0));
 
             R_CHK(HW.pDevice->CreateTexture3D(&desc, &subData, &t_material_surf));
             t_material = RImplementation.Resources->_CreateTexture(r2_material);
             t_material->surface_set(t_material_surf);
-            // R_CHK
-            // (D3DXCreateVolumeTexture(HW.pDevice,TEX_material_LdotN,TEX_material_LdotH,4,1,0,D3DFMT_A8L8,D3DPOOL_MANAGED,&t_material_surf));
-            // t_material					= dxRenderDeviceRender::Instance().Resources->_CreateTexture(r2_material);
-            // t_material->surface_set		(t_material_surf);
-
-            // #ifdef DEBUG
-            // R_CHK	(D3DXSaveTextureToFile	("x:\\r2_material.dds",D3DXIFF_DDS,t_material_surf,0));
-            // #endif
         }
 
         // Build noise table
         if (1)
         {
-            // Surfaces
-            // D3DLOCKED_RECT				R[TEX_jitter_count];
-
-            // for (int it=0; it<TEX_jitter_count; it++)
-            //{
-            //	string_path					name;
-            //	xr_sprintf						(name,"%s%d",r2_jitter,it);
-            //	R_CHK	(D3DXCreateTexture
-            //(HW.pDevice,TEX_jitter,TEX_jitter,1,0,D3DFMT_Q8W8V8U8,D3DPOOL_MANAGED,&t_noise_surf[it]));
-            //	t_noise[it]					= dxRenderDeviceRender::Instance().Resources->_CreateTexture	(name);
-            //	t_noise[it]->surface_set	(t_noise_surf[it]);
-            //	R_CHK						(t_noise_surf[it]->LockRect	(0,&R[it],0,0));
-            //}
-            //	Use DXGI_FORMAT_R8G8B8A8_SNORM
-
             static const int sampleSize = 4;
             u32 tempData[TEX_jitter_count][TEX_jitter * TEX_jitter];
 
@@ -889,7 +839,6 @@ CRenderTarget::CRenderTarget()
             desc.SampleDesc.Count = 1;
             desc.SampleDesc.Quality = 0;
             desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
-            // desc.Usage = D3D_USAGE_IMMUTABLE;
             desc.Usage = D3D_USAGE_DEFAULT;
             desc.BindFlags = D3D_BIND_SHADER_RESOURCE;
             desc.CPUAccessFlags = 0;
@@ -919,20 +868,13 @@ CRenderTarget::CRenderTarget()
                 }
             }
 
-            // for (int it=0; it<TEX_jitter_count; it++)	{
-            //	R_CHK						(t_noise_surf[it]->UnlockRect(0));
-            //}
-
             for (int it = 0; it < TEX_jitter_count - 1; it++)
             {
                 string_path name;
                 xr_sprintf(name, "%s%d", r2_jitter, it);
-                // R_CHK	(D3DXCreateTexture
-                // (HW.pDevice,TEX_jitter,TEX_jitter,1,0,D3DFMT_Q8W8V8U8,D3DPOOL_MANAGED,&t_noise_surf[it]));
                 R_CHK(HW.pDevice->CreateTexture2D(&desc, &subData[it], &t_noise_surf[it]));
                 t_noise[it] = RImplementation.Resources->_CreateTexture(name);
                 t_noise[it]->surface_set(t_noise_surf[it]);
-                // R_CHK						(t_noise_surf[it]->LockRect	(0,&R[it],0,0));
             }
 
             float tempDataHBAO[TEX_jitter * TEX_jitter * 4];
@@ -946,7 +888,6 @@ CRenderTarget::CRenderTarget()
             descHBAO.SampleDesc.Count = 1;
             descHBAO.SampleDesc.Quality = 0;
             descHBAO.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-            // desc.Usage = D3D_USAGE_IMMUTABLE;
             descHBAO.Usage = D3D_USAGE_DEFAULT;
             descHBAO.BindFlags = D3D_BIND_SHADER_RESOURCE;
             descHBAO.CPUAccessFlags = 0;
@@ -983,8 +924,6 @@ CRenderTarget::CRenderTarget()
 
             string_path name;
             xr_sprintf(name, "%s%d", r2_jitter, it);
-            // R_CHK	(D3DXCreateTexture
-            // (HW.pDevice,TEX_jitter,TEX_jitter,1,0,D3DFMT_Q8W8V8U8,D3DPOOL_MANAGED,&t_noise_surf[it]));
             R_CHK(HW.pDevice->CreateTexture2D(&descHBAO, &subData[it], &t_noise_surf[it]));
             t_noise[it] = RImplementation.Resources->_CreateTexture(name);
             t_noise[it]->surface_set(t_noise_surf[it]);
@@ -998,7 +937,6 @@ CRenderTarget::CRenderTarget()
                 t_noise_mipped->surface_set(t_noise_surf_mipped);
 
                 //	Update texture. Generate mips.
-
                 HW.pContext->CopySubresourceRegion(t_noise_surf_mipped, 0, 0, 0, 0, t_noise_surf[0], 0, 0);
 
                 D3DX11FilterTexture(HW.pContext, t_noise_surf_mipped, 0, D3DX10_FILTER_POINT);
@@ -1008,8 +946,7 @@ CRenderTarget::CRenderTarget()
 
     // PP
     s_postprocess.create("postprocess");
-    g_postprocess.create(
-        D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX3, RCache.Vertex.Buffer(), RCache.QuadIB);
+    g_postprocess.create(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX3, RCache.Vertex.Buffer(), RCache.QuadIB);
 
     // Menu
     s_menu.create("distort");
@@ -1047,16 +984,12 @@ CRenderTarget::~CRenderTarget()
     if (pSurf)
         pSurf->Release();
     _SHOW_REF("t_envmap_1 - #small", pSurf);
-//_SHOW_REF("t_envmap_0 - #small",t_envmap_0->pSurface);
-//_SHOW_REF("t_envmap_1 - #small",t_envmap_1->pSurface);
 #endif // DEBUG
+
     t_envmap_0->surface_set(NULL);
     t_envmap_1->surface_set(NULL);
     t_envmap_0.destroy();
     t_envmap_1.destroy();
-
-    //	TODO: DX10: Check if we need old style SMAPs
-    //	_RELEASE					(rt_smap_ZB);
 
     // Jitter
     for (int it = 0; it < TEX_jitter_count; it++)
@@ -1103,7 +1036,6 @@ CRenderTarget::~CRenderTarget()
             xr_delete(b_accum_direct_msaa[i]);
             xr_delete(b_accum_mask_msaa[i]);
             xr_delete(b_accum_direct_volumetric_msaa[i]);
-            // xr_delete					(b_accum_direct_volumetric_sun_msaa[i]);
             xr_delete(b_accum_spot_msaa[i]);
             xr_delete(b_accum_volumetric_msaa[i]);
             xr_delete(b_accum_point_msaa[i]);
@@ -1152,7 +1084,6 @@ void CRenderTarget::increment_light_marker()
 {
     dwLightMarkerID += 2;
 
-    // if (dwLightMarkerID>10)
     const u32 iMaxMarkerValue = RImplementation.o.dx10_msaa ? 127 : 255;
 
     if (dwLightMarkerID > iMaxMarkerValue)

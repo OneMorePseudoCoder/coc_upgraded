@@ -10,7 +10,6 @@
 #include "gamepersistent.h"
 #include "mt_config.h"
 
-
 #include "Include/xrRender/UIRender.h"
 #include "Include/xrRender/Kinematics.h"
 
@@ -166,8 +165,14 @@ void CBulletManager::PlayWhineSound(SBullet* bullet, IGameObject* object, const 
     if (bullet->hit_type != ALife::eHitTypeFireWound)
         return;
 
-    bullet->m_whine_snd = m_WhineSounds[Random.randI(0, m_WhineSounds.size())];
-    bullet->m_whine_snd.play_at_pos(object, pos);
+	auto& snd = m_WhineSounds[Random.randI(0, m_WhineSounds.size())];
+	// мы не должны слышать звук собственной пули, пролетающий мимо
+	// кого-нибудь рядом с нами
+	if (!smart_cast<CActor*>(object) || GEnv.Sound->listener_position().distance_to(pos) > snd._handle()->max_distance())
+	{
+		bullet->m_whine_snd = snd;
+		bullet->m_whine_snd.play_at_pos(object, pos);
+	}
 }
 
 void CBulletManager::Clear()

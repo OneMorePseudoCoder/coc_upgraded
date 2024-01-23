@@ -11,13 +11,15 @@ private:
     CGameObject* m_owner;
     CActor* m_ownerActor;
 
-protected:
+public:
     CGameObject* Owner() { return m_owner; }
+	CGameObject* Owner() const { return m_owner; }
     CActor* OwnerActor() { return m_ownerActor; }
+    CActor* OwnerActor() const { return m_ownerActor; }
+
     bool m_bEnterLocked;
     bool m_bExitLocked;
 
-public:
     CHolderCustom()
     {
         m_owner = nullptr;
@@ -33,9 +35,9 @@ public:
     virtual void OnKeyboardPress(int dik) = 0;
     virtual void OnKeyboardRelease(int dik) = 0;
     virtual void OnKeyboardHold(int dik) = 0;
+
     // Inventory for the car
     virtual CInventory* GetInventory() = 0;
-
 
     virtual void cam_Update(float dt, float fov = 90.0f) = 0;
 

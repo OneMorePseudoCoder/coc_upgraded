@@ -14,24 +14,6 @@
 #include "xr_object.h"
 #endif
 
-// Warning: duplicated in dxRainRender
-static const int max_desired_items = 2500;
-static const float source_radius = 12.5f;
-static const float source_offset = 40.f;
-static const float max_distance = source_offset * 1.25f;
-static const float sink_offset = -(max_distance - source_offset);
-static const float drop_length = 5.f;
-static const float drop_width = 0.30f;
-static const float drop_angle = 3.0f;
-static const float drop_max_angle = deg2rad(89.f);
-static const float drop_max_wind_vel = 100.0f;
-static const float drop_speed_min = 40.f;
-static const float drop_speed_max = 85.f;
-
-const int max_particles = 1000;
-const int particles_cache = 400;
-const float particles_time = .3f;
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -153,7 +135,7 @@ void CEffect_Rain::OnFrame()
 			return;
 		}
         state = stWorking;
-        snd_Ambient.play(0, sm_Looped);
+        snd_Ambient.play(0, sm_Looped | sm_2D);
         snd_Ambient.set_position(Fvector().set(0, 0, 0));
         snd_Ambient.set_range(source_offset, source_offset * 2.f);
         break;

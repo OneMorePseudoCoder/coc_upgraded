@@ -78,8 +78,7 @@ CInventoryItem::~CInventoryItem()
         if (p)
             Msg("parent name is [%s]", p->cName().c_str());
 
-        Msg("! ERROR item_id[%d] H_Parent=[%s][%d] [%d]", object().ID(), p ? p->cName().c_str() : "none",
-            p ? p->ID() : -1, Device.dwFrame);
+        Msg("! ERROR item_id[%d] H_Parent=[%s][%d] [%d]", object().ID(), p ? p->cName().c_str() : "none", p ? p->ID() : -1, Device.dwFrame);
     }
 #endif // #ifndef MASTER_GOLD
 }
@@ -141,7 +140,7 @@ void CInventoryItem::ChangeCondition(float fDeltaCondition)
 
 void CInventoryItem::Hit(SHit* pHDS)
 {
-    if (IsUsingCondition() == false)
+    if (!IsUsingCondition())
         return;
 
     float hit_power = pHDS->damage();
@@ -152,27 +151,7 @@ void CInventoryItem::Hit(SHit* pHDS)
 
 LPCSTR CInventoryItem::NameItem() { return m_name.c_str(); }
 LPCSTR CInventoryItem::NameShort() { return m_nameShort.c_str(); }
-/*
-LPCSTR CInventoryItem::NameComplex()
-{
-    const char *l_name = Name();
-    if(l_name) 	m_nameComplex = l_name;
-    else 		m_nameComplex = 0;
 
-    if( m_flags.test(FUsingCondition) ){
-        string32		cond;
-        if(GetCondition()<0.33)		xr_strcpy		(cond,	"[poor]");
-        else if(GetCondition()<0.66)xr_strcpy		(cond,	"[bad]"	);
-        else						xr_strcpy		(cond,	"[good]");
-        string256		temp;
-        strconcat		(temp,*m_nameComplex," ",cond)	;
-        // xr_sprintf			(temp,"%s %s",*m_nameComplex,cond);
-        m_nameComplex	= temp;
-    }
-
-    return *m_nameComplex;
-}
-*/
 bool CInventoryItem::Useful() const { return CanTake(); }
 bool CInventoryItem::ActivateItem() { return false; }
 void CInventoryItem::DeactivateItem() {}
@@ -682,12 +661,10 @@ void CInventoryItem::UpdateXForm()
         mRes.mulA_43(E->XFORM());
     }
 
-    //	UpdatePosition	(mRes);
     object().Position().set(mRes.c);
 }
 
 #ifdef DEBUG
-
 void CInventoryItem::OnRender()
 {
     if (bDebug && object().Visual())

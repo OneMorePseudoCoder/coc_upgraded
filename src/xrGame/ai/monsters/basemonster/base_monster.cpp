@@ -221,7 +221,9 @@ bool accessible_epsilon(CBaseMonster* const object, Fvector const pos, float eps
 
 static bool enemy_inaccessible(CBaseMonster* const object)
 {
-    if ( object->getDestroy() ) return false;
+    if (object->getDestroy()) 
+		return false;
+
     CEntityAlive const* enemy = object->EnemyMan.get_enemy();
     if (!enemy || enemy->getDestroy())
         return false;
@@ -235,7 +237,7 @@ static bool enemy_inaccessible(CBaseMonster* const object)
     if (xz_dist_to_vertex > 0.5f && y_dist_to_vertex > 3.f)
         return true;
 
-    if (xz_dist_to_vertex > 1.2f)
+    if (xz_dist_to_vertex >= 1.2f || y_dist_to_vertex >= 1.2f)
         return true;
 
     if (!object->Home->at_home(enemy_pos))

@@ -25,7 +25,12 @@
 
 using namespace StalkerDecisionSpace;
 
-CStalkerPlanner::CStalkerPlanner() { m_affect_cover = false; }
+CStalkerPlanner::CStalkerPlanner() 
+{ 
+	m_active = true;
+	m_affect_cover = false; 
+}
+
 CStalkerPlanner::~CStalkerPlanner() {}
 #ifdef LOG_ACTION
 LPCSTR CStalkerPlanner::action2string(const _action_id_type& action_id)
@@ -62,10 +67,14 @@ void CStalkerPlanner::setup(CAI_Stalker* object)
     set_target_state(target);
 
     m_affect_cover = false;
+	m_active = true;
 }
 
 void CStalkerPlanner::update(u32 time_delta)
 {
+	if (!active())
+		return;
+
 #ifdef LOG_ACTION
     if ((psAI_Flags.test(aiGOAP) && !m_use_log) || (!psAI_Flags.test(aiGOAP) && m_use_log))
         set_use_log(!!psAI_Flags.test(aiGOAP));
@@ -99,8 +108,7 @@ void CStalkerPlanner::update(u32 time_delta)
                 Msg("%d,%d", (*I).m_operator_id, (*I).m_operator->weight(target_state(), target_state()));
                 {
                     Msg("%d", (*I).m_operator->conditions().conditions().size());
-                    xr_vector<COperatorCondition>::const_iterator i =
-                        (*I).m_operator->conditions().conditions().begin();
+                    xr_vector<COperatorCondition>::const_iterator i = (*I).m_operator->conditions().conditions().begin();
                     xr_vector<COperatorCondition>::const_iterator e = (*I).m_operator->conditions().conditions().end();
                     for (; i != e; ++i)
                         Msg("%d,%d", (*i).condition(), (*i).value() ? 1 : 0);
@@ -123,8 +131,7 @@ void CStalkerPlanner::add_evaluators()
     add_evaluator(eWorldPropertyAlreadyDead, new CStalkerPropertyEvaluatorConst(false, "is_already_dead"));
     add_evaluator(eWorldPropertyPuzzleSolved, new CStalkerPropertyEvaluatorConst(false, "is_zone_puzzle_solved"));
     add_evaluator(eWorldPropertyAlive, new CStalkerPropertyEvaluatorAlive(m_object, "is_alive"));
-    add_evaluator(eWorldPropertyEnemy, new CStalkerPropertyEvaluatorEnemies(m_object, "is_there_enemies",
-                                           CStalkerCombatPlanner::POST_COMBAT_WAIT_INTERVAL));
+    add_evaluator(eWorldPropertyEnemy, new CStalkerPropertyEvaluatorEnemies(m_object, "is_there_enemies", CStalkerCombatPlanner::POST_COMBAT_WAIT_INTERVAL));
     add_evaluator(eWorldPropertyDanger, new CStalkerPropertyEvaluatorDangers(m_object, "is_there_danger"));
 #ifndef COC_DISABLE_ANOMALY_AND_ITEMS_PLANNER
     add_evaluator(eWorldPropertyAnomaly, new CStalkerPropertyEvaluatorAnomaly(m_object, "is_there_anomalies"));

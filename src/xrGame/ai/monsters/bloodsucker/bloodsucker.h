@@ -33,8 +33,7 @@ public:
 
     virtual bool use_center_to_aim() const { return true; }
     virtual bool check_start_conditions(ControlCom::EControlType);
-    virtual void HitEntity(const CEntity* pEntity, float fDamage, float impulse, Fvector& dir, ALife::EHitType hit_type,
-        bool draw_hit_marks);
+    virtual void HitEntity(const CEntity* pEntity, float fDamage, float impulse, Fvector& dir, ALife::EHitType hit_type, bool draw_hit_marks);
 
     //--------------------------------------------------------------------
     // Utils
@@ -215,6 +214,7 @@ public:
     void set_visibility_state(visibility_t new_state);
     void force_visibility_state(int state);
     void update_invisibility();
+	bool no_visibility_state();
 
     void force_stand_sleep_animation(u32 index);
     void release_stand_sleep_animation();

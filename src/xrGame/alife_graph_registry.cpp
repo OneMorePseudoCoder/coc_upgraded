@@ -136,25 +136,19 @@ void CALifeGraphRegistry::detach(CSE_Abstract& object, CSE_ALifeInventoryItem* i
     CSE_ALifeDynamicObject* dynamic_object = smart_cast<CSE_ALifeDynamicObject*>(&object);
     R_ASSERT2(!alife_query || dynamic_object, "Cannot detach an item from non-alife object");
 
-    VERIFY(alife_query || !smart_cast<CSE_ALifeDynamicObject*>(&object) ||
-        (ai().game_graph().vertex(smart_cast<CSE_ALifeDynamicObject*>(&object)->m_tGraphID)->level_id() ==
-            level().level_id()));
+    VERIFY(alife_query || !smart_cast<CSE_ALifeDynamicObject*>(&object) || (ai().game_graph().vertex(smart_cast<CSE_ALifeDynamicObject*>(&object)->m_tGraphID)->level_id() == level().level_id()));
 
     if (dynamic_object)
         dynamic_object->detach(item, 0, alife_query, remove_children);
     else
     {
 #ifdef DEBUG
-        bool value =
-            std::find(object.children.begin(), object.children.end(), item->base()->ID) != object.children.end();
+        bool value = std::find(object.children.begin(), object.children.end(), item->base()->ID) != object.children.end();
         if (!value)
         {
-            Msg("! ERROR: can't detach independant object. entity[%s:%d], parent[%s:%d], section[%s]",
-                item->base()->name_replace(), item->base()->ID, object.name_replace(), object.ID,
-                *item->base()->s_name);
+            Msg("! ERROR: can't detach independant object. entity[%s:%d], parent[%s:%d], section[%s]", item->base()->name_replace(), item->base()->ID, object.name_replace(), object.ID, *item->base()->s_name);
         }
 #endif // DEBUG
-        //		R_ASSERT2				(value,"Can't detach an item which is not on my own");
     }
 }
 
@@ -166,7 +160,7 @@ void CALifeGraphRegistry::add(CSE_ALifeDynamicObject* object, GameGraph::_GRAPH_
         Msg("[LSS] adding object [%s][%d] to graph point %d", object->name_replace(), object->ID, game_vertex_id);
     }
 #endif
-    if (!object->m_bOnline && object->used_ai_locations() /**&& object->interactive()/**/)
+    if (!object->m_bOnline && object->used_ai_locations() && ai().game_graph().valid_vertex_id(game_vertex_id))
     {
         VERIFY(ai().game_graph().valid_vertex_id(game_vertex_id));
         m_objects[game_vertex_id].objects().add(object->ID, object);

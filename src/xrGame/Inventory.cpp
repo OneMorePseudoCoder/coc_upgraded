@@ -355,8 +355,7 @@ bool CInventory::Slot(u16 slot_id, PIItem pIItem, bool bNotActivate, bool strict
         m_slots[pIItem->CurrSlot()].m_pIItem = NULL;
     }
 
-    if (((m_iActiveSlot == slot_id) || (m_iActiveSlot == NO_ACTIVE_SLOT) && m_iNextActiveSlot == NO_ACTIVE_SLOT) &&
-        (!bNotActivate))
+    if (((m_iActiveSlot == slot_id) || (m_iActiveSlot == NO_ACTIVE_SLOT) && m_iNextActiveSlot == NO_ACTIVE_SLOT) && (!bNotActivate))
     {
 #ifdef DEBUG
         Msg("---To Slot: activating slot [%d], Frame[%d]", slot_id, Device.dwFrame);
@@ -451,12 +450,6 @@ bool CInventory::Ruck(PIItem pIItem, bool strict_placement)
 
     return true;
 }
-/*
-void CInventory::Activate_deffered	(u32 slot, u32 _frame)
-{
-     m_iLoadActiveSlot			= slot;
-     m_iLoadActiveSlotFrame		= _frame;
-}*/
 
 void CInventory::Activate(u16 slot, bool bForce)
 {
@@ -478,18 +471,7 @@ void CInventory::Activate(u16 slot, bool bForce)
 
     if (GetActiveSlot() == slot || (GetNextActiveSlot() == slot && !bForce))
     {
-        //		if (m_iNextActiveSlot != slot) {
-        //			LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-        //			if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-        //				LogStackTrace	("");
-        //			Msg				( "[%6d][%s] CInventory::Activate changing next active slot to %d",
-        // Device.dwTimeGlobal,
-        // name, slot );
-        //		}
         m_iNextActiveSlot = slot;
-#ifdef DEBUG
-//		Msg("--- There's no need to activate slot [%d], next active slot is [%d]", slot, m_iNextActiveSlot);
-#endif
         return;
     }
 
@@ -498,22 +480,11 @@ void CInventory::Activate(u16 slot, bool bForce)
     if (slot != NO_ACTIVE_SLOT && !m_slots[slot].CanBeActivated())
         return;
 
-#ifdef DEBUG
-//	Msg("--- Activating slot [%d], inventory owner: [%s], Frame[%d]", slot, m_pOwner->Name(), Device.dwFrame);
-#endif // #ifdef DEBUG
-
     //активный слот не выбран
     if (GetActiveSlot() == NO_ACTIVE_SLOT)
     {
         if (tmp_item)
         {
-            //			if ( m_iNextActiveSlot != slot) {
-            //				LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-            //				if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-            //					LogStackTrace	("");
-            //				Msg				( "[%6d][%s] CInventory::Activate changing next active slot2 to %d",
-            // Device.dwTimeGlobal, name, slot );
-            //			}
             m_iNextActiveSlot = slot;
         }
         else
@@ -536,34 +507,14 @@ void CInventory::Activate(u16 slot, bool bForce)
             R_ASSERT2(tempItem, active_item->object().cNameSect().c_str());
 
             tempItem->SendDeactivateItem();
-#ifdef DEBUG
-//			Msg("--- Inventory owner [%s]: send deactivate item [%s]", m_pOwner->Name(), active_item->NameItem());
-#endif // #ifdef DEBUG
         }
         else // in case where weapon is going to destroy
         {
             if (tmp_item)
                 tmp_item->ActivateItem();
 
-            //!			if ( m_iActiveSlot != slot ) {
-            //!				LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-            //				if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-            //					LogStackTrace	("");
-            //!				Msg				("[%6d][%s] CInventory::Activate changing active slot from %d to %d",
-            //! Device.dwTimeGlobal,
-            //! name, m_iActiveSlot, slot );
-            //!			}
-
             m_iActiveSlot = slot;
         }
-        //		if ( m_iNextActiveSlot != slot ) {
-        //			LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-        //			if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) && !slot )
-        //				LogStackTrace	("");
-        //			Msg				( "[%6d][%s] CInventory::Activate changing next active slot3 to %d",
-        // Device.dwTimeGlobal,
-        // name, slot );
-        //		}
         m_iNextActiveSlot = slot;
     }
 }
@@ -751,8 +702,7 @@ void CInventory::Update()
             IGameObject* pActor_owner = smart_cast<IGameObject*>(m_pOwner);
             if (Level().CurrentViewEntity() == pActor_owner)
             {
-                if ((m_iNextActiveSlot != NO_ACTIVE_SLOT) && ItemFromSlot(m_iNextActiveSlot) &&
-                    !g_player_hud->allow_activation(ItemFromSlot(m_iNextActiveSlot)->cast_hud_item()))
+                if ((m_iNextActiveSlot != NO_ACTIVE_SLOT) && ItemFromSlot(m_iNextActiveSlot) && !g_player_hud->allow_activation(ItemFromSlot(m_iNextActiveSlot)->cast_hud_item()))
                     return;
             }
             if (ActiveItem())
@@ -768,8 +718,6 @@ void CInventory::Update()
                     return;
                 }
             }
-
- 
 
             if (GetNextActiveSlot() != NO_ACTIVE_SLOT)
             {
@@ -1036,30 +984,23 @@ bool CInventory::Eat(PIItem pIItem)
         return false;
 
 #ifdef MP_LOGGING
-    Msg("--- Actor [%d] use or eat [%d][%s]", entity_alive->ID(), pItemToEat->object().ID(),
-        pItemToEat->object().cNameSect().c_str());
+    Msg("--- Actor [%d] use or eat [%d][%s]", entity_alive->ID(), pItemToEat->object().ID(), pItemToEat->object().cNameSect().c_str());
 #endif // MP_LOGGING
 
     luabind::functor<bool> funct;
     if (GEnv.ScriptEngine->functor("_G.CInventory__eat", funct))
     {
-        if (!funct(smart_cast<CGameObject*>(pItemToEat->object().H_Parent())->lua_game_object(),
-                (smart_cast<CGameObject*>(pIItem))->lua_game_object()))
+        if (!funct(smart_cast<CGameObject*>(pItemToEat->object().H_Parent())->lua_game_object(), (smart_cast<CGameObject*>(pIItem))->lua_game_object()))
             return false;
     }
 
     if (Actor()->m_inventory == this)
     {
         Actor()->callback(GameObject::eUseObject)(smart_cast<CGameObject*>(pIItem)->lua_game_object());
-
-        // if (pItemToEat->IsUsingCondition() && pItemToEat->GetRemainingUses() < 1 && pItemToEat->CanDelete())
-        //    CurrentGameUI()->GetActorMenu().RefreshCurrentItemCell();
-
         CurrentGameUI()->GetActorMenu().SetCurrentItem(nullptr);
     }
 
-    if (pItemToEat->GetMaxUses() < 255 &&
-        pItemToEat->CanConsumeCharge()) // If uses 255, then skip the decrement for infinite usages
+    if (pItemToEat->GetMaxUses() < 255 && pItemToEat->CanConsumeCharge()) // If uses 255, then skip the decrement for infinite usages
     {
         u8 remaining = pItemToEat->GetRemainingUses();
         if (remaining > 0)
@@ -1282,8 +1223,7 @@ void CInventory::AddAvailableItems(TIItemContainer& items_container, bool for_tr
                     luabind::functor<bool> funct;
                     if (GEnv.ScriptEngine->functor("actor_menu_inventory.CInventory_ItemAvailableToTrade", funct))
                     {
-                        if (!funct(m_pOwner->cast_game_object()->lua_game_object(),
-                                pIItem->cast_game_object()->lua_game_object()))
+                        if (!funct(m_pOwner->cast_game_object()->lua_game_object(), pIItem->cast_game_object()->lua_game_object()))
                             continue;
                     }
                 }
@@ -1308,8 +1248,7 @@ void CInventory::AddAvailableItems(TIItemContainer& items_container, bool for_tr
                         luabind::functor<bool> funct;
                         if (GEnv.ScriptEngine->functor("actor_menu_inventory.CInventory_ItemAvailableToTrade", funct))
                         {
-                            if (!funct(m_pOwner->cast_game_object()->lua_game_object(),
-                                    item->cast_game_object()->lua_game_object()))
+                            if (!funct(m_pOwner->cast_game_object()->lua_game_object(), item->cast_game_object()->lua_game_object()))
                                 continue;
                         }
                     }
@@ -1425,24 +1364,18 @@ void CInventory::TryDeactivateActiveSlot()
 
 void CInventory::BlockSlot(u16 slot_id)
 {
-    // VERIFY(slot_id <= LAST_SLOT);
-
     ++m_blocked_slots[slot_id];
-
     VERIFY2(m_blocked_slots[slot_id] < 5, make_string("blocked slot [%d] overflow").c_str());
 }
 
 void CInventory::UnblockSlot(u16 slot_id)
 {
-    // VERIFY(slot_id <= LAST_SLOT);
     VERIFY2(m_blocked_slots[slot_id] > 0, make_string("blocked slot [%d] underflow").c_str());
-
     --m_blocked_slots[slot_id];
 }
 
 bool CInventory::IsSlotBlocked(u16 slot_id) const
 {
-    // VERIFY(slot_id <= LAST_SLOT);
     return m_blocked_slots[slot_id] > 0;
 }
 

@@ -52,6 +52,7 @@
 #include "Inventory.h"
 #include "trajectories.h"
 #include "script_hit.h"
+#include "../../holder_custom.h"
 
 using namespace StalkerSpace;
 
@@ -637,11 +638,6 @@ IC BOOL ray_query_callback(collide::rq_result& result, LPVOID params)
     float power = param->m_holder->feel_vision_mtl_transp(result.O, result.element);
     param->m_power *= power;
 
-    //	if (power >= .05f) {
-    //		param->m_pick_distance			= result.range;
-    //		return							(true);
-    //	}
-
     if (!result.O)
     {
         if (param->m_power > param->m_power_threshold)
@@ -652,6 +648,13 @@ IC BOOL ray_query_callback(collide::rq_result& result, LPVOID params)
     }
 
     CEntityAlive* entity_alive = smart_cast<CEntityAlive*>(result.O);
+	if (!entity_alive) 
+	{
+		CHolderCustom* holder = smart_cast<CHolderCustom*>(result.O);
+		if (holder && holder->Owner())
+			entity_alive = smart_cast<CEntityAlive*>(holder->Owner());
+	}
+
     if (!entity_alive)
     {
         if (param->m_power > param->m_power_threshold)
@@ -670,8 +673,7 @@ IC BOOL ray_query_callback(collide::rq_result& result, LPVOID params)
     return (false);
 }
 
-void CAI_Stalker::can_kill_entity(
-    const Fvector& position, const Fvector& direction, float distance, collide::rq_results& rq_storage)
+void CAI_Stalker::can_kill_entity(const Fvector& position, const Fvector& direction, float distance, collide::rq_results& rq_storage)
 {
     VERIFY(!fis_zero(direction.square_magnitude()));
 
@@ -758,8 +760,7 @@ bool CAI_Stalker::undetected_anomaly()
 #ifdef COC_DISABLE_ANOMALY_AND_ITEMS_PLANNER
     return inside_anomaly();
 #else
-    return (
-        inside_anomaly() || brain().CStalkerPlanner::m_storage.property(StalkerDecisionSpace::eWorldPropertyAnomaly));
+    return (inside_anomaly() || brain().CStalkerPlanner::m_storage.property(StalkerDecisionSpace::eWorldPropertyAnomaly));
 #endif
 }
 
@@ -821,8 +822,7 @@ void CAI_Stalker::update_range_fov(float& new_range, float& new_fov, float start
         inventory().ActiveItem()->modify_holder_params(range, fov);
 
     VERIFY2(start_fov < 180.f, make_string("[%s] %f", cName().c_str(), start_fov));
-    VERIFY2(fov < 180.f, make_string("fix addon multiplier for weapon or scope %s (fov=%f)",
-                             inventory().ActiveItem()->object().cName().c_str(), fov));
+    VERIFY2(fov < 180.f, make_string("fix addon multiplier for weapon or scope %s (fov=%f)", inventory().ActiveItem()->object().cName().c_str(), fov));
 
     return (inherited::update_range_fov(new_range, new_fov, range, fov));
 }
@@ -1004,8 +1004,7 @@ void CAI_Stalker::throw_target(const Fvector& position, u32 const vertex_id, IGa
 }
 
 // delete this function!!!!
-bool CAI_Stalker::throw_check_error(
-    float low, float high, const Fvector& position, const Fvector& velocity, const Fvector& gravity)
+bool CAI_Stalker::throw_check_error(float low, float high, const Fvector& position, const Fvector& velocity, const Fvector& gravity)
 {
     return true;
 }
@@ -1022,11 +1021,8 @@ void CAI_Stalker::check_throw_trajectory(const float& throw_time)
 #endif // #ifdef DEBUG
 
     Fvector box_size = {0.f, 0.f, 0.f};
-    // Fvector box_size				=	{ 0.1f, 0.1f , 0.1f };
 
-    if (!trajectory_intersects_geometry(throw_time, m_throw_position, m_throw_target_position, m_throw_velocity,
-            m_throw_collide_position, this, m_throw_ignore_object, rq_storage, trajectory_picks, collide_tris,
-            box_size))
+    if (!trajectory_intersects_geometry(throw_time, m_throw_position, m_throw_target_position, m_throw_velocity, m_throw_collide_position, this, m_throw_ignore_object, rq_storage, trajectory_picks, collide_tris, box_size))
     {
         m_throw_collide_position = Fvector().set(flt_max, flt_max, flt_max);
         m_throw_enabled = true;
@@ -1051,9 +1047,6 @@ void CAI_Stalker::update_throw_params()
     m_computed_object_position = Position();
     m_computed_object_direction = Direction();
 
-#if 0
-	m_throw_position		= eye_matrix.c;
-#else
     m_throw_position = Position();
 
     CMissile* const pMissile = dynamic_cast<CMissile*>(inventory().ActiveItem());
@@ -1075,7 +1068,6 @@ void CAI_Stalker::update_throw_params()
         else
             m_throw_position.add(pSettings->r_fvector3(pMissile->cNameSect(), third_person_offset_id));
     }
-#endif
 
     static float const distances[] = {30.f, 40.f, 50.f, 60.f};
     VERIFY(g_SingleGameDifficulty < sizeof(distances) / sizeof(distances[0]));

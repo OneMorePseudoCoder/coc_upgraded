@@ -42,8 +42,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, IGameObject* obj
     bullet_test_callback_data* pData = (bullet_test_callback_data*)params;
     SBullet* bullet = pData->pBullet;
 
-    if ((object->ID() == bullet->parent_id) && (bullet->fly_dist < parent_ignore_distance) &&
-        (!bullet->flags.ricochet_was))
+    if ((object->ID() == bullet->parent_id) && (bullet->fly_dist < parent_ignore_distance) && (!bullet->flags.ricochet_was))
         return FALSE;
 
     BOOL bRes = TRUE;
@@ -56,7 +55,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, IGameObject* obj
             CActor* actor = smart_cast<CActor*>(entity);
             CAI_Stalker* stalker = smart_cast<CAI_Stalker*>(entity);
             // в кого попали?
-            if (actor /**/ || stalker /**/)
+            if (actor || stalker)
             {
                 // попали в актера или сталкера
                 Fsphere S = cform->getSphere();

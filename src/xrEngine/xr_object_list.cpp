@@ -49,7 +49,6 @@ CObjectList::~CObjectList()
     R_ASSERT(objects_active.empty());
     R_ASSERT(objects_sleeping.empty());
     R_ASSERT(destroy_queue.empty());
-    //. R_ASSERT ( map_NETID.empty() );
 }
 
 IGameObject* CObjectList::FindObjectByName(shared_str name)
@@ -64,7 +63,9 @@ IGameObject* CObjectList::FindObjectByName(shared_str name)
 
     return nullptr;
 }
+
 IGameObject* CObjectList::FindObjectByName(LPCSTR name) { return FindObjectByName(shared_str(name)); }
+
 IGameObject* CObjectList::FindObjectByCLS_ID(CLASS_ID cls)
 {
     {
@@ -83,14 +84,9 @@ IGameObject* CObjectList::FindObjectByCLS_ID(CLASS_ID cls)
 
 void CObjectList::o_remove(Objects& v, IGameObject* O)
 {
-    //. if(O->ID()==1026)
-    //. {
-    //. Log("ahtung");
-    //. }
     Objects::iterator _i = std::find(v.begin(), v.end(), O);
     VERIFY(_i != v.end());
     v.erase(_i);
-    //. Msg("---o_remove[%s][%d]", O->cName().c_str(), O->ID() );
 }
 
 void CObjectList::o_activate(IGameObject* O)
@@ -100,6 +96,7 @@ void CObjectList::o_activate(IGameObject* O)
     objects_active.push_back(O);
     O->MakeMeCrow();
 }
+
 void CObjectList::o_sleep(IGameObject* O)
 {
     VERIFY(O && !O->processing_enabled());
@@ -112,32 +109,19 @@ void CObjectList::SingleUpdate(IGameObject* O)
 {
     if (Device.dwFrame == O->GetUpdateFrame())
     {
-#ifdef DEBUG
-// if (O->getDestroy())
-// Msg ("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(),
-// Device.dwFrame);
-#endif // #ifdef DEBUG
-
         return;
     }
 
     if (!O->processing_enabled())
     {
-#ifdef DEBUG
-// if (O->getDestroy())
-// Msg ("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(),
-// Device.dwFrame);
-#endif // #ifdef DEBUG
-
         return;
     }
 
     if (O->H_Parent())
         SingleUpdate(O->H_Parent());
+
     stats.Updated++;
     O->SetUpdateFrame(Device.dwFrame);
-
-    // Msg ("[%d][0x%08x]IAmNotACrowAnyMore (CObjectList::SingleUpdate)", Device.dwFrame, dynamic_cast<void*>(O));
 
     O->UpdateCL();
 
@@ -151,8 +135,7 @@ void CObjectList::SingleUpdate(IGameObject* O)
     if (O->H_Parent() && (O->H_Parent()->getDestroy() || O->H_Root()->getDestroy()))
     {
         // Push to destroy-queue if it isn't here already
-        Msg("! ERROR: incorrect destroy sequence for object[%d:%s], section[%s], parent[%d:%s]", O->ID(), *O->cName(),
-            *O->cNameSect(), O->H_Parent()->ID(), *O->H_Parent()->cName());
+        Msg("! ERROR: incorrect destroy sequence for object[%d:%s], section[%s], parent[%d:%s]", O->ID(), *O->cName(), *O->cNameSect(), O->H_Parent()->ID(), *O->H_Parent()->cName());
     }
 #if 0 // ndef DEBUG
     }
@@ -165,11 +148,7 @@ void CObjectList::SingleUpdate(IGameObject* O)
         {
             __try
             {
-                Msg("! Parent object: [%d:%s], section[%s]",
-                    parent_obj->ID(),
-                    parent_obj->cName().c_str(),
-                    parent_obj->cNameSect().c_str());
-
+                Msg("! Parent object: [%d:%s], section[%s]", parent_obj->ID(), parent_obj->cName().c_str(), parent_obj->cNameSect().c_str());
             }
             __except (EXCEPTION_EXECUTE_HANDLER)
             {
@@ -180,10 +159,7 @@ void CObjectList::SingleUpdate(IGameObject* O)
         {
             __try
             {
-                Msg("! Root object: [%d:%s], section[%s]",
-                    root_obj->ID(),
-                    root_obj->cName().c_str(),
-                    root_obj->cNameSect().c_str());
+                Msg("! Root object: [%d:%s], section[%s]", root_obj->ID(), root_obj->cName().c_str(), root_obj->cNameSect().c_str());
             }
             __except (EXCEPTION_EXECUTE_HANDLER)
             {
@@ -193,19 +169,12 @@ void CObjectList::SingleUpdate(IGameObject* O)
         R_ASSERT(false);
     } //end of __except
 #endif
-
-#ifdef DEBUG
-// if (O->getDestroy())
-// Msg ("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(),
-// Device.dwFrame);
-#endif // #ifdef DEBUG
 }
 
 void CObjectList::clear_crow_vec(Objects& o)
 {
     for (auto& it : o)
     {
-        // Msg ("[%d][0x%08x]IAmNotACrowAnyMore (clear_crow_vec)", Device.dwFrame, dynamic_cast<void*>(it));
         it->IAmNotACrowAnyMore();
     }
     o.clear();
@@ -229,21 +198,10 @@ void CObjectList::Update(bool bForce)
             m_primary_crows.insert(m_primary_crows.end(), m_secondary_crows.begin(), m_secondary_crows.end());
             m_secondary_crows.clear();
 
-#if 0
-            std::sort (m_own_crows.begin(), m_own_crows.end());
-            m_own_crows.erase (
-                std::unique(
-                    m_own_crows.begin(),
-                    m_own_crows.end()
-                ),
-                m_own_crows.end()
-            );
-#else
 #ifdef DEBUG
             std::sort(m_primary_crows.begin(), m_primary_crows.end());
             VERIFY(std::unique(m_primary_crows.begin(), m_primary_crows.end()) == m_primary_crows.end());
 #endif // ifdef DEBUG
-#endif
 
             stats.Crows = m_primary_crows.size();
             Objects* workload;
@@ -322,8 +280,7 @@ void CObjectList::Update(bool bForce)
 // Msg ("Object [%x]", O);
 #ifdef DEBUG
             if (debug_destroy)
-                Msg("Destroying object[%x][%x] [%d][%s] frame[%d]", dynamic_cast<void*>(O), O, O->ID(), *O->cName(),
-                    Device.dwFrame);
+                Msg("Destroying object[%x][%x] [%d][%s] frame[%d]", dynamic_cast<void*>(O), O, O->ID(), *O->cName(), Device.dwFrame);
 #endif // DEBUG
             O->net_Destroy();
             Destroy(O);
@@ -338,22 +295,12 @@ void CObjectList::net_Register(IGameObject* O)
     R_ASSERT(O->ID() < 0xffff);
 
     map_NETID[O->ID()] = O;
-    //. map_NETID.insert(std::make_pair(O->ID(),O));
-    // Msg ("-------------------------------- Register: %s",O->cName());
 }
 
 void CObjectList::net_Unregister(IGameObject* O)
 {
-    // R_ASSERT (O->ID() < 0xffff);
     if (O->ID() < 0xffff) // demo_spectator can have 0xffff
         map_NETID[O->ID()] = NULL;
-    /*
-     xr_map<u32,IGameObject*>::iterator it = map_NETID.find(O->ID());
-     if ((it!=map_NETID.end()) && (it->second == O)) {
-     // Msg ("-------------------------------- Unregster: %s",O->cName());
-     map_NETID.erase(it);
-     }
-     */
 }
 
 int g_Dump_Export_Obj = 0;
@@ -365,15 +312,13 @@ u32 CObjectList::net_Export(NET_Packet* _Packet, u32 start, u32 max_object_size)
 
     NET_Packet& Packet = *_Packet;
     u32 position;
-    for (; start < objects_active.size() + objects_sleeping.size(); start++)
+    while (start < objects_active.size() + objects_sleeping.size())
     {
-        IGameObject* P =
-            (start < objects_active.size()) ? objects_active[start] : objects_sleeping[start - objects_active.size()];
+        IGameObject* P = (start < objects_active.size()) ? objects_active[start] : objects_sleeping[start - objects_active.size()];
         if (P->net_Relevant() && !P->getDestroy())
         {
             Packet.w_u16(u16(P->ID()));
             Packet.w_chunk_open8(position);
-            // Msg ("cl_export: %d '%s'",P->ID(),*P->cName());
             P->net_Export(Packet);
 
 #ifdef DEBUG
@@ -392,15 +337,19 @@ u32 CObjectList::net_Export(NET_Packet* _Packet, u32 start, u32 max_object_size)
                 Msg("* %s : %d", *(P->cNameSect()), size);
             }
             Packet.w_chunk_close8(position);
-            // if (0==(--count))
-            // break;
-            if (max_object_size >= (NET_PacketSizeLimit - Packet.w_tell()))
-                break;
+			if (max_object_size > (NET_PacketSizeLimit - Packet.w_tell())) 
+			{
+				start++;
+				break;
+			}
         }
+		start++;
     }
+
     if (g_Dump_Export_Obj)
         Msg("------------------- ");
-    return start + 1;
+
+    return start;
 }
 
 int g_Dump_Import_Obj = 0;
@@ -434,17 +383,9 @@ void CObjectList::net_Import(NET_Packet* Packet)
         Msg("------------------- ");
 }
 
-/*
-IGameObject* CObjectList::net_Find(u16 ID)
-{
-
-xr_map<u32,IGameObject*>::iterator it = map_NETID.find(ID);
-return (it==map_NETID.end())?0:it->second;
-}
-*/
 void CObjectList::Load()
 {
-    R_ASSERT(/*map_NETID.empty() &&*/ objects_active.empty() && destroy_queue.empty() && objects_sleeping.empty());
+    R_ASSERT(objects_active.empty() && destroy_queue.empty() && objects_sleeping.empty());
 }
 
 void CObjectList::Unload()
@@ -484,7 +425,6 @@ void CObjectList::Unload()
 IGameObject* CObjectList::Create(LPCSTR name)
 {
     IGameObject* O = g_pGamePersistent->ObjectPool.create(name);
-    // Msg("CObjectList::Create [%x]%s", O, name);
     objects_sleeping.push_back(O);
     return O;
 }
@@ -541,7 +481,6 @@ void CObjectList::Destroy(IGameObject* game_obj)
         if (iter == objects_sleeping.end())
             FATAL("! Unregistered object being destroyed");
         objects_sleeping.erase(iter);
-
     }
 
     g_pGamePersistent->ObjectPool.destroy(game_obj);
@@ -569,8 +508,7 @@ void CObjectList::dump_list(Objects& v, LPCSTR reason)
 {
 #ifdef DEBUG
     for (auto& it : v)
-        Msg("%x - name [%s] ID[%d] parent[%s] getDestroy()=[%s]", it, it->cName().c_str(), it->ID(),
-        it->H_Parent() ? it->H_Parent()->cName().c_str() : "", it->getDestroy() ? "yes" : "no");
+        Msg("%x - name [%s] ID[%d] parent[%s] getDestroy()=[%s]", it, it->cName().c_str(), it->ID(), it->H_Parent() ? it->H_Parent()->cName().c_str() : "", it->getDestroy() ? "yes" : "no");
 #endif // #ifdef DEBUG
 }
 
@@ -589,7 +527,7 @@ void CObjectList::register_object_to_destroy(IGameObject* object_to_destroy)
 #ifdef DEBUG
     VERIFY(!registered_object_to_destroy(object_to_destroy));
 #endif
-    // Msg("CObjectList::register_object_to_destroy [%x]", object_to_destroy);
+
     destroy_queue.push_back(object_to_destroy);
 
     for (auto& it : objects_active)

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "grenade.h"
 #include "xrPhysics/PhysicsShell.h"
-//.#include "WeaponHUD.h"
 #include "entity.h"
 #include "ParticlesObject.h"
 #include "actor.h"
@@ -34,14 +33,13 @@ void CGrenade::Load(LPCSTR section)
         m_dwGrenadeRemoveTime = pSettings->r_u32(section, "grenade_remove_time");
     else
         m_dwGrenadeRemoveTime = GRENADE_REMOVE_TIME;
-    m_grenade_detonation_threshold_hit = READ_IF_EXISTS(
-        pSettings, r_float, section, "detonation_threshold_hit", default_grenade_detonation_threshold_hit);
+
+    m_grenade_detonation_threshold_hit = READ_IF_EXISTS(pSettings, r_float, section, "detonation_threshold_hit", default_grenade_detonation_threshold_hit);
 }
 
 void CGrenade::Hit(SHit* pHDS)
 {
-    if (ALife::eHitTypeExplosion == pHDS->hit_type && m_grenade_detonation_threshold_hit < pHDS->damage() &&
-        CExplosive::Initiator() == u16(-1))
+    if (ALife::eHitTypeExplosion == pHDS->hit_type && m_grenade_detonation_threshold_hit < pHDS->damage() && CExplosive::Initiator() == u16(-1))
     {
         CExplosive::SetCurrentParentID(pHDS->who->ID());
         Destroy();
@@ -190,7 +188,9 @@ void CGrenade::Destroy()
     }
 
     FindNormal(normal);
-    CExplosive::GenExplodeEvent(Position(), normal);
+	Fvector C; 
+	Center(C);
+    CExplosive::GenExplodeEvent(C, normal);
 }
 
 bool CGrenade::Useful() const

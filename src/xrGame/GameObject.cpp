@@ -323,38 +323,9 @@ void CGameObject::OnEvent(NET_Packet& P, u16 type)
     case GE_HIT:
     case GE_HIT_STATISTIC:
     {
-        /*
-                    u16				id,weapon_id;
-                    Fvector			dir;
-                    float			power, impulse;
-                    s16				element;
-                    Fvector			position_in_bone_space;
-                    u16				hit_type;
-                    float			ap = 0.0f;
-
-                    P.r_u16			(id);
-                    P.r_u16			(weapon_id);
-                    P.r_dir			(dir);
-                    P.r_float		(power);
-                    P.r_s16			(element);
-                    P.r_vec3		(position_in_bone_space);
-                    P.r_float		(impulse);
-                    P.r_u16			(hit_type);	//hit type
-                    if ((ALife::EHitType)hit_type == ALife::eHitTypeFireWound)
-                    {
-                        P.r_float	(ap);
-                    }
-
-                    IGameObject*	Hitter = Level().Objects.net_Find(id);
-                    IGameObject*	Weapon = Level().Objects.net_Find(weapon_id);
-
-                    SHit	HDS = SHit(power, dir, Hitter, element, position_in_bone_space, impulse,
-           (ALife::EHitType)hit_type, ap);
-        */
         SHit HDS;
         HDS.PACKET_TYPE = type;
         HDS.Read_Packet_Cont(P);
-        //			Msg("Hit received: %d[%d,%d]", HDS.whoID, HDS.weaponID, HDS.BulletID);
         IGameObject* Hitter = Level().Objects.net_Find(HDS.whoID);
         IGameObject* Weapon = Level().Objects.net_Find(HDS.weaponID);
         HDS.who = Hitter;
@@ -382,8 +353,7 @@ void CGameObject::OnEvent(NET_Packet& P, u16 type)
     {
         if (H_Parent())
         {
-            Msg("! ERROR (GameObject): GE_DESTROY arrived to object[%d][%s], that has parent[%d][%s], frame[%d]", ID(),
-                cNameSect().c_str(), H_Parent()->ID(), H_Parent()->cName().c_str(), Device.dwFrame);
+            Msg("! ERROR (GameObject): GE_DESTROY arrived to object[%d][%s], that has parent[%d][%s], frame[%d]", ID(), cNameSect().c_str(), H_Parent()->ID(), H_Parent()->cName().c_str(), Device.dwFrame);
 
             // This object will be destroy on call function <H_Parent::Destroy>
             // or it will be call <H_Parent::Reject>  ==>  H_Parent = NULL
@@ -395,7 +365,6 @@ void CGameObject::OnEvent(NET_Packet& P, u16 type)
 #endif // MP_LOGGING
 
         setDestroy(TRUE);
-        //			MakeMeCrow		();
     }
     break;
     }
@@ -429,6 +398,7 @@ BOOL CGameObject::net_Spawn(CSE_Abstract* DC)
     cNameSect_set(E->s_name);
     if (E->name_replace()[0])
         cName_set(E->name_replace());
+
     bool demo_spectator = false;
 
     // Alundaio:
@@ -457,8 +427,7 @@ BOOL CGameObject::net_Spawn(CSE_Abstract* DC)
     {
 #pragma warning(push)
 #pragma warning(disable : 4238)
-        m_ini_file = new CInifile(
-            &IReader((void*)(*O->m_ini_string), xr_strlen(O->m_ini_string)), FS.get_path("$game_config$")->m_Path);
+        m_ini_file = new CInifile(&IReader((void*)(*O->m_ini_string), xr_strlen(O->m_ini_string)), FS.get_path("$game_config$")->m_Path);
 #pragma warning(pop)
     }
 
@@ -493,8 +462,7 @@ BOOL CGameObject::net_Spawn(CSE_Abstract* DC)
 #ifdef DEBUG
     if (ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject) && xr_stricmp(PH_DBG_ObjectTrackName(), *cName()) == 0)
     {
-        Msg("CGameObject::net_Spawn obj %s After Script Binder reinit %f,%f,%f", PH_DBG_ObjectTrackName(), Position().x,
-            Position().y, Position().z);
+        Msg("CGameObject::net_Spawn obj %s After Script Binder reinit %f,%f,%f", PH_DBG_ObjectTrackName(), Position().x, Position().y, Position().z);
     }
 #endif
     // load custom user data from server
@@ -522,11 +490,20 @@ BOOL CGameObject::net_Spawn(CSE_Abstract* DC)
             if (l_tpALifeObject && ai().game_graph().valid_vertex_id(l_tpALifeObject->m_tGraphID))
                 ai_location().game_vertex(l_tpALifeObject->m_tGraphID);
 
+			if (!_valid(Position())) 
+			{
+				Fvector vertex_pos = ai().level_graph().vertex_position(ai_location().level_vertex_id());
+				Msg("! [%s]: %s has invalid Position[%f,%f,%f] level_vertex_id[%u][%f,%f,%f]", __FUNCTION__, cName().c_str(), Position().x, Position().y, Position().z, ai_location().level_vertex_id(), vertex_pos.x, vertex_pos.y, vertex_pos.z); 
+				Position().set(vertex_pos);
+                auto se_obj = smart_cast<CSE_ALifeObject*>(E);
+				if (se_obj)
+					se_obj->o_Position.set(Position());
+			}
+
             validate_ai_locations(false);
 
             // validating position
-            if (UsedAI_Locations() && ai().level_graph().inside(ai_location().level_vertex_id(), Position()) &&
-                can_validate_position_on_spawn())
+            if (UsedAI_Locations() && ai().level_graph().inside(ai_location().level_vertex_id(), Position()) && can_validate_position_on_spawn())
                 Position().y = EPS_L + ai().level_graph().vertex_plane_y(*ai_location().level_vertex(), Position().x, Position().z);
         }
         else

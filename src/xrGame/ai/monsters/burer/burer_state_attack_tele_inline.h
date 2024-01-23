@@ -38,10 +38,6 @@ template <typename Object>
 void CStateBurerAttackTele<Object>::execute()
 {
     HandleGrenades();
-    // 	if ( object->EnemyMan.see_enemy_now() )
-    // 	{
-    // 		m_last_saw_enemy_tick					=	current_time();
-    // 	}
 
     switch (m_action)
     {
@@ -354,7 +350,11 @@ bool CStateBurerAttackTele<Object>::CheckTeleStart()
         return false;
 
     // проверить дистанцию до врага
-    const float dist = this->object->Position().distance_to(this->object->EnemyMan.get_enemy()->Position());
+	CEntityAlive const* enemy = object->EnemyMan.get_enemy();
+	if (!enemy || enemy != Actor())
+		return false;
+
+	float dist = object->Position().distance_to(enemy->Position());
     if (dist < this->object->m_tele_min_distance)
         return false;
     if (dist > this->object->m_tele_max_distance)

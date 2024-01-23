@@ -63,6 +63,7 @@ public:
     void set_actor_ignore(bool const actor_ignore) { m_actor_ignore = actor_ignore; }
     bool get_actor_ignore() const { return m_actor_ignore; }
     virtual void Die(IGameObject* who);
+    void OnDie();
 
     virtual CMovementManager* create_movement_manager();
 
@@ -79,6 +80,7 @@ public:
 
     IC CPolterSpecialAbility* ability() { return (m_flame ? m_flame : m_tele); }
     IC bool is_hidden() { return state_invisible; }
+
     // Poltergeist ability
     void PhysicalImpulse(const Fvector& position);
     void StrangeSounds(const Fvector& position);
@@ -95,7 +97,6 @@ public:
     void UpdateHeight();
 
     // Invisibility
-
     void EnableHide() { m_disable_hide = false; }
     void DisableHide() { m_disable_hide = true; }
 public:

@@ -77,13 +77,15 @@ void CHudItem::Load(LPCSTR section)
 
 void CHudItem::PlaySound(LPCSTR alias, const Fvector& position)
 {
-    m_sounds.PlaySound(alias, position, object().H_Root(), !!GetHUDmode());
+    Fvector pos = GetHUDmode() ? Fvector().sub(position, GEnv.Sound->listener_position()) : position;
+    m_sounds.PlaySound(alias, pos, object().H_Root(), !!GetHUDmode());
 }
 
 //Alundaio: Play at index
 void CHudItem::PlaySound(pcstr alias, const Fvector& position, u8 index)
 {
-    m_sounds.PlaySound(alias, position, object().H_Root(), !!GetHUDmode(), false, index);
+	Fvector pos = GetHUDmode() ? Fvector().sub(position, GEnv.Sound->listener_position()) : position;
+    m_sounds.PlaySound(alias, pos, object().H_Root(), !!GetHUDmode(), false, index);
 }
 //-Alundaio
 
