@@ -332,6 +332,11 @@ CRenderTarget::CRenderTarget()
         b_bloom_msaa = new CBlender_bloom_build_msaa();
         b_postprocess_msaa = new CBlender_postprocess_msaa();
     }
+	else
+	{
+        b_bloom_msaa = nullptr;
+        b_postprocess_msaa = nullptr;		
+	}
     b_luminance = new CBlender_luminance();
     b_combine = new CBlender_combine();
     b_ssao = new CBlender_SSAO_noMSAA();
@@ -1042,6 +1047,8 @@ CRenderTarget::~CRenderTarget()
             xr_delete(b_accum_reflected_msaa[i]);
             xr_delete(b_ssao_msaa[i]);
         }
+		xr_delete(b_postprocess_msaa);
+		xr_delete(b_bloom_msaa);
     }
     xr_delete(b_accum_mask);
     xr_delete(b_occq);
