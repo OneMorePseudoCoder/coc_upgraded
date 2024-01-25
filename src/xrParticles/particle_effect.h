@@ -22,7 +22,6 @@ struct PARTICLES_API ParticleEffect
 
     void Remove(int i);
 
-    bool Add(const pVector& pos, const pVector& posB, const pVector& size, const pVector& rot, const pVector& vel,
-             u32 color, const float age = 0.0f, u16 frame = 0, u16 flags = 0);
+    bool Add(const pVector& pos, const pVector& posB, const pVector& size, const pVector& rot, const pVector& vel, u32 color, const float age = 0.0f, u16 frame = 0, u16 flags = 0);
 };
 } // namespace PAPI

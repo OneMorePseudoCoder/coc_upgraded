@@ -126,8 +126,7 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
             "Please try to restart the game.\n"
             "Can not find matching format for back buffer.");
         FlushLog();
-        MessageBox(nullptr, "Failed to initialize graphics hardware.\nPlease try to restart the game.", "Error!",
-            MB_OK | MB_ICONERROR);
+        MessageBox(nullptr, "Failed to initialize graphics hardware.\nPlease try to restart the game.", "Error!", MB_OK | MB_ICONERROR);
         TerminateProcess(GetCurrentProcess(), 0);
     }
 
@@ -526,7 +525,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
                 m_rcWindowBounds.left, m_rcWindowBounds.top + fYOffset,
                 m_rcWindowBounds.right - m_rcWindowBounds.left,
                 m_rcWindowBounds.bottom - m_rcWindowBounds.top,
-                SWP_HIDEWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
+                SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
         }
     }
     else

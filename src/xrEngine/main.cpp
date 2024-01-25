@@ -49,13 +49,11 @@ ENGINE_API void InitSettings()
     Msg("Updated path to system.ltx is %s", fname);
 #endif
     pSettings = new CInifile(fname, TRUE);
-    CHECK_OR_EXIT(pSettings->section_count(),
-        make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
+    CHECK_OR_EXIT(pSettings->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
 
     FS.update_path(fname, "$game_config$", "game.ltx");
     pGameIni = new CInifile(fname, TRUE);
-    CHECK_OR_EXIT(pGameIni->section_count(),
-        make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
+    CHECK_OR_EXIT(pGameIni->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
 }
 
 ENGINE_API void InitConsole()
@@ -84,6 +82,7 @@ ENGINE_API void InitInput()
 ENGINE_API void destroyInput() { xr_delete(pInput); }
 ENGINE_API void InitSound() { ISoundManager::_create(); }
 ENGINE_API void destroySound() { ISoundManager::_destroy(); }
+
 ENGINE_API void destroySettings()
 {
     auto s = const_cast<CInifile**>(&pSettings);
@@ -223,8 +222,9 @@ ENGINE_API int RunApplication()
 
     Engine.External.Initialize();
     Startup();
+
     // check for need to execute something external
-    if (/*xr_strlen(g_sLaunchOnExit_params) && */ xr_strlen(g_sLaunchOnExit_app))
+    if (xr_strlen(g_sLaunchOnExit_app))
     {
         // CreateProcess need to return results to next two structures
         STARTUPINFO si = {};
@@ -232,8 +232,7 @@ ENGINE_API int RunApplication()
         PROCESS_INFORMATION pi = {};
         // We use CreateProcess to setup working folder
         pcstr tempDir = xr_strlen(g_sLaunchWorkingFolder) ? g_sLaunchWorkingFolder : nullptr;
-        CreateProcess(
-            g_sLaunchOnExit_app, g_sLaunchOnExit_params, nullptr, nullptr, FALSE, 0, nullptr, tempDir, &si, &pi);
+        CreateProcess(g_sLaunchOnExit_app, g_sLaunchOnExit_params, nullptr, nullptr, FALSE, 0, nullptr, tempDir, &si, &pi);
     }
     return 0;
 }

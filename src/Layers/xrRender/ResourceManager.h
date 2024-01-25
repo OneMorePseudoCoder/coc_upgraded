@@ -35,7 +35,6 @@ public:
     using map_Matrix = xr_map<const char*, CMatrix*, str_pred>;
     using map_Constant = xr_map<const char*, CConstant*, str_pred>;
     using map_RT = xr_map<const char*, CRT*, str_pred>;
-    //	DX10 cut DEFINE_MAP_PRED(const char*,CRTC*,			map_RTC,		map_RTCIt,			str_pred);
     using map_VS = xr_map<const char*, SVS*, str_pred>;
 
 #if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
@@ -58,7 +57,6 @@ private:
     map_Matrix m_matrices;
     map_Constant m_constants;
     map_RT m_rtargets;
-    //	DX10 cut map_RTC												m_rtargets_c;
     map_VS m_vs;
     map_PS m_ps;
 
@@ -98,7 +96,6 @@ private:
     // misc
 public:
     CTextureDescrMngr m_textures_description;
-    //.	CInifile*											m_textures_description;
     xr_vector<std::pair<shared_str, R_constant_setup*>> v_constant_setup;
     BOOL bDeferredLoad;
     CScriptEngine ScriptEngine;
@@ -114,7 +111,6 @@ public:
     IBlender* _FindBlender(LPCSTR Name);
     void _GetMemoryUsage(u32& m_base, u32& c_base, u32& m_lmaps, u32& c_lmaps);
     void _DumpMemoryUsage();
-    //.	BOOL							_GetDetailTexture	(LPCSTR Name, LPCSTR& T, R_constant_setup* &M);
 
     map_Blender& _GetBlenders() { return m_blenders; }
     // Debug
@@ -157,8 +153,6 @@ public:
 #endif
     void _DeleteRT(const CRT* RT);
 
-//	DX10 cut CRTC*							_CreateRTC			(LPCSTR Name, u32 size,	D3DFORMAT f);
-//	DX10 cut void							_DeleteRTC			(const CRTC*	RT	);
 #if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
     SGS* _CreateGS(LPCSTR Name);
     void _DeleteGS(const SGS* GS);
@@ -208,8 +202,7 @@ public:
     void _DeleteElement(const ShaderElement* L);
 
     Shader* _cpp_Create(LPCSTR s_shader, LPCSTR s_textures = nullptr, LPCSTR s_constants = nullptr, LPCSTR s_matrices = nullptr);
-    Shader* _cpp_Create(
-        IBlender* B, LPCSTR s_shader = nullptr, LPCSTR s_textures = nullptr, LPCSTR s_constants = nullptr, LPCSTR s_matrices = nullptr);
+    Shader* _cpp_Create(IBlender* B, LPCSTR s_shader = nullptr, LPCSTR s_textures = nullptr, LPCSTR s_constants = nullptr, LPCSTR s_matrices = nullptr);
     Shader* _lua_Create(LPCSTR s_shader, LPCSTR s_textures);
     BOOL _lua_HasShader(LPCSTR s_shader);
 
@@ -225,8 +218,7 @@ public:
 
     // Creation/Destroying
     Shader* Create(LPCSTR s_shader = nullptr, LPCSTR s_textures = nullptr, LPCSTR s_constants = nullptr, LPCSTR s_matrices = nullptr);
-    Shader* Create(
-        IBlender* B, LPCSTR s_shader = nullptr, LPCSTR s_textures = nullptr, LPCSTR s_constants = nullptr, LPCSTR s_matrices = nullptr);
+    Shader* Create(IBlender* B, LPCSTR s_shader = nullptr, LPCSTR s_textures = nullptr, LPCSTR s_constants = nullptr, LPCSTR s_matrices = nullptr);
     void Delete(const Shader* S);
     void RegisterConstantSetup(LPCSTR name, R_constant_setup* s)
     {
@@ -244,7 +236,6 @@ public:
     void DeleteGeom(const SGeometry* VS);
     void DeferredLoad(BOOL E) { bDeferredLoad = E; }
     void DeferredUpload();
-    //.	void			DeferredUnload			();
     void Evict();
     void StoreNecessaryTextures();
     void DestroyNecessaryTextures();

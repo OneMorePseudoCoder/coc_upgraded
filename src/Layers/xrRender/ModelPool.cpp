@@ -222,7 +222,6 @@ dxRender_Visual* CModelPool::Create(const char* name, IReader* data)
     xr_strlwr(low_name);
     if (strext(low_name))
         *strext(low_name) = 0;
-    //	Msg						("-CREATE %s",low_name);
 
     // 0. Search POOL
     POOL_IT it = Pool.find(low_name);
@@ -271,7 +270,6 @@ dxRender_Visual* CModelPool::CreateChild(LPCSTR name, IReader* data)
 
     // 1. Search for already loaded model
     dxRender_Visual* Base = Instance_Find(low_name);
-    //.	if (0==Base) Base	 	= Instance_Load(name,data,FALSE);
     if (nullptr == Base)
     {
         if (data)
@@ -342,8 +340,6 @@ void CModelPool::Discard(dxRender_Visual*& V, BOOL b_complete)
     REGISTRY_IT it = Registry.find(V);
     if (it != Registry.end())
     {
-        // Pool - OK
-
         // Base
         const shared_str& name = it->second;
         xr_vector<ModelDef>::iterator I = Models.begin();
@@ -377,7 +373,6 @@ void CModelPool::Discard(dxRender_Visual*& V, BOOL b_complete)
         }
         // Registry
         xr_delete(V);
-        //.		xr_free			(name);
         Registry.erase(it);
     }
     else
@@ -543,11 +538,11 @@ IC bool _IsBoxVisible(dxRender_Visual* visual, const Fmatrix& transform)
     bb.xform(visual->vis.box, transform);
     return GEnv.Render->occ_visible(bb);
 }
+
 IC bool _IsValidShader(dxRender_Visual* visual, u32 priority, bool strictB2F)
 {
     if (visual->shader)
-        return (priority == visual->shader->E[0]->flags.iPriority) &&
-            (strictB2F == visual->shader->E[0]->flags.bStrictB2F);
+        return (priority == visual->shader->E[0]->flags.iPriority) && (strictB2F == visual->shader->E[0]->flags.bStrictB2F);
     return false;
 }
 
@@ -615,30 +610,24 @@ void CModelPool::Render(
     {
         PS::CParticleGroup* pG = dynamic_cast<PS::CParticleGroup*>(m_pVisual);
         VERIFY(pG);
-        //		if (_IsBoxVisible(m_pVisual,mTransform))
-        {
-            RCache.set_xform_world(mTransform);
-            for (PS::CParticleGroup::SItemVecIt i_it = pG->items.begin(); i_it != pG->items.end(); i_it++)
-            {
-                xr_vector<dxRender_Visual*> visuals;
-                i_it->GetVisuals(visuals);
-                for (xr_vector<dxRender_Visual*>::iterator it = visuals.begin(); it != visuals.end(); it++)
-                    Render(*it, Fidentity, priority, strictB2F, m_fLOD);
-            }
-        }
+		RCache.set_xform_world(mTransform);
+		for (PS::CParticleGroup::SItemVecIt i_it = pG->items.begin(); i_it != pG->items.end(); i_it++)
+		{
+			xr_vector<dxRender_Visual*> visuals;
+			i_it->GetVisuals(visuals);
+			for (xr_vector<dxRender_Visual*>::iterator it = visuals.begin(); it != visuals.end(); it++)
+				Render(*it, Fidentity, priority, strictB2F, m_fLOD);
+		}
     }
     break;
     case MT_PARTICLE_EFFECT:
     {
-        //		if (_IsBoxVisible(m_pVisual,mTransform))
-        {
-            if (_IsValidShader(m_pVisual, priority, strictB2F))
-            {
-                RCache.set_Shader(m_pVisual->shader ? m_pVisual->shader : EDevice.m_WireShader);
-                RCache.set_xform_world(mTransform);
-                m_pVisual->Render(m_fLOD);
-            }
-        }
+		if (_IsValidShader(m_pVisual, priority, strictB2F))
+		{
+			RCache.set_Shader(m_pVisual->shader ? m_pVisual->shader : EDevice.m_WireShader);
+			RCache.set_xform_world(mTransform);
+			m_pVisual->Render(m_fLOD);
+		}
     }
     break;
     default:

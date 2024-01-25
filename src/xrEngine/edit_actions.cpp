@@ -65,15 +65,6 @@ void type_pair::on_key_press(line_edit_control* const control)
         string128 buff;
         buff[0] = 0;
 
-        /*
-        //setlocale( LC_ALL, "" ); // User-default
-
-        // The following 3 lines looks useless
-
-        LPSTR loc;
-        STRCONCAT ( loc, ".", xr_itoa( GetACP(), code_page, 10 ) );
-        setlocale ( LC_ALL, loc );*/
-
         static _locale_t current_locale = _create_locale(LC_ALL, "");
 
         if (pInput->get_dik_name(m_dik, buff, sizeof(buff)))
@@ -86,8 +77,6 @@ void type_pair::on_key_press(line_edit_control* const control)
                 c_shift = buff[0];
             }
         }
-
-        // setlocale( LC_ALL, "C" ); // restore to ANSI
 
         if (control->get_key_state(ks_Shift) != control->get_key_state(ks_CapsLock))
         {

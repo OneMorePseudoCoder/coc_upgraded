@@ -16,6 +16,7 @@
 #include "Level.h"
 #include "clsid_game.h"
 #include "hudmanager.h"
+#include "ai/stalker/ai_stalker.h"
 
 #define PICKUP_INFO_COLOR 0xFFDDDDDD
 
@@ -214,7 +215,7 @@ void CActor::PickupModeUpdate_COD()
     if (pNearestItem && m_bPickupMode && !m_pPersonWeLookingAt)
     {
         CGameObject* pUsableObject = smart_cast<CGameObject*>(pNearestItem);
-        if (pUsableObject && (!m_pObjectWeLookingAt))
+        if (pUsableObject && !m_pObjectWeLookingAt)
             pUsableObject->use(this);
 
         //подбирание объекта
@@ -230,23 +231,35 @@ void CActor::Check_for_AutoPickUp()
 void CActor::PickupInfoDraw(IGameObject* object)
 {
     LPCSTR draw_str = NULL;
-
-    CInventoryItem* item = smart_cast<CInventoryItem*>(object);
-    if (!item)
-        return;
-
     Fmatrix res;
-    res.mul(Device.mFullTransform, object->XFORM());
     Fvector4 v_res;
     Fvector shift;
 
-    draw_str = item->NameItem();
-    shift.set(0, 0, 0);
+    CInventoryItem* item = smart_cast<CInventoryItem*>(object);
+    CAI_Stalker* stalker = smart_cast<CAI_Stalker*>(object);
+
+    if (!item)
+        if (!stalker)
+            return;
+
+    res.mul(Device.mFullTransform, object->XFORM());
+
+	if (!stalker)
+    {
+        shift.set(0, 0, 0);
+        draw_str = item->NameItem();
+    }
+    else
+    {
+        shift.set(0, 1, 0);
+        draw_str = stalker->Name();
+    }
 
     res.transform(v_res, shift);
 
     if (v_res.z < 0 || v_res.w < 0)
         return;
+
     if (v_res.x < -1.f || v_res.x > 1.f || v_res.y < -1.f || v_res.y > 1.f)
         return;
 

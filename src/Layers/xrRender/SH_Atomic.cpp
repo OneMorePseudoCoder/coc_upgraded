@@ -4,28 +4,6 @@
 #include "sh_atomic.h"
 #include "ResourceManager.h"
 
-// Atomic
-//SVS::~SVS()
-//{
-//    _RELEASE(vs);
-//    dxRenderDeviceRender::Instance().Resources->_DeleteVS(this);
-//}
-//SPS::~SPS()
-//{
-//     _RELEASE(ps);
-//     dxRenderDeviceRender::Instance().Resources->_DeletePS(this);
-//}
-//SState::~SState()
-//{
-//    _RELEASE(state);
-//    dxRenderDeviceRender::Instance().Resources->_DeleteState(this);
-//}
-//SDeclaration::~SDeclaration()
-//{
-//    _RELEASE(dcl);
-//    dxRenderDeviceRender::Instance().Resources->_DeleteDecl(this);
-//}
-
 ///////////////////////////////////////////////////////////////////////
 //  SVS
 SVS::SVS() : sh(0)

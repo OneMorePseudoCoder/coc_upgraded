@@ -31,8 +31,7 @@ void show(const bool topmost)
     RECT logoRect;
     GetWindowRect(logoPicture, &logoRect);
     const HWND prevWindow = topmost ? HWND_TOPMOST : HWND_NOTOPMOST;
-    SetWindowPos(logoWindow, prevWindow, 0, 0, logoRect.right - logoRect.left, logoRect.bottom - logoRect.top,
-        SWP_NOMOVE | SWP_SHOWWINDOW);
+    SetWindowPos(logoWindow, prevWindow, 0, 0, logoRect.right - logoRect.left, logoRect.bottom - logoRect.top, SWP_NOMOVE | SWP_SHOWWINDOW);
     UpdateWindow(logoWindow);
 }
 

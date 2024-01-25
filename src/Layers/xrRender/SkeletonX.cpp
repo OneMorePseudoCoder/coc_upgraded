@@ -32,6 +32,7 @@ void CSkeletonX::AfterLoad(CKinematics* parent, u16 child_idx)
     SetParent(parent);
     ChildIDX = child_idx;
 }
+
 void CSkeletonX::_Copy(CSkeletonX* B)
 {
     Parent = nullptr;
@@ -106,6 +107,7 @@ void CSkeletonX::_Render(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCount)
     break;
     }
 }
+
 void CSkeletonX::_Render_soft(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCount)
 {
     u32 vOffset = cache_vOffset;
@@ -121,35 +123,19 @@ void CSkeletonX::_Render_soft(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCou
         RImplementation.BasicStats.Skinning.Begin();
         if (*Vertices1W)
         {
-            Skin1W(Dest, // dest
-                *Vertices1W, // source
-                vCount, // count
-                Parent->bone_instances // bones
-                );
+            Skin1W(Dest, *Vertices1W, vCount, Parent->bone_instances);
         }
         else if (*Vertices2W)
         {
-            Skin2W(Dest, // dest
-                *Vertices2W, // source
-                vCount, // count
-                Parent->bone_instances // bones
-                );
+            Skin2W(Dest, *Vertices2W, vCount, Parent->bone_instances);
         }
         else if (*Vertices3W)
         {
-            Skin3W(Dest, // dest
-                *Vertices3W, // source
-                vCount, // count
-                Parent->bone_instances // bones
-                );
+            Skin3W(Dest, *Vertices3W, vCount, Parent->bone_instances);
         }
         else if (*Vertices4W)
         {
-            Skin4W(Dest, // dest
-                *Vertices4W, // source
-                vCount, // count
-                Parent->bone_instances // bones
-                );
+            Skin4W(Dest, *Vertices4W, vCount, Parent->bone_instances);
         }
         else
             R_ASSERT2(0, "unsupported soft rendering");
@@ -170,7 +156,6 @@ void CSkeletonX::_Load(const char* N, IReader* data, u32& dwVertCount)
     // Load vertices
     R_ASSERT(data->find_chunk(OGF_VERTICES));
 
-    // u16			hw_bones_cnt		= u16((HW.Caps.geometry.dwRegisters-22)/3);
     //	Igor: some shaders in r1 need more free constant registers
     u16 hw_bones_cnt = u16((HW.Caps.geometry.dwRegisters - 22 - 3) / 3);
 
@@ -256,7 +241,7 @@ void CSkeletonX::_Load(const char* N, IReader* data, u32& dwVertCount)
             if (bids.end() == std::find(bids.begin(), bids.end(), VB.matrix1))
                 bids.push_back(VB.matrix1);
         }
-        //.			R_ASSERT(sw_bones_cnt<=hw_bones_cnt);
+
         if (sw_bones_cnt <= hw_bones_cnt)
         {
             // HW- two weights
@@ -290,7 +275,7 @@ void CSkeletonX::_Load(const char* N, IReader* data, u32& dwVertCount)
                     bids.push_back(VB.m[i]);
             }
         }
-        //.			R_ASSERT(sw_bones_cnt<=hw_bones_cnt);
+
         if ((sw_bones_cnt <= hw_bones_cnt))
         {
             RenderMode = RM_SKINNING_3B;
@@ -323,7 +308,7 @@ void CSkeletonX::_Load(const char* N, IReader* data, u32& dwVertCount)
                     bids.push_back(VB.m[i]);
             }
         }
-        //.			R_ASSERT(sw_bones_cnt<=hw_bones_cnt);
+
         if (sw_bones_cnt <= hw_bones_cnt)
         {
             RenderMode = RM_SKINNING_4B;
@@ -401,6 +386,7 @@ void get_pos_bones(const vertBoned3W& vert, Fvector& p, CKinematics* Parent)
     p.add(P1);
     p.add(P2);
 }
+
 void get_pos_bones(const vertBoned4W& vert, Fvector& p, CKinematics* Parent)
 {
     Fmatrix& M0 = Parent->LL_GetBoneInstance(vert.m[0]).mRenderTransform;
@@ -428,77 +414,28 @@ void get_pos_bones(const vertBoned4W& vert, Fvector& p, CKinematics* Parent)
 // Wallmarks
 //-----------------------------------------------------------------------------------------------------
 #include "xrCDB/Intersect.hpp"
-BOOL CSkeletonX::_PickBoneSoft1W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D,
-    u16* indices, CBoneData::FacesVec& faces)
+BOOL CSkeletonX::_PickBoneSoft1W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D, u16* indices, CBoneData::FacesVec& faces)
 {
     return pick_bone<vertBoned1W>(Vertices1W, Parent, r, dist, S, D, indices, faces);
 }
 
-BOOL CSkeletonX::_PickBoneSoft2W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D,
-    u16* indices, CBoneData::FacesVec& faces)
+BOOL CSkeletonX::_PickBoneSoft2W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D, u16* indices, CBoneData::FacesVec& faces)
 {
     return pick_bone<vertBoned2W>(Vertices2W, Parent, r, dist, S, D, indices, faces);
 }
 
-BOOL CSkeletonX::_PickBoneSoft3W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D,
-    u16* indices, CBoneData::FacesVec& faces)
+BOOL CSkeletonX::_PickBoneSoft3W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D, u16* indices, CBoneData::FacesVec& faces)
 {
     return pick_bone<vertBoned3W>(Vertices3W, Parent, r, dist, S, D, indices, faces);
 }
 
-BOOL CSkeletonX::_PickBoneSoft4W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D,
-    u16* indices, CBoneData::FacesVec& faces)
+BOOL CSkeletonX::_PickBoneSoft4W(IKinematics::pick_result& r, float dist, const Fvector& S, const Fvector& D, u16* indices, CBoneData::FacesVec& faces)
 {
     return pick_bone<vertBoned4W>(Vertices4W, Parent, r, dist, S, D, indices, faces);
 }
-/*
-BOOL	CSkeletonX::_PickBoneSoft1W	(Fvector& normal, float& dist, const Fvector& S, const Fvector& D, u16* indices,
-CBoneData::FacesVec& faces)
-{
-    VERIFY				(*Vertices1W);
-    bool intersect		= FALSE;
-    for (CBoneData::auto it=faces.begin(); it!=faces.end(); it++){
-        Fvector			p[3];
-        u32 idx			= (*it)*3;
-        for (u32 k=0; k<3; k++){
-            vertBoned1W& vert		= Vertices1W[indices[idx+k]];
-            get_pos_bones(vert, p[k], Parent);
-        }
-        float u,v,range	= flt_max;
-        if (CDB::TestRayTri(S,D,p,u,v,range,true)&&(range<dist)){
-            normal.mknormal(p[0],p[1],p[2]);
-            dist		= range;
-            intersect	= TRUE;
-        }
-    }
-    return intersect;
-}
 
-BOOL CSkeletonX::_PickBoneSoft2W	(Fvector& normal, float& dist, const Fvector& S, const Fvector& D, u16* indices,
-CBoneData::FacesVec& faces)
-{
-    VERIFY				(*Vertices2W);
-    bool intersect		= FALSE;
-    for (CBoneData::auto it=faces.begin(); it!=faces.end(); it++){
-        Fvector			p[3];
-        u32 idx			= (*it)*3;
-        for (u32 k=0; k<3; k++){
-            vertBoned2W& vert		= Vertices2W[indices[idx+k]];
-            get_pos_bones(vert, p[k], Parent);
-        }
-        float u,v,range	= flt_max;
-        if (CDB::TestRayTri(S,D,p,u,v,range,true)&&(range<dist)){
-            normal.mknormal(p[0],p[1],p[2]);
-            dist		= range;
-            intersect	= TRUE;
-        }
-    }
-    return intersect;
-}
-*/
 // Fill Vertices
-void CSkeletonX::_FillVerticesSoft1W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size,
-                                     u16* indices, CBoneData::FacesVec& faces)
+void CSkeletonX::_FillVerticesSoft1W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size, u16* indices, CBoneData::FacesVec& faces)
 {
     VERIFY(*Vertices1W);
     for (auto it = faces.begin(); it != faces.end(); it++)
@@ -541,8 +478,7 @@ void CSkeletonX::_FillVerticesSoft1W(const Fmatrix& view, CSkeletonWallmark& wm,
     }
 }
 
-void CSkeletonX::_FillVerticesSoft2W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size,
-                                     u16* indices, CBoneData::FacesVec& faces)
+void CSkeletonX::_FillVerticesSoft2W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size, u16* indices, CBoneData::FacesVec& faces)
 {
     VERIFY(*Vertices2W);
     for (auto it = faces.begin(); it != faces.end(); it++)
@@ -590,8 +526,7 @@ void CSkeletonX::_FillVerticesSoft2W(const Fmatrix& view, CSkeletonWallmark& wm,
     }
 }
 
-void CSkeletonX::_FillVerticesSoft3W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size,
-                                     u16* indices, CBoneData::FacesVec& faces)
+void CSkeletonX::_FillVerticesSoft3W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size, u16* indices, CBoneData::FacesVec& faces)
 {
     VERIFY(*Vertices3W);
     for (auto it = faces.begin(); it != faces.end(); ++it)
@@ -634,8 +569,7 @@ void CSkeletonX::_FillVerticesSoft3W(const Fmatrix& view, CSkeletonWallmark& wm,
     }
 }
 
-void CSkeletonX::_FillVerticesSoft4W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size,
-                                     u16* indices, CBoneData::FacesVec& faces)
+void CSkeletonX::_FillVerticesSoft4W(const Fmatrix& view, CSkeletonWallmark& wm, const Fvector& normal, float size, u16* indices, CBoneData::FacesVec& faces)
 {
     VERIFY(*Vertices4W);
     for (auto it = faces.begin(); it != faces.end(); ++it)
@@ -684,7 +618,6 @@ void CSkeletonX::_DuplicateIndices(const char* /*N*/, IReader* data)
     //	We will have trouble with container since don't know were to take readable indices
     VERIFY(!data->find_chunk(OGF_ICONTAINER));
     //	Index buffer replica since we can't read from index buffer in DX10
-    // ref_smem<u16>			Indices;
     R_ASSERT(data->find_chunk(OGF_INDICES));
     u32 iCount = data->r_u32();
 

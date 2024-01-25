@@ -524,7 +524,6 @@ void CWeaponMagazined::state_Fire(float dt)
             return;
         }
 
-
         CInventoryOwner* io = smart_cast<CInventoryOwner*>(H_Parent());
         if (!io->inventory().ActiveItem())
         {

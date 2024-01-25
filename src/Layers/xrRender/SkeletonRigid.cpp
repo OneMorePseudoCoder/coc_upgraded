@@ -170,16 +170,14 @@ void CKinematics::LL_ClearAdditionalTransform(u16 bone_id)
     }
 }
 
-void CKinematics::BuildBoneMatrix(
-    const CBoneData* bd, CBoneInstance& bi, const Fmatrix* parent, u8 channel_mask /*= (1<<0)*/)
+void CKinematics::BuildBoneMatrix(const CBoneData* bd, CBoneInstance& bi, const Fmatrix* parent, u8 channel_mask)
 {
     bi.mTransform.mul_43(*parent, bd->bind_transform);
     CalculateBonesAdditionalTransforms(bd, bi, parent, channel_mask); //--#SM+#--
 }
 
 // Добавляем константные смещения к нужным костям --#SM+#--
-void CKinematics::CalculateBonesAdditionalTransforms(
-    const CBoneData* bd, CBoneInstance& bi, const Fmatrix* parent, u8 channel_mask /* = (1<<0)*/)
+void CKinematics::CalculateBonesAdditionalTransforms(const CBoneData* bd, CBoneInstance& bi, const Fmatrix* parent, u8 channel_mask)
 {
     // bi.mTransform.c - содержит смещение относительно первой кости модели\центра сцены (0, 0, 0)
     for (auto& it : m_bones_offsets)
@@ -246,8 +244,6 @@ void CKinematics::Bone_Calculate(CBoneData* bd, Fmatrix* parent)
 void CKinematics::BoneChain_Calculate(const CBoneData* bd, CBoneInstance& bi, u8 mask_channel, bool ignore_callbacks)
 {
     u16 SelfID = bd->GetSelfID();
-    // CBlendInstance& BLEND_INST	= LL_GetBlendInstance(SelfID);
-    // CBlendInstance::BlendSVec &Blend = BLEND_INST.blend_vector();
     // ignore callbacks
     BoneCallback bc = bi.callback();
     BOOL ow = bi.callback_overwrite();

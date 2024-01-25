@@ -30,6 +30,7 @@ public:
         if (u32(-1) == stage)
             C = nullptr;
     }
+
     adopt_sampler(const adopt_sampler& _C) : C(_C.C), stage(_C.stage)
     {
         if (u32(-1) == stage)
@@ -42,115 +43,134 @@ public:
             C->i_Texture(stage, texture);
         return *this;
     }
+
     adopt_sampler& _projective(bool _b)
     {
         if (C)
             C->i_Projective(stage, _b);
         return *this;
     }
+
     adopt_sampler& _clamp()
     {
         if (C)
             C->i_Address(stage, D3DTADDRESS_CLAMP);
         return *this;
     }
+
     adopt_sampler& _wrap()
     {
         if (C)
             C->i_Address(stage, D3DTADDRESS_WRAP);
         return *this;
     }
+
     adopt_sampler& _mirror()
     {
         if (C)
             C->i_Address(stage, D3DTADDRESS_MIRROR);
         return *this;
     }
+
     adopt_sampler& _f_anisotropic()
     {
         if (C)
             C->i_Filter(stage, D3DTEXF_ANISOTROPIC, D3DTEXF_LINEAR, D3DTEXF_ANISOTROPIC);
         return *this;
     }
+
     adopt_sampler& _f_trilinear()
     {
         if (C)
             C->i_Filter(stage, D3DTEXF_LINEAR, D3DTEXF_LINEAR, D3DTEXF_LINEAR);
         return *this;
     }
+
     adopt_sampler& _f_bilinear()
     {
         if (C)
             C->i_Filter(stage, D3DTEXF_LINEAR, D3DTEXF_POINT, D3DTEXF_LINEAR);
         return *this;
     }
+
     adopt_sampler& _f_linear()
     {
         if (C)
             C->i_Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
         return *this;
     }
+
     adopt_sampler& _f_none()
     {
         if (C)
             C->i_Filter(stage, D3DTEXF_POINT, D3DTEXF_NONE, D3DTEXF_POINT);
         return *this;
     }
+
     adopt_sampler& _fmin_none()
     {
         if (C)
             C->i_Filter_Min(stage, D3DTEXF_NONE);
         return *this;
     }
+
     adopt_sampler& _fmin_point()
     {
         if (C)
             C->i_Filter_Min(stage, D3DTEXF_POINT);
         return *this;
     }
+
     adopt_sampler& _fmin_linear()
     {
         if (C)
             C->i_Filter_Min(stage, D3DTEXF_LINEAR);
         return *this;
     }
+
     adopt_sampler& _fmin_aniso()
     {
         if (C)
             C->i_Filter_Min(stage, D3DTEXF_ANISOTROPIC);
         return *this;
     }
+
     adopt_sampler& _fmip_none()
     {
         if (C)
             C->i_Filter_Mip(stage, D3DTEXF_NONE);
         return *this;
     }
+
     adopt_sampler& _fmip_point()
     {
         if (C)
             C->i_Filter_Mip(stage, D3DTEXF_POINT);
         return *this;
     }
+
     adopt_sampler& _fmip_linear()
     {
         if (C)
             C->i_Filter_Mip(stage, D3DTEXF_LINEAR);
         return *this;
     }
+
     adopt_sampler& _fmag_none()
     {
         if (C)
             C->i_Filter_Mag(stage, D3DTEXF_NONE);
         return *this;
     }
+
     adopt_sampler& _fmag_point()
     {
         if (C)
             C->i_Filter_Mag(stage, D3DTEXF_POINT);
         return *this;
     }
-    adopt_sampler& _fmag_linear()
+ 
+	adopt_sampler& _fmag_linear()
     {
         if (C)
             C->i_Filter_Mag(stage, D3DTEXF_LINEAR);

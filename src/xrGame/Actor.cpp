@@ -174,8 +174,6 @@ CActor::CActor() : CEntityAlive()
 
     m_fSprintFactor = 4.f;
 
-    // hFriendlyIndicator.create(FVF::F_LIT,RCache.Vertex.Buffer(),RCache.QuadIB);
-
     m_anims = new SActorMotions();
     //Alundaio: Needed for car
     m_vehicle_anims = new SActorVehicleAnims();
@@ -261,6 +259,7 @@ void CActor::reload(LPCSTR section)
         memory().reload(section);
     m_location_manager->reload(section);
 }
+
 void set_box(LPCSTR section, CPHMovementControl& mc, u32 box_num)
 {
     Fbox bb;
@@ -276,6 +275,7 @@ void set_box(LPCSTR section, CPHMovementControl& mc, u32 box_num)
     bb.grow(vBOX_size);
     mc.SetBox(box_num, bb);
 }
+
 void CActor::Load(LPCSTR section)
 {
     inherited::Load(section);
@@ -476,8 +476,7 @@ void CActor::Hit(SHit* pHDS)
 
     if ((mstate_real & mcSprint) && Level().CurrentControlEntity() == this && conditions().DisableSprint(pHDS))
     {
-        bool const is_special_burn_hit_2_self = (pHDS->who == this) && (pHDS->boneID == BI_NONE) &&
-            ((pHDS->hit_type == ALife::eHitTypeBurn) || (pHDS->hit_type == ALife::eHitTypeLightBurn));
+        bool const is_special_burn_hit_2_self = (pHDS->who == this) && (pHDS->boneID == BI_NONE) && ((pHDS->hit_type == ALife::eHitTypeBurn) || (pHDS->hit_type == ALife::eHitTypeLightBurn));
         if (!is_special_burn_hit_2_self)
         {
             mstate_wishful &= ~mcSprint;
@@ -597,11 +596,6 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, IGameObject* who, s16 ele
 {
     if (g_Alive())
     {
-        /* AVO: to get bone names from IDs*/
-        /*Log("hit info");
-        Log("bone ID = %s", element);
-        Log("bone Name = %s", smart_cast<IKinematics*>(this->Visual())->LL_BoneName_dbg(element));
-        Log("hit info END");*/
         // check damage bone
         Fvector D;
         XFORM().transform_dir(D, vLocalDir);
@@ -613,8 +607,7 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, IGameObject* who, s16 ele
         IKinematics* pK = smart_cast<IKinematics*>(pV);
         VERIFY(tpKinematics);
 #pragma todo("Dima to Dima : forward-back bone impulse direction has been determined incorrectly!")
-        MotionID motion_ID = m_anims->m_normal.m_damage[iFloor(pK->LL_GetBoneInstance(element).get_param(1) +
-            (angle_difference(r_model_yaw + r_model_yaw_delta, yaw) <= PI_DIV_2 ? 0 : 1))];
+        MotionID motion_ID = m_anims->m_normal.m_damage[iFloor(pK->LL_GetBoneInstance(element).get_param(1) + (angle_difference(r_model_yaw + r_model_yaw_delta, yaw) <= PI_DIV_2 ? 0 : 1))];
         float power_factor = perc / 100.f;
         clamp(power_factor, 0.f, 1.f);
         VERIFY(motion_ID.valid());
@@ -975,10 +968,10 @@ void CActor::set_state_box(u32 mstate)
     else
         character_physics_support()->movement()->ActivateBox(0, true);
 }
+
 void CActor::shedule_Update(u32 DT)
 {
     setSVU(OnServer());
-    //.	UpdateInventoryOwner			(DT);
 
     if (IsFocused())
     {
@@ -1004,13 +997,11 @@ void CActor::shedule_Update(u32 DT)
             else
             {
                 g_player_hud->detach_item_idx(0);
-                // Msg("---No active item in inventory(), item 0 detached.");
             }
         }
         else
         {
             g_player_hud->detach_all_items();
-            // Msg("---No hud view found, all items detached.");
         }
     }
 
@@ -1025,25 +1016,9 @@ void CActor::shedule_Update(u32 DT)
     float dt = float(DT) / 1000.f;
 
     // Check controls, create accel, prelimitary setup "mstate_real"
-
-    //----------- for E3 -----------------------------
-    //	if (Local() && (OnClient() || Level().CurrentEntity()==this))
     if (Level().CurrentControlEntity() == this)
-    //------------------------------------------------
     {
         g_cl_CheckControls(mstate_wishful, NET_SavedAccel, NET_Jump, dt);
-        {
-            /*
-            if (mstate_real & mcJump)
-            {
-                NET_Packet	P;
-                u_EventGen(P, GE_ACTOR_JUMPING, ID());
-                P.w_sdir(NET_SavedAccel);
-                P.w_float(NET_Jump);
-                u_EventSend(P);
-            }
-            */
-        }
         g_cl_Orientate(mstate_real, dt);
         g_Orientate(mstate_real, dt);
 
@@ -1055,7 +1030,6 @@ void CActor::shedule_Update(u32 DT)
         // Check for game-contacts
         Fvector C;
         float R;
-        // m_PhysicMovementControl->GetBoundingSphere	(C,R);
 
         Center(C);
         R = Radius();
@@ -1088,9 +1062,6 @@ void CActor::shedule_Update(u32 DT)
 
         if (NET.size())
         {
-            //			NET_SavedAccel = NET_Last.p_accel;
-            //			mstate_real = mstate_wishful = NET_Last.mstate;
-
             g_sv_Orientate(mstate_real, dt);
             g_Orientate(mstate_real, dt);
             g_Physics(NET_SavedAccel, NET_Jump, dt);
@@ -1168,7 +1139,6 @@ void CActor::shedule_Update(u32 DT)
                 m_DangerSnd.set_position(snd_pos);
 
             float v = bs + 0.25f;
-            //			Msg( "bs            = %.2f", bs );
 
             m_DangerSnd.set_volume(v);
         }
@@ -1202,51 +1172,48 @@ void CActor::shedule_Update(u32 DT)
         m_pVehicleWeLookingAt = smart_cast<CHolderCustom*>(game_object);
         CEntityAlive* pEntityAlive = smart_cast<CEntityAlive*>(game_object);
 
-        {
-            if (game_object->tip_text())
-            {
-                m_sDefaultObjAction = StringTable().translate(game_object->tip_text());
-            }
-            else
-            {
-                if (m_pPersonWeLookingAt && pEntityAlive->g_Alive() && m_pPersonWeLookingAt->IsTalkEnabled())
-                {
-                    m_sDefaultObjAction = m_sCharacterUseAction;
-                }
-                else if (pEntityAlive && !pEntityAlive->g_Alive())
-                {
-                    if (m_pPersonWeLookingAt && m_pPersonWeLookingAt->deadbody_closed_status())
-                    {
-                        m_sDefaultObjAction = m_sDeadCharacterDontUseAction;
-                    }
-                    else
-                    {
-                        bool b_allow_drag = !!pSettings->line_exist("ph_capture_visuals", pEntityAlive->cNameVisual());
-                        if (b_allow_drag)
-                        {
-                            m_sDefaultObjAction = m_sDeadCharacterUseOrDragAction;
-                        }
-                        else if (pEntityAlive->cast_inventory_owner())
-                        {
-                            m_sDefaultObjAction = m_sDeadCharacterUseAction;
-                        }
-                    } // m_pPersonWeLookingAt
-                }
-                else if (m_pVehicleWeLookingAt)
-                {
-                    m_sDefaultObjAction = m_pVehicleWeLookingAt->m_sUseAction == nullptr ? m_sCarCharacterUseAction : m_pVehicleWeLookingAt->m_sUseAction;
-                }
-                else if (m_pObjectWeLookingAt && m_pObjectWeLookingAt->cast_inventory_item() &&
-                    m_pObjectWeLookingAt->cast_inventory_item()->CanTake())
-                {
-                    m_sDefaultObjAction = m_sInventoryItemUseAction;
-                }
-                else
-                {
-                    m_sDefaultObjAction = NULL;
-                }
-            }
-        }
+		if (game_object->tip_text())
+		{
+			m_sDefaultObjAction = StringTable().translate(game_object->tip_text());
+		}
+		else
+		{
+			if (m_pPersonWeLookingAt && pEntityAlive->g_Alive() && m_pPersonWeLookingAt->IsTalkEnabled())
+			{
+				m_sDefaultObjAction = m_sCharacterUseAction;
+			}
+			else if (pEntityAlive && !pEntityAlive->g_Alive())
+			{
+				if (m_pPersonWeLookingAt && m_pPersonWeLookingAt->deadbody_closed_status())
+				{
+					m_sDefaultObjAction = m_sDeadCharacterDontUseAction;
+				}
+				else
+				{
+					bool b_allow_drag = !!pSettings->line_exist("ph_capture_visuals", pEntityAlive->cNameVisual());
+					if (b_allow_drag)
+					{
+						m_sDefaultObjAction = m_sDeadCharacterUseOrDragAction;
+					}
+					else if (pEntityAlive->cast_inventory_owner())
+					{
+						m_sDefaultObjAction = m_sDeadCharacterUseAction;
+					}
+				} // m_pPersonWeLookingAt
+			}
+			else if (m_pVehicleWeLookingAt)
+			{
+				m_sDefaultObjAction = m_pVehicleWeLookingAt->m_sUseAction == nullptr ? m_sCarCharacterUseAction : m_pVehicleWeLookingAt->m_sUseAction;
+			}
+			else if (m_pObjectWeLookingAt && m_pObjectWeLookingAt->cast_inventory_item() && m_pObjectWeLookingAt->cast_inventory_item()->CanTake() && m_pObjectWeLookingAt->cast_inventory_item()->Useful())
+			{
+				m_sDefaultObjAction = m_sInventoryItemUseAction;
+			}
+			else
+			{
+				m_sDefaultObjAction = NULL;
+			}
+		}
     }
     else
     {

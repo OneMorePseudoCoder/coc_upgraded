@@ -22,7 +22,6 @@ light::light(void) : SpatialBase(g_SpatialSpace)
     color.set(1, 1, 1, 1);
 
     m_volumetric_quality = 1;
-    // m_volumetric_quality = 0.5;
     m_volumetric_intensity = 1;
     m_volumetric_distance = 1;
 
@@ -72,7 +71,6 @@ void light::set_texture(LPCSTR name)
     string256 temp;
 
     strconcat(sizeof(temp), temp, "r2\\accum_spot_", name);
-    // strconcat(sizeof(temp),temp,"_nomsaa",name);
     s_spot.create(RImplementation.Target->b_accum_spot, temp, name);
 
 #if (RENDER != R_R3) && (RENDER != R_R4) && (RENDER != R_GL)
@@ -88,10 +86,8 @@ void light::set_texture(LPCSTR name)
 
         for (int i = 0; i < bound; ++i)
         {
-            s_spot_msaa[i].create(RImplementation.Target->b_accum_spot_msaa[i],
-                strconcat(sizeof(temp), temp, "r2\\accum_spot_", name), name);
-            s_volumetric_msaa[i].create(RImplementation.Target->b_accum_volumetric_msaa[i],
-                strconcat(sizeof(temp), temp, "r2\\accum_volumetric_", name), name);
+            s_spot_msaa[i].create(RImplementation.Target->b_accum_spot_msaa[i], strconcat(sizeof(temp), temp, "r2\\accum_spot_", name), name);
+            s_volumetric_msaa[i].create(RImplementation.Target->b_accum_volumetric_msaa[i], strconcat(sizeof(temp), temp, "r2\\accum_volumetric_", name), name);
         }
     }
 #endif // (RENDER!=R_R3) || (RENDER!=R_R4) || (RENDER!=R_GL)
@@ -111,7 +107,6 @@ void light::set_active(bool a)
         flags.bActive = true;
         spatial_register();
         spatial_move();
-//Msg("!!! L-register: %X", u32(this));
 
 #ifdef DEBUG
         Fvector zero = {0, -1000, 0};
@@ -128,13 +123,12 @@ void light::set_active(bool a)
         flags.bActive = false;
         spatial_move();
         spatial_unregister();
-        //Msg("!!! L-unregister: %X", u32(this));
     }
 }
 
 void light::set_position(const Fvector& P)
 {
-    float eps = EPS_L; //_max(range*0.001f,EPS_L);
+    float eps = EPS_L;
     if (position.similar(P, eps))
         return;
     position.set(P);
@@ -158,6 +152,7 @@ void light::set_cone(float angle)
     cone = angle;
     spatial_move();
 }
+
 void light::set_rotation(const Fvector& D, const Fvector& R)
 {
     Fvector old_D = direction;
@@ -195,10 +190,6 @@ void light::spatial_move()
     break;
     case IRender_Light::OMNIPART:
     {
-        // is it optimal? seems to be...
-        //spatial.sphere.P.mad(position, direction, range);
-        //spatial.sphere.R = range;
-        // This is optimal.
         const float fSphereR = range * RSQRTDIV2;
         spatial.sphere.P.mad(position, direction, fSphereR);
         spatial.sphere.R = fSphereR;
@@ -362,7 +353,6 @@ void light::Export(light_Package& package)
                     {
                         L->s_point_msaa[i] = s_point_msaa[i];
                         L->s_spot_msaa[i] = s_spot_msaa[i];
-                        // L->s_volumetric_msaa[i] = s_volumetric_msaa[i];
                     }
                 }
 #endif // (RENDER==R_R3) || (RENDER==R_R4) || (RENDER==R_GL)

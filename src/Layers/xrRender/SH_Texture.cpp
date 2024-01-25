@@ -32,6 +32,7 @@ CTexture::CTexture()
     m_material = 1.0f;
     bind = fastdelegate::FastDelegate1<u32>(this, &CTexture::apply_load);
 }
+
 // XXX: render scripts should call this destructor before resource manager gets destroyed
 CTexture::~CTexture()
 {
@@ -102,6 +103,7 @@ void CTexture::apply_theora(u32 dwStage)
     }
     CHK_DX(HW.pDevice->SetTexture(dwStage, pSurface));
 };
+
 void CTexture::apply_avi(u32 dwStage)
 {
     if (pAVI->NeedUpdate())
@@ -113,20 +115,18 @@ void CTexture::apply_avi(u32 dwStage)
         D3DLOCKED_RECT R;
         R_CHK(T2D->LockRect(0, &R, NULL, 0));
         R_ASSERT(R.Pitch == int(pAVI->m_dwWidth * 4));
-        //		R_ASSERT(pAVI->DecompressFrame((u32*)(R.pBits)));
         BYTE* ptr;
         pAVI->GetFrame(&ptr);
         CopyMemory(R.pBits, ptr, pAVI->m_dwWidth * pAVI->m_dwHeight * 4);
-        //		R_ASSERT(pAVI->GetFrame((BYTE*)(&R.pBits)));
-
         R_CHK(T2D->UnlockRect(0));
     }
     CHK_DX(HW.pDevice->SetTexture(dwStage, pSurface));
 };
+
 void CTexture::apply_seq(u32 dwStage)
 {
     // SEQ
-    u32 frame = RDEVICE.dwTimeContinual / seqMSPF; // RDEVICE.dwTimeGlobal
+    u32 frame = RDEVICE.dwTimeContinual / seqMSPF;
     u32 frame_data = seqDATA.size();
     if (flags.seqCycles)
     {
@@ -142,7 +142,9 @@ void CTexture::apply_seq(u32 dwStage)
     }
     CHK_DX(HW.pDevice->SetTexture(dwStage, pSurface));
 };
+
 void CTexture::apply_normal(u32 dwStage) { CHK_DX(HW.pDevice->SetTexture(dwStage, pSurface)); };
+
 void CTexture::Preload()
 {
     m_bumpmap = RImplementation.Resources->m_textures_description.GetBumpName(cName);
@@ -193,8 +195,7 @@ void CTexture::Load()
                 u32 _w = pTheora->Width(false);
                 u32 _h = pTheora->Height(false);
 
-                HRESULT hrr =
-                    HW.pDevice->CreateTexture(_w, _h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTexture, nullptr);
+                HRESULT hrr = HW.pDevice->CreateTexture(_w, _h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTexture, nullptr);
 
                 pSurface = pTexture;
                 if (FAILED(hrr))
@@ -222,8 +223,7 @@ void CTexture::Load()
 
                 // Now create texture
                 ID3DTexture2D* pTexture = nullptr;
-                HRESULT hrr = HW.pDevice->CreateTexture(
-                    pAVI->m_dwWidth, pAVI->m_dwHeight, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTexture, nullptr);
+                HRESULT hrr = HW.pDevice->CreateTexture(pAVI->m_dwWidth, pAVI->m_dwHeight, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTexture, nullptr);
                 pSurface = pTexture;
                 if (FAILED(hrr))
                 {
@@ -261,7 +261,6 @@ void CTexture::Load()
                     pSurface = ::RImplementation.texture_load(buffer, mem);
                     if (pSurface)
                     {
-                        // pSurface->SetPriority	(PRIORITY_LOW);
                         seqDATA.push_back(pSurface);
                         flags.MemoryUsage += mem;
                     }
@@ -279,7 +278,6 @@ void CTexture::Load()
             // Calc memory usage and preload into vid-mem
             if (pSurface)
             {
-                // pSurface->SetPriority	(PRIORITY_NORMAL);
                 flags.MemoryUsage = mem;
             }
         }
@@ -293,8 +291,6 @@ void CTexture::Unload()
     string_path msg_buff;
     xr_sprintf(msg_buff, sizeof(msg_buff), "* Unloading texture [%s] pSurface RefCount=", cName.c_str());
 #endif // DEBUG
-
-    //.	if (flags.bLoaded)		Msg		("* Unloaded: %s",cName.c_str());
 
     flags.bLoaded = FALSE;
     if (!seqDATA.empty())

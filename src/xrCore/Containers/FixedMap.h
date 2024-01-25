@@ -67,8 +67,7 @@ public:
     using callback = void __fastcall(const value_type&);
     using callback_cmp = bool __fastcall(const value_type& N1, const value_type& N2);
 
-    static_assert(
-        std::is_same_v<value_type, typename allocator::value_type>, "xr_fixed_map<K, T, allocator> allocator mismatch");
+    static_assert(std::is_same_v<value_type, typename allocator::value_type>, "xr_fixed_map<K, T, allocator> allocator mismatch");
 
 private:
     value_type* nodes;
@@ -330,7 +329,7 @@ public:
     size_t allocated() const { return limit; }
     size_t allocated_memory() const { return limit * sizeof(value_type); }
 
-    [[nodiscard]] bool empty() const { return pool == 0; } void clear() { pool = 0; }
+    [[nodiscard]] bool empty() const { return pool == 0; } void clear() { destroy(); }
 
     value_type* begin() { return nodes; }
     value_type* end() { return nodes + pool; }

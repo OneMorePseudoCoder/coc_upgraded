@@ -24,7 +24,7 @@ void CRenderDevice::Initialize()
         initialize_weather_editor();
 
     // Unless a substitute hWnd has been specified, create a window to render into
-    if ( m_hWnd == NULL)
+    if (m_hWnd == NULL)
     {
         const char* wndclass = "_XRAY_1.6";
         // Register the windows class

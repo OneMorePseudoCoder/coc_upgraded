@@ -19,18 +19,7 @@
 
 //	Already defined in Texture.cpp
 void fix_texture_name(LPSTR fn);
-/*
-void fix_texture_name(LPSTR fn)
-{
-    LPSTR _ext = strext(fn);
-    if (_ext &&
-        (0==xr_stricmp(_ext, ".tga") ||
-        0==xr_stricmp(_ext, ".dds") ||
-        0==xr_stricmp(_ext, ".bmp") ||
-        0==xr_stricmp(_ext, ".ogm")))
-        *_ext = 0;
-}
-*/
+
 //--------------------------------------------------------------------------------------------------------------
 template <class T>
 bool reclaim(xr_vector<T*>& vec, const T* ptr)
@@ -125,7 +114,6 @@ void CResourceManager::_ParseList(sh_list& dest, LPCSTR names)
             xr_strlwr(N.begin());
 
             fix_texture_name(N.begin());
-            //. andy			if (strext(N.begin())) *strext(N.begin())=0;
             dest.push_back(N.begin());
             N.clear();
         }
@@ -142,7 +130,6 @@ void CResourceManager::_ParseList(sh_list& dest, LPCSTR names)
         xr_strlwr(N.begin());
 
         fix_texture_name(N.begin());
-        //. andy		if (strext(N.begin())) *strext(N.begin())=0;
         dest.push_back(N.begin());
     }
 }
@@ -173,14 +160,10 @@ void CResourceManager::_DeleteElement(const ShaderElement* S)
     Msg("! ERROR: Failed to find compiled 'shader-element'");
 }
 
-Shader* CResourceManager::_cpp_Create(
-    IBlender* B, LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
+Shader* CResourceManager::_cpp_Create(IBlender* B, LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
     CBlender_Compile C;
     Shader S;
-
-    //.
-    // if (strstr(s_shader,"transparent"))	__asm int 3;
 
     // Access to template
     C.BT = B;
@@ -207,7 +190,6 @@ Shader* CResourceManager::_cpp_Create(
     {
         C.iElement = 0;
         C.bDetail = m_textures_description.GetDetailTexture(C.L_textures[0], C.detail_texture, C.detail_scaler);
-        //.		C.bDetail			= _GetDetailTexture(*C.L_textures[0],C.detail_texture,C.detail_scaler);
         ShaderElement E;
         C._cpp_Compile(&E);
         S.E[0] = _CreateElement(E);
@@ -216,7 +198,6 @@ Shader* CResourceManager::_cpp_Create(
     // Compile element	(LOD1)
     {
         C.iElement = 1;
-        //.		C.bDetail			= _GetDetailTexture(*C.L_textures[0],C.detail_texture,C.detail_scaler);
         C.bDetail = m_textures_description.GetDetailTexture(C.L_textures[0], C.detail_texture, C.detail_scaler);
         ShaderElement E;
         C._cpp_Compile(&E);
@@ -354,18 +335,10 @@ void CResourceManager::DeferredUpload()
         texture.second->Load();
 #endif
 }
-/*
-void	CResourceManager::DeferredUnload	()
-{
-    if (!RDEVICE.b_is_Ready)				return;
-    for (auto t=m_textures.begin(); t!=m_textures.end(); t++)
-        t->second->Unload();
-}
-*/
+
 #ifdef _EDITOR
 void CResourceManager::ED_UpdateTextures(AStringVec* names)
 {
-    // 1. Unload
     if (names)
     {
         for (u32 nid = 0; nid < names->size(); nid++)
@@ -380,9 +353,6 @@ void CResourceManager::ED_UpdateTextures(AStringVec* names)
         for (map_TextureIt t = m_textures.begin(); t != m_textures.end(); t++)
             t->second->Unload();
     }
-
-    // 2. Load
-    // DeferredUpload	();
 }
 #endif
 
@@ -440,17 +410,3 @@ void CResourceManager::Evict()
     CHK_DX(HW.pDevice->EvictManagedResources());
 #endif
 }
-/*
-BOOL	CResourceManager::_GetDetailTexture(LPCSTR Name,LPCSTR& T, R_constant_setup* &CS)
-{
-    LPSTR N = LPSTR(Name);
-    map_TD::iterator I = m_td.find	(N);
-    if (I!=m_td.end())
-    {
-        T	= I->second.T;
-        CS	= I->second.cs;
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}*/

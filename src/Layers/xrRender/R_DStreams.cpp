@@ -69,8 +69,7 @@ void* _VertexStream::Lock(u32 vl_Count, u32 Stride, u32& vOffset)
 
     // Ensure there is enough space in the VB for this data
     u32 bytes_need = vl_Count * Stride;
-    R_ASSERT2((bytes_need <= mSize) && vl_Count,
-        make_string("bytes_need = %d, mSize = %d, vl_Count = %d", bytes_need, mSize, vl_Count));
+    R_ASSERT2((bytes_need <= mSize) && vl_Count, make_string("bytes_need = %d, mSize = %d, vl_Count = %d", bytes_need, mSize, vl_Count));
 
     // Vertex-local info
     u32 vl_mSize = mSize / Stride;
@@ -102,8 +101,7 @@ void* _VertexStream::Lock(u32 vl_Count, u32 Stride, u32& vOffset)
 
         if (res != D3D_OK)
         {
-            Msg(" pVB->Lock - failed: res = %d,mPosition = %d, bytes_need = %d, &pData = %x, LOCKFLAGS_FLUSH", res,
-                mPosition, bytes_need, (void**)&pData);
+            Msg(" pVB->Lock - failed: res = %d,mPosition = %d, bytes_need = %d, &pData = %x, LOCKFLAGS_FLUSH", res, mPosition, bytes_need, (void**)&pData);
         }
 
 #endif // USE_DX10
@@ -128,8 +126,7 @@ void* _VertexStream::Lock(u32 vl_Count, u32 Stride, u32& vOffset)
 
         if (res != D3D_OK)
         {
-            Msg(" pVB->Lock - failed: res = %d,mPosition = %d, bytes_need = %d, &pData = %x, LOCKFLAGS_APPEND", res,
-                mPosition, bytes_need, (void**)&pData);
+            Msg(" pVB->Lock - failed: res = %d,mPosition = %d, bytes_need = %d, &pData = %x, LOCKFLAGS_APPEND", res, mPosition, bytes_need, (void**)&pData);
         }
 
 #endif // USE_DX10
@@ -167,10 +164,10 @@ void _VertexStream::reset_begin()
     old_pVB = pVB;
     Destroy();
 }
+
 void _VertexStream::reset_end()
 {
     Create();
-    //old_pVB = NULL;
 }
 
 _VertexStream::_VertexStream() { _clear(); };
@@ -301,8 +298,8 @@ void _IndexStream::reset_begin()
     old_pIB = pIB;
     Destroy();
 }
+
 void _IndexStream::reset_end()
 {
     Create();
-    //old_pIB = NULL;
 }

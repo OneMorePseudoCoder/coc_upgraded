@@ -5,14 +5,9 @@
 #include "xrCore/xrPool.h"
 #include "r_constants.h"
 
-// pool
-//.static	poolSS<R_constant,512>			g_constant_allocator;
-
-// R_constant_table::~R_constant_table	()	{	dxRenderDeviceRender::Instance().Resources->_DeleteConstantTable(this);
-// }
-
 R_constant_table::~R_constant_table() { RImplementation.Resources->_DeleteConstantTable(this); }
 void R_constant_table::fatal(LPCSTR S) { FATAL(S); }
+
 // predicates
 IC bool p_search(ref_constant C, LPCSTR S) { return xr_strcmp(*C->name, S) < 0; }
 IC bool p_sort(ref_constant C1, ref_constant C2) { return xr_strcmp(C1->name, C2->name) < 0; }
@@ -25,6 +20,7 @@ ref_constant R_constant_table::get(LPCSTR S)
     else
         return *I;
 }
+
 ref_constant R_constant_table::get(shared_str& S)
 {
     // linear search, but only ptr-compare
@@ -114,7 +110,7 @@ BOOL R_constant_table::parse(void* _desc, u32 destination)
                 ref_constant C = get(name);
                 if (!C)
                 {
-                    C = new R_constant(); //.g_constant_allocator.create();
+                    C = new R_constant();
                     C->name = name;
                     C->destination = RC_dest_sampler;
                     C->type = RC_sampler;
@@ -147,7 +143,7 @@ BOOL R_constant_table::parse(void* _desc, u32 destination)
         ref_constant C = get(name);
         if (!C)
         {
-            C = new R_constant(); //.g_constant_allocator.create();
+            C = new R_constant();
             C->name = name;
             C->destination = destination;
             C->type = type;
@@ -183,7 +179,7 @@ void R_constant_table::merge(R_constant_table* T)
         ref_constant C = get(*src->name);
         if (!C)
         {
-            C = new R_constant(); //.g_constant_allocator.create();
+            C = new R_constant();
             C->name = src->name;
             C->destination = src->destination;
             C->type = src->type;
@@ -203,8 +199,7 @@ void R_constant_table::merge(R_constant_table* T)
         }
         else
         {
-            VERIFY2(!(C->destination & src->destination & RC_dest_sampler),
-                "Can't have samplers or textures with the same name for PS, VS and GS.");
+            VERIFY2(!(C->destination & src->destination & RC_dest_sampler), "Can't have samplers or textures with the same name for PS, VS and GS.");
             C->destination |= src->destination;
             VERIFY(C->type == src->type);
             R_constant_load& sL = src->get_load(src->destination);
@@ -233,7 +228,7 @@ void R_constant_table::clear()
 {
     //.
     for (u32 it = 0; it < table.size(); it++)
-        table[it] = 0; //.g_constant_allocator.destroy(table[it]);
+        table[it] = 0;
     table.clear();
 #if defined(USE_DX10) || defined(USE_DX11)
     m_CBTable.clear();

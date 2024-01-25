@@ -69,30 +69,13 @@ void CLight_DB::Load(IReader* fs)
                 L->set_range(Ldata.range);
                 L->set_color(Ldata.diffuse);
                 L->set_active(true);
-                //				R_ASSERT			(L->spatial.sector	);
             }
         }
 
         F->close();
     }
-    R_ASSERT2(sun_original && sun_adapted, "Where is sun?");
 
-    // fake spot
-    /*
-    if (0)
-    {
-        Fvector	P;			P.set(-5.58f,	-0.00f + 2, -3.63f);
-        Fvector	D;			D.set(0,-1,0);
-        light*	fake		= Create();
-        fake->set_type		(IRender_Light::SPOT);
-        fake->set_color		(1,1,1);
-        fake->set_cone		(deg2rad(60.f));
-        fake->set_direction	(D);
-        fake->set_position	(P);
-        fake->set_range		(3.f);
-        fake->set_active	(true);
-    }
-    */
+    R_ASSERT2(sun_original && sun_adapted, "Where is sun?");
 }
 
 #if RENDER != R_R1
@@ -120,7 +103,6 @@ void CLight_DB::LoadHemi()
                     chunk->r(&Ldata, sizeof(R_Light));
 
                     if (Ldata.type == D3DLIGHT_POINT)
-                    // if (Ldata.type!=0)
                     {
                         light* L = Create();
                         L->flags.bStatic = true;
@@ -137,10 +119,8 @@ void CLight_DB::LoadHemi()
                         L->set_range(Ldata.range);
                         L->set_color(Ldata.diffuse.x, Ldata.diffuse.y, Ldata.diffuse.z);
                         L->set_active(true);
-                        L->set_attenuation_params(
-                            Ldata.attenuation0, Ldata.attenuation1, Ldata.attenuation2, Ldata.falloff);
+                        L->set_attenuation_params(Ldata.attenuation0, Ldata.attenuation1, Ldata.attenuation2, Ldata.falloff);
                         L->spatial.type = STYPE_LIGHTSOURCEHEMI;
-                        //				R_ASSERT			(L->spatial.sector	);
                     }
                 }
 
@@ -209,7 +189,6 @@ void CLight_DB::Update()
 #ifdef DEBUG
         if (E.sun_dir.y >= 0)
         {
-            //			Log("sect_name", E.sect_name.c_str());
             Log("E.sun_dir", E.sun_dir);
             Log("E.wind_direction", E.wind_direction);
             Log("E.wind_velocity", E.wind_velocity);
@@ -225,7 +204,6 @@ void CLight_DB::Update()
         }
 #endif
 
-        //VERIFY2(E.sun_dir.y < 0, "Invalid sun direction settings in evironment-config");
         Fvector OD, OP, AD, AP;
         OD.set(E.sun_dir).normalize();
         OP.mad(Device.vCameraPosition, OD, -500.f);
@@ -246,8 +224,7 @@ void CLight_DB::Update()
         sun_original->set_range(600.f);
         sun_adapted->set_rotation(AD, _sun_adapted->right);
         sun_adapted->set_position(AP);
-        sun_adapted->set_color(
-            E.sun_color.x * ps_r2_sun_lumscale, E.sun_color.y * ps_r2_sun_lumscale, E.sun_color.z * ps_r2_sun_lumscale);
+        sun_adapted->set_color(E.sun_color.x * ps_r2_sun_lumscale, E.sun_color.y * ps_r2_sun_lumscale, E.sun_color.z * ps_r2_sun_lumscale);
         sun_adapted->set_range(600.f);
 
         if (!GEnv.Render->is_sun_static())

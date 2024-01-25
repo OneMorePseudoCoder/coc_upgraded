@@ -420,7 +420,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
                          m_rcWindowBounds.left, m_rcWindowBounds.top + fYOffset,
                          m_rcWindowBounds.right - m_rcWindowBounds.left,
                          m_rcWindowBounds.bottom - m_rcWindowBounds.top,
-                         SWP_HIDEWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
+                         SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
         }
     }
     else

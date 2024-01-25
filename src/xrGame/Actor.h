@@ -102,8 +102,7 @@ public:
     // Render
     virtual void renderable_Render();
     virtual BOOL renderable_ShadowGenerate();
-    virtual void feel_sound_new(
-        IGameObject* who, int type, CSound_UserDataPtr user_data, const Fvector& Position, float power);
+    virtual void feel_sound_new(IGameObject* who, int type, CSound_UserDataPtr user_data, const Fvector& Position, float power);
     virtual Feel::Sound* dcast_FeelSound() { return this; }
     float m_snd_noise;
 #ifdef DEBUG
@@ -173,8 +172,7 @@ public:
     virtual void PHHit(SHit& H);
     virtual void HitSignal(float P, Fvector& vLocalDir, IGameObject* who, s16 element);
     void HitSector(IGameObject* who, IGameObject* weapon);
-    void HitMark(float P, Fvector dir, IGameObject* who, s16 element, Fvector position_in_bone_space, float impulse,
-        ALife::EHitType hit_type);
+    void HitMark(float P, Fvector dir, IGameObject* who, s16 element, Fvector position_in_bone_space, float impulse, ALife::EHitType hit_type);
 
     void Feel_Grenade_Update(float rad);
 
@@ -243,13 +241,11 @@ public:
     s32 GetShotRndSeed() { return m_ShotRndSeed; };
 
 public:
-    void detach_Vehicle();
     void steer_Vehicle(float angle);
-    void attach_Vehicle(CHolderCustom* vehicle);
     bool use_HolderEx(CHolderCustom* object, bool bForce);
     virtual bool can_attach(const CInventoryItem* inventory_item) const;
 
-    protected:
+protected:
     CHolderCustom* m_holder;
     u16 m_holderID;
     bool use_Holder(CHolderCustom* holder);
@@ -318,7 +314,6 @@ public:
     virtual void cam_Set(EActorCameras style); //Alundaio: made public
 
 protected:
-    //virtual void cam_Set(EActorCameras style);
     void cam_Update(float dt, float fFOV);
     void cam_Lookout(const Fmatrix& xform, float camera_height);
     void camUpdateLadder(float dt);
@@ -366,7 +361,6 @@ protected:
     shared_str m_sInventoryItemUseAction;
     shared_str m_sInventoryBoxUseAction;
 
-    //	shared_str				m_quick_use_slots[4];
     //режим подбирания предметов
     bool m_bPickupMode;
     bool m_bInfoDraw;
@@ -390,7 +384,6 @@ public:
     void g_sv_Orientate(u32 mstate_rl, float dt);
     void g_Orientate(u32 mstate_rl, float dt);
     bool g_LadderOrient();
-    //	void					UpdateMotionIcon		(u32 mstate_rl);
 
     bool CanAccelerate();
     bool CanJump();
@@ -432,7 +425,6 @@ public:
     //////////////////////////////////////////////////////////////////////////
     // User input/output
     //////////////////////////////////////////////////////////////////////////
-public:
     virtual void IR_OnMouseMove(int x, int y);
     virtual void IR_OnKeyboardPress(int dik);
     virtual void IR_OnKeyboardRelease(int dik);
@@ -536,7 +528,6 @@ protected:
     xr_deque<net_update_A> NET_A;
 
     //---------------------------------------------
-    //	bool					m_bHasUpdate;
     /// spline coeff /////////////////////
     float SCoeff[3][4]; //коэффициэнты для сплайна Бизье
     float HCoeff[3][4]; //коэффициэнты для сплайна Эрмита
@@ -757,9 +748,8 @@ private:
 private:
     bool m_disabled_hitmarks;
     bool m_inventory_disabled;
-    // static CPhysicsShell		*actor_camera_shell;
-public:
 
+public:
     IC u32 get_state() const { return this->mstate_real; }
     IC void set_state(u32 state) { mstate_real = state; }
     IC u32 get_state_wishful() const { return this->mstate_wishful; }

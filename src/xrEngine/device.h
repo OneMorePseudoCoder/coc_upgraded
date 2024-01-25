@@ -6,9 +6,6 @@
 // ZNear - always 0.0f
 // ZFar - always 1.0f
 
-// class ENGINE_API CResourceManager;
-// class ENGINE_API CGammaControl;
-
 #include "pure.h"
 
 #include "xrCore/FTimer.h"
@@ -164,21 +161,10 @@ private:
     void _SetupStates();
 
 public:
-    // HWND m_hWnd;
-   // LRESULT MsgProc(HWND, UINT, WPARAM, LPARAM);
-
-    // u32 dwFrame;
-    // u32 dwPrecacheFrame;
     u32 dwPrecacheTotal;
 
-    // u32 dwWidth, dwHeight;
     float fWidth_2, fHeight_2;
-    // BOOL b_is_Ready;
-    // BOOL b_is_Active;
     void OnWM_Activate(WPARAM wParam, LPARAM lParam);
-
-    // ref_shader m_WireShader;
-    // ref_shader m_SelectionShader;
 
     BOOL m_bNearer;
     void SetNearer(BOOL enabled)
@@ -194,9 +180,6 @@ public:
             mProject._43 += EPS_L;
         }
         GEnv.Render->SetCacheXform(mView, mProject);
-        // R_ASSERT(0);
-        // TODO: re-implement set projection
-        // RCache.set_xform_project (mProject);
     }
 
     void DumpResourcesMemoryUsage() { GEnv.Render->ResourcesDumpMemoryUsage(); }
@@ -208,10 +191,7 @@ public:
 
     Fmatrix mInvFullTransform;
 
-    CRenderDevice()
-        : m_dwWindowStyle(0), fWidth_2(0), fHeight_2(0),
-          m_editor_module(nullptr), m_editor_initialize(nullptr),
-          m_editor_finalize(nullptr), m_editor(nullptr), m_engine(nullptr)
+    CRenderDevice() : m_dwWindowStyle(0), fWidth_2(0), fHeight_2(0), m_editor_module(nullptr), m_editor_initialize(nullptr), m_editor_finalize(nullptr), m_editor(nullptr), m_engine(nullptr)
     {
         m_hWnd = NULL;
         b_is_Active = FALSE;
@@ -275,8 +255,7 @@ public:
 
     ICF void remove_from_seq_parallel(const fastdelegate::FastDelegate0<>& delegate)
     {
-        xr_vector<fastdelegate::FastDelegate0<>>::iterator I =
-            std::find(seqParallel.begin(), seqParallel.end(), delegate);
+        xr_vector<fastdelegate::FastDelegate0<>>::iterator I = std::find(seqParallel.begin(), seqParallel.end(), delegate);
         if (I != seqParallel.end())
             seqParallel.erase(I);
     }
