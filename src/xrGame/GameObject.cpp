@@ -360,9 +360,6 @@ void CGameObject::OnEvent(NET_Packet& P, u16 type)
             // !!! ___ it is necessary to be check!
             break;
         }
-#ifdef MP_LOGGING
-        Msg("--- Object: GE_DESTROY of [%d][%s]", ID(), cNameSect().c_str());
-#endif // MP_LOGGING
 
         setDestroy(TRUE);
     }
@@ -945,9 +942,6 @@ void CGameObject::setDestroy(BOOL _destroy)
         if (debug_destroy)
             Msg("cl setDestroy [%d][%d]", ID(), Device.dwFrame);
 #endif
-#ifdef MP_LOGGING
-        Msg("cl setDestroy [%d][%d]", ID(), Device.dwFrame);
-#endif //#ifdef MP_LOGGING
     }
 #ifdef DEBUG
     else

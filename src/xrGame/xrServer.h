@@ -10,7 +10,6 @@
 #include "xrNetServer/net_server.h"
 #include "game_sv_base.h"
 #include "id_generator.h"
-#include "xrEngine/mp_logging.h"
 #include "xrCommon/xr_unordered_map.h"
 
 #ifdef DEBUG

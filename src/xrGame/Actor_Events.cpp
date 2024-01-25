@@ -16,7 +16,6 @@
 #include "CameraLook.h"
 #include "CameraFirstEye.h"
 #include "holder_custom.h"
-//.#include "ui/uiinventoryWnd.h"
 #include "game_base_space.h"
 #ifdef DEBUG
 #include "PHDebug.h"
@@ -47,12 +46,6 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
         if (inventory().CanTakeItem(smart_cast<CInventoryItem*>(_GO)))
         {
             Obj->H_SetParent(smart_cast<IGameObject*>(this));
-
-#ifdef MP_LOGGING
-            string64 act;
-            xr_strcpy(act, (type == GE_TRADE_BUY) ? "buys" : "takes");
-            Msg("--- Actor [%d][%s]  %s  [%d][%s]", ID(), Name(), act, _GO->ID(), _GO->cNameSect().c_str());
-#endif // MP_LOGGING
 
             inventory().Take(_GO, false, true);
 
@@ -86,36 +79,24 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 
         CGameObject* GO = smart_cast<CGameObject*>(Obj);
 
-#ifdef MP_LOGGING
-        string64 act;
-        xr_strcpy(act, (type == GE_TRADE_SELL) ? "sells" : "rejects");
-        Msg("--- Actor [%d][%s]  %s  [%d][%s]", ID(), Name(), act, GO->ID(), GO->cNameSect().c_str());
-#endif // MP_LOGGING
-
         VERIFY(GO->H_Parent());
         if (!GO->H_Parent())
         {
-            Msg("! ERROR: Actor [%d][%s] tries to reject item [%d][%s] that has no parent", ID(), Name(), GO->ID(),
-                GO->cNameSect().c_str());
+            Msg("! ERROR: Actor [%d][%s] tries to reject item [%d][%s] that has no parent", ID(), Name(), GO->ID(), GO->cNameSect().c_str());
             break;
         }
 
-        VERIFY2(GO->H_Parent()->ID() == ID(), make_string("actor [%d][%s] tries to drop not own object [%d][%s]", ID(),
-                                                  Name(), GO->ID(), GO->cNameSect().c_str())
-                                                  .c_str());
+        VERIFY2(GO->H_Parent()->ID() == ID(), make_string("actor [%d][%s] tries to drop not own object [%d][%s]", ID(), Name(), GO->ID(), GO->cNameSect().c_str()).c_str());
 
         if (GO->H_Parent()->ID() != ID())
         {
             CActor* real_parent = smart_cast<CActor*>(GO->H_Parent());
-            Msg("! ERROR: Actor [%d][%s] tries to drop not own item [%d][%s], his parent is [%d][%s]", ID(), Name(),
-                GO->ID(), GO->cNameSect().c_str(), real_parent->ID(), real_parent->Name());
+            Msg("! ERROR: Actor [%d][%s] tries to drop not own item [%d][%s], his parent is [%d][%s]", ID(), Name(), GO->ID(), GO->cNameSect().c_str(), real_parent->ID(), real_parent->Name());
             break;
         }
 
         if (!Obj->getDestroy() && inventory().DropItem(GO, just_before_destroy, dont_create_shell))
         {
-            // O->H_SetParent(0,just_before_destroy);//moved to DropItem
-            // feel_touch_deny(O,2000);
             Level().m_feel_deny.feel_touch_deny(Obj, 1000);
 
             // [12.11.07] Alexander Maniluk: extended GE_OWNERSHIP_REJECT packet for drop item to selected position
