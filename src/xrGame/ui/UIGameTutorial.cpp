@@ -83,8 +83,7 @@ void CUISequenceItem::Start()
     if (m_onframe_lua_function.size())
     {
         bool functor_exists = GEnv.ScriptEngine->functor(m_onframe_lua_function.c_str(), m_onframe_functor);
-        THROW3(
-            functor_exists, "Cannot find script function described in tutorial item ", m_onframe_lua_function.c_str());
+        THROW3(functor_exists, "Cannot find script function described in tutorial item ", m_onframe_lua_function.c_str());
     }
 }
 
@@ -99,12 +98,9 @@ CUISequencer::CUISequencer()
     m_flags.zero();
     m_name = "invalid";
 }
+
 void CUISequencer::Start(LPCSTR tutor_name)
 {
-    // Skip any tutorial except "game_loaded", since we need to show "st_press_any_key" hint
-    if (load_screen_renderer.IsActive() && xr_strcmp(tutor_name, "game_loaded") != 0)
-        return;
-    
     VERIFY(m_sequencer_items.size() == 0);
     Device.seqFrame.Add(this, REG_PRIORITY_LOW - 10000);
 
@@ -458,8 +454,7 @@ void CUISequencer::IR_OnActivate()
             case kACCEL:
             case kL_LOOKOUT:
             case kR_LOOKOUT:
-            case kWPN_FIRE: { IR_OnKeyboardPress(i);
-            }
+            case kWPN_FIRE: { IR_OnKeyboardPress(i); }
             break;
             };
         };
