@@ -8,37 +8,9 @@
 #include "dx103DFluidData.h"
 #include "dx103DFluidGrid.h"
 
-/*
-#ifdef  DEBUG
-#include "Layers/xrRender/dxDebugRender.h"
-#endif
-
-static void draw_obb        ( const Fmatrix &matrix, const u32 &color )
-{
-    Fvector                         aabb[8];
-    matrix.transform_tiny           (aabb[0],Fvector().set( -1, -1, -1)); // 0
-    matrix.transform_tiny           (aabb[1],Fvector().set( -1, +1, -1)); // 1
-    matrix.transform_tiny           (aabb[2],Fvector().set( +1, +1, -1)); // 2
-    matrix.transform_tiny           (aabb[3],Fvector().set( +1, -1, -1)); // 3
-    matrix.transform_tiny           (aabb[4],Fvector().set( -1, -1, +1)); // 4
-    matrix.transform_tiny           (aabb[5],Fvector().set( -1, +1, +1)); // 5
-    matrix.transform_tiny           (aabb[6],Fvector().set( +1, +1, +1)); // 6
-    matrix.transform_tiny           (aabb[7],Fvector().set( +1, -1, +1)); // 7
-
-    u16                             aabb_id[12*2] = {
-        0,1,  1,2,  2,3,  3,0,  4,5,  5,6,  6,7,  7,4,  1,5,  2,6,  3,7,  0,4
-    };
-
-    rdebug_render->add_lines                        (aabb, sizeof(aabb)/sizeof(Fvector), &aabb_id[0],
-sizeof(aabb_id)/(2*sizeof(u16)), color);
-}
-*/
-
 namespace
 {
 //  For OOBB
-//  shared_str  strBoxLBDcorner("boxLBDcorner");
-//  shared_str  strBoxRTUcorner("boxRTUcorner");
 shared_str strOOBBClipPlane("OOBBClipPlane");
 
 //  For velocity calculation
@@ -79,13 +51,11 @@ dx103DFluidObstacles::~dx103DFluidObstacles()
 
 void dx103DFluidObstacles::InitShaders()
 {
-    {
-        CBlender_fluid_obst Blender;
-        ref_shader shader;
-        shader.create(&Blender, "null");
-        for (int i = 0; i < 2; ++i)
-            m_ObstacleTechnique[OS_OOBB + i] = shader->E[i];
-    }
+	CBlender_fluid_obst Blender;
+	ref_shader shader;
+	shader.create(&Blender, "null");
+	for (int i = 0; i < 2; ++i)
+		m_ObstacleTechnique[OS_OOBB + i] = shader->E[i];
 }
 
 void dx103DFluidObstacles::DestroyShaders()
@@ -108,11 +78,6 @@ void dx103DFluidObstacles::ProcessObstacles(const dx103DFluidData& FluidData, fl
         Fmatrix Scale;
         Fmatrix Translate;
         Fmatrix TranslateScale;
-        //  Convert to 0..intDim space since it is used by simulation
-        // Scale.scale((float)m_iTextureWidth-1, (float)m_iTextureHeight-1, (float)m_iTextureDepth-1);
-        // Translate.translate(0.5, 0.5, 0.5);
-        // It seems that y axis is inverted in fluid simulation, so shange maths a bit
-        //      Scale.scale(m_vGridDim.x-1, -(m_vGridDim.y-1), m_vGridDim.z-1 );
         Scale.scale(m_vGridDim.x, -(m_vGridDim.y), m_vGridDim.z);
         Translate.translate(0.5, -0.5, 0.5);
         //  Actually it is mul(Translate, Scale).

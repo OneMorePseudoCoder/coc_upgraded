@@ -6,10 +6,8 @@
 pstr XRCORE_API strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2);
 pstr XRCORE_API strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3);
 pstr XRCORE_API strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4);
-pstr XRCORE_API strconcat(
-    int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4, pcstr S5);
-pstr XRCORE_API strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4,
-    pcstr S5, pcstr S6);
+pstr XRCORE_API strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4, pcstr S5);
+pstr XRCORE_API strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4, pcstr S5, pcstr S6);
 
 #else // _EDITOR
 // obsolete: should be deleted as soon borland work correctly with new strconcats

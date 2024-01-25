@@ -12,8 +12,7 @@ public:
     dxDebugRender();
 
     virtual void Render();
-    virtual void add_lines(
-        Fvector const* vertices, u32 const& vertex_count, u16 const* pairs, u32 const& pair_count, u32 const& color);
+    virtual void add_lines(Fvector const* vertices, u32 const& vertex_count, u16 const* pairs, u32 const& pair_count, u32 const& color);
 
     // routed to RCache
     virtual void NextSceneMode();

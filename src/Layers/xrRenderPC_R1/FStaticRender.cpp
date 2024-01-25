@@ -38,9 +38,7 @@ ShaderElement* CRender::rimp_select_sh_static(dxRender_Visual* pVisual, float cd
     switch (phase)
     {
     case PHASE_NORMAL:
-        return (((_sqrt(cdist_sq) - pVisual->vis.sphere.R) < 44) ? pVisual->shader->E[SE_R1_NORMAL_HQ] :
-                                                                   pVisual->shader->E[SE_R1_NORMAL_LQ])
-            ._get();
+        return (((_sqrt(cdist_sq) - pVisual->vis.sphere.R) < 44) ? pVisual->shader->E[SE_R1_NORMAL_HQ] : pVisual->shader->E[SE_R1_NORMAL_LQ])._get();
     case PHASE_POINT: return pVisual->shader->E[SE_R1_LPOINT]._get();
     case PHASE_SPOT: return pVisual->shader->E[SE_R1_LSPOT]._get();
     default: NODEFAULT;
@@ -99,7 +97,6 @@ void CRender::create()
     Models = new CModelPool();
     L_Dynamic = new CLightR_Manager();
     PSLibrary.OnCreate();
-    //.	HWOCC.occq_create			(occq_size);
 
     xrRender_apply_tf();
     ::PortalTraverser.initialize();
@@ -130,13 +127,11 @@ void CRender::reset_begin()
         xr_delete(Details);
     }
     xr_delete(Target);
-    //HWOCC.occq_destroy();
 }
 
 void CRender::reset_end()
 {
     xrRender_apply_tf();
-    //.	HWOCC.occq_create			(occq_size);
     Target = new CRenderTarget();
     if (L_Projector)
         L_Projector->invalidate();
@@ -163,8 +158,7 @@ void CRender::OnFrame()
     if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))
     {
         // MT-details (@front)
-        Device.seqParallel.insert(
-            Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
+        Device.seqParallel.insert(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
 
         // MT-HOM (@front)
         Device.seqParallel.insert(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(&HOM, &CHOM::MT_RENDER));
@@ -482,22 +476,22 @@ void CRender::Calculate()
             pSector = pLastSector;
         pLastSector = pSector;
         vLastCameraPos.set(Device.vCameraPosition);
-    }
 
-    // Check if camera is too near to some portal - if so force DualRender
-    if (rmPortals)
-    {
-        Fvector box_radius;
-        box_radius.set(EPS_L * 2, EPS_L * 2, EPS_L * 2);
-        Sectors_xrc.box_options(CDB::OPT_FULL_TEST);
-        Sectors_xrc.box_query(rmPortals, Device.vCameraPosition, box_radius);
-        for (int K = 0; K < Sectors_xrc.r_count(); K++)
-        {
-            CPortal* pPortal = (CPortal*)Portals[rmPortals->get_tris()[Sectors_xrc.r_begin()[K].id].dummy];
-            pPortal->bDualRender = TRUE;
-        }
-    }
-    //
+		// Check if camera is too near to some portal - if so force DualRender
+		if (rmPortals)
+		{
+			Fvector box_radius;
+			box_radius.set(EPS_L * 2, EPS_L * 2, EPS_L * 2);
+			Sectors_xrc.box_options(CDB::OPT_FULL_TEST);
+			Sectors_xrc.box_query(rmPortals, Device.vCameraPosition, box_radius);
+			for (int K = 0; K < Sectors_xrc.r_count(); K++)
+			{
+				CPortal* pPortal = (CPortal*)Portals[rmPortals->get_tris()[Sectors_xrc.r_begin()[K].id].dummy];
+				pPortal->bDualRender = TRUE;
+			}
+		}
+	}
+
     if (L_DB)
         L_DB->Update();
 
@@ -506,8 +500,7 @@ void CRender::Calculate()
     if (pLastSector)
     {
         // Traverse sector/portal structure
-        PortalTraverser.traverse(pLastSector, ViewBase, Device.vCameraPosition, Device.mFullTransform,
-            CPortalTraverser::VQ_HOM + CPortalTraverser::VQ_SSA + CPortalTraverser::VQ_FADE);
+        PortalTraverser.traverse(pLastSector, ViewBase, Device.vCameraPosition, Device.mFullTransform, CPortalTraverser::VQ_HOM + CPortalTraverser::VQ_SSA + CPortalTraverser::VQ_FADE);
 
         // Determine visibility for static geometry hierarchy
         if (psDeviceFlags.test(rsDrawStatic))
@@ -654,7 +647,6 @@ void CRender::Calculate()
     BasicStats.Culling.End();
 }
 
-extern u32 g_r;
 void CRender::Render()
 {
 #ifdef _GPA_ENABLED
@@ -667,7 +659,6 @@ void CRender::Render()
         return;
     }
 
-    g_r = 1;
     BasicStats.Primitives.Begin();
     // Begin
     Target->Begin();
@@ -689,7 +680,6 @@ void CRender::Render()
     L_Dynamic->render(0); // additional light sources
     if (Wallmarks)
     {
-        g_r = 0;
         Wallmarks->Render(); // wallmarks has priority as normal geometry
     }
     HOM.Enable();
@@ -1014,8 +1004,7 @@ HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName, 
         LPD3DXCONSTANTTABLE pConstants = nullptr;
         LPD3DXINCLUDE pInclude = (LPD3DXINCLUDE)&Includer;
 
-        _result = D3DXCompileShader((LPCSTR)fs->pointer(), fs->length(), defines, pInclude, pFunctionName, pTarget,
-            Flags | D3DXSHADER_USE_LEGACY_D3DX9_31_DLL, &pShaderBuf, &pErrorBuf, &pConstants);
+        _result = D3DXCompileShader((LPCSTR)fs->pointer(), fs->length(), defines, pInclude, pFunctionName, pTarget, Flags | D3DXSHADER_USE_LEGACY_D3DX9_31_DLL, &pShaderBuf, &pErrorBuf, &pConstants);
         if (SUCCEEDED(_result))
         {
             IWriter* file = FS.w_open(file_name);
@@ -1029,8 +1018,7 @@ HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName, 
 
             FS.w_close(file);
 
-            _result = create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), pShaderBuf->GetBufferSize(),
-                file_name, result, o.disasm);
+            _result = create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), pShaderBuf->GetBufferSize(), file_name, result, o.disasm);
         }
         else
         {
@@ -1045,12 +1033,10 @@ HRESULT CRender::shader_compile(LPCSTR name, IReader* fs, LPCSTR pFunctionName, 
     return _result;
 }
 
-static inline bool match_shader(
-    LPCSTR const debug_shader_id, LPCSTR const full_shader_id, LPCSTR const mask, size_t const mask_length)
+static inline bool match_shader(LPCSTR const debug_shader_id, LPCSTR const full_shader_id, LPCSTR const mask, size_t const mask_length)
 {
     u32 const full_shader_id_length = xr_strlen(full_shader_id);
-    R_ASSERT2(full_shader_id_length == mask_length,
-        make_string("bad cache for shader %s, [%s], [%s]", debug_shader_id, mask, full_shader_id));
+    R_ASSERT2(full_shader_id_length == mask_length, make_string("bad cache for shader %s, [%s], [%s]", debug_shader_id, mask, full_shader_id));
     char const* i = full_shader_id;
     char const* const e = full_shader_id + full_shader_id_length;
     char const* j = mask;
@@ -1068,13 +1054,8 @@ static inline bool match_shader(
     return true;
 }
 
-static inline bool match_shader_id(
-    LPCSTR const debug_shader_id, LPCSTR const full_shader_id, FS_FileSet const& file_set, string_path& result)
+static inline bool match_shader_id(LPCSTR const debug_shader_id, LPCSTR const full_shader_id, FS_FileSet const& file_set, string_path& result)
 {
-#if 0
-	strcpy_s					( result, "" );
-	return						false;
-#else // #if 1
 #ifdef DEBUG
     LPCSTR temp = "";
     bool found = false;
@@ -1106,5 +1087,4 @@ static inline bool match_shader_id(
 
     return false;
 #endif // #ifdef DEBUG
-#endif // #if 1
 }

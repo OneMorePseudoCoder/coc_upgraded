@@ -29,3 +29,5 @@ extern "C" {
 #include <luabind/iterator_policy.hpp>
 
 #pragma warning(pop)
+
+XRSCRIPTENGINE_API size_t luabind_it_distance(luabind::iterator first, const luabind::iterator& last);

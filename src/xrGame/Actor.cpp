@@ -283,7 +283,7 @@ void CActor::Load(LPCSTR section)
     CInventoryOwner::Load(section);
     m_location_manager->Load(section);
 
-	OnDifficultyChanged();
+    OnDifficultyChanged();
     //////////////////////////////////////////////////////////////////////////
     ISpatial* self = smart_cast<ISpatial*>(this);
     if (self)
@@ -300,11 +300,14 @@ void CActor::Load(LPCSTR section)
     character_physics_support()->movement()->SetCrashSpeeds(cs_min, cs_max);
     character_physics_support()->movement()->SetMass(mass);
     if (pSettings->line_exist(section, "stalker_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(rtStalker, pSettings->r_float(section, "stalker_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(
+            rtStalker, pSettings->r_float(section, "stalker_restrictor_radius"));
     if (pSettings->line_exist(section, "stalker_small_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(rtStalkerSmall, pSettings->r_float(section, "stalker_small_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(
+            rtStalkerSmall, pSettings->r_float(section, "stalker_small_restrictor_radius"));
     if (pSettings->line_exist(section, "medium_monster_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(rtMonsterMedium, pSettings->r_float(section, "medium_monster_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(
+            rtMonsterMedium, pSettings->r_float(section, "medium_monster_restrictor_radius"));
     character_physics_support()->movement()->Load(section);
 
     set_box(section, *character_physics_support()->movement(), 2);
@@ -312,7 +315,7 @@ void CActor::Load(LPCSTR section)
     set_box(section, *character_physics_support()->movement(), 0);
 
     m_fWalkAccel = pSettings->r_float(section, "walk_accel");
-	m_fOverweightWalkAccel = READ_IF_EXISTS(pSettings, r_float, section, "overweight_walk_accel", 1.0f);
+    m_fOverweightWalkAccel = READ_IF_EXISTS(pSettings, r_float, section, "overweight_walk_accel", 1.0f);
     m_fJumpSpeed = pSettings->r_float(section, "jump_speed");
     m_fRunFactor = pSettings->r_float(section, "run_coef");
     m_fRunBackFactor = pSettings->r_float(section, "run_back_coef");

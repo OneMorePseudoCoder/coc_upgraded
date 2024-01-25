@@ -53,8 +53,7 @@ CSE_ALifeDynamicObject* alife_object(const CALifeSimulator* self, LPCSTR name)
 {
     VERIFY(self);
 
-    for (CALifeObjectRegistry::OBJECT_REGISTRY::const_iterator it = self->objects().objects().begin();
-         it != self->objects().objects().end(); it++)
+    for (CALifeObjectRegistry::OBJECT_REGISTRY::const_iterator it = self->objects().objects().begin(); it != self->objects().objects().end(); it++)
     {
         CSE_ALifeDynamicObject* obj = it->second;
         if (xr_strcmp(obj->name_replace(), name) == 0)
@@ -76,32 +75,29 @@ CSE_ALifeDynamicObject* alife_story_object(const CALifeSimulator* self, ALife::_
 }
 
 template <typename _id_type>
-void generate_story_ids(STORY_PAIRS& result, _id_type INVALID_ID, LPCSTR section_name, LPCSTR INVALID_ID_STRING,
-    LPCSTR invalid_id_description, LPCSTR invalid_id_redefinition, LPCSTR duplicated_id_description)
+void generate_story_ids(STORY_PAIRS& result, _id_type INVALID_ID, LPCSTR section_name, LPCSTR INVALID_ID_STRING, LPCSTR invalid_id_description, LPCSTR invalid_id_redefinition, LPCSTR duplicated_id_description)
 {
     result.clear();
 
-    CInifile* Ini = pGameIni;
+    const CInifile* Ini = pGameIni;
 
     LPCSTR N, V;
-    u32 k;
-    shared_str temp;
-    LPCSTR section = section_name;
-    R_ASSERT(Ini->section_exist(section));
+    u32 k = 0;
+    R_ASSERT(Ini->section_exist(section_name));
 
-    for (k = 0; Ini->r_line(section, k, &N, &V); ++k)
+    result.reserve(Ini->line_count(section_name) + 1);
+    while (Ini->r_line(section_name, k, &N, &V))
     {
-        temp = Ini->r_string_wb(section, N);
+        const shared_str& temp = Ini->r_string_wb(section_name, N);
 
         R_ASSERT3(!strchr(*temp, ' '), invalid_id_description, *temp);
         R_ASSERT2(xr_strcmp(*temp, INVALID_ID_STRING), invalid_id_redefinition);
 
-        STORY_PAIRS::const_iterator I = result.begin();
-        STORY_PAIRS::const_iterator E = result.end();
-        for (; I != E; ++I)
-            R_ASSERT3((*I).first != temp, duplicated_id_description, *temp);
+        for (const auto& story : result)
+            R_ASSERT3(story.first != temp, duplicated_id_description, *temp);
 
         result.push_back(std::make_pair(*temp, atoi(N)));
+        ++k;
     }
 
     result.push_back(std::make_pair(INVALID_ID_STRING, INVALID_ID));
@@ -152,15 +148,13 @@ CSE_ALifeDynamicObject* CALifeSimulator__create(CALifeSimulator* self, ALife::_S
     return (object);
 }
 
-CSE_Abstract* CALifeSimulator__spawn_item(CALifeSimulator* self, LPCSTR section, const Fvector& position,
-    u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id)
+CSE_Abstract* CALifeSimulator__spawn_item(CALifeSimulator* self, LPCSTR section, const Fvector& position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id)
 {
     THROW(self);
     return (self->spawn_item(section, position, level_vertex_id, game_vertex_id, ALife::_OBJECT_ID(-1)));
 }
 
-CSE_Abstract* CALifeSimulator__spawn_item2(CALifeSimulator* self, LPCSTR section, const Fvector& position,
-    u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent)
+CSE_Abstract* CALifeSimulator__spawn_item2(CALifeSimulator* self, LPCSTR section, const Fvector& position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent)
 {
     if (id_parent == ALife::_OBJECT_ID(-1))
         return (self->spawn_item(section, position, level_vertex_id, game_vertex_id, id_parent));
@@ -194,9 +188,7 @@ CSE_Abstract* CALifeSimulator__spawn_item2(CALifeSimulator* self, LPCSTR section
 }
 
 //Alundaio: Allows to call alife():register(se_obj) manually afterward so that packet editing can be done safely when spawning object with a parent
-CSE_Abstract* CALifeSimulator__spawn_item3(CALifeSimulator* self, pcstr section, const Fvector& position,
-                                           u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id,
-                                           ALife::_OBJECT_ID id_parent, bool reg /*= true*/)
+CSE_Abstract* CALifeSimulator__spawn_item3(CALifeSimulator* self, pcstr section, const Fvector& position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent, bool reg /*= true*/)
 {
     if (reg == true)
         return CALifeSimulator__spawn_item2(self, section, position, level_vertex_id, game_vertex_id, id_parent);
@@ -219,11 +211,8 @@ CSE_Abstract* CALifeSimulator__spawn_item3(CALifeSimulator* self, pcstr section,
     return item;
 }
 
-CSE_Abstract* CALifeSimulator__spawn_ammo(CALifeSimulator* self, LPCSTR section, const Fvector& position,
-    u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent, int ammo_to_spawn)
+CSE_Abstract* CALifeSimulator__spawn_ammo(CALifeSimulator* self, LPCSTR section, const Fvector& position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent, int ammo_to_spawn)
 {
-    //	if (id_parent == ALife::_OBJECT_ID(-1))
-    //		return (self->spawn_item(section,position,level_vertex_id,game_vertex_id,id_parent));
     CSE_ALifeDynamicObject* object = 0;
     if (id_parent != ALife::_OBJECT_ID(-1))
     {
@@ -279,7 +268,6 @@ ALife::_SPAWN_ID CALifeSimulator__spawn_id(CALifeSimulator* self, ALife::_SPAWN_
 void CALifeSimulator__release(CALifeSimulator* self, CSE_Abstract* object, bool)
 {
     VERIFY(self);
-    //	self->release						(object,true);
 
     THROW(object);
     CSE_ALifeObject* alife_object = smart_cast<CSE_ALifeObject*>(object);

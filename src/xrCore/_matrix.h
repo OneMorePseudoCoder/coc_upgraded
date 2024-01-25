@@ -533,11 +533,12 @@ using Dmatrix = _matrix<double>;
 template <class T>
 bool _valid(const _matrix<T>& m)
 {
-    return _valid(m.i) && _valid(m._14_) && _valid(m.j) && _valid(m._24_)
-        && _valid(m.k) && _valid(m._34_) && _valid(m.c) && _valid(m._44_);
+    return _valid(m.i) && _valid(m._14_) && _valid(m.j) && _valid(m._24_) && _valid(m.k) && _valid(m._34_) && _valid(m.c) && _valid(m._44_);
 }
 
 extern XRCORE_API Fmatrix Fidentity;
 extern XRCORE_API Dmatrix Didentity;
+
+constexpr float M_MIN_SCALE = 0.01f;
 
 #endif

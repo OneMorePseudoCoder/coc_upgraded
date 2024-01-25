@@ -13,7 +13,6 @@ IC bool pred_sp_sort(ISpatial* _1, ISpatial* _2)
 
 void CRender::render_main(Fmatrix& m_ViewProjection, bool _fportals)
 {
-    //	Msg						("---begin");
     marker++;
 
     // Calculate sector(s) and their objects
@@ -24,8 +23,7 @@ void CRender::render_main(Fmatrix& m_ViewProjection, bool _fportals)
         //!!!
         {
             // Traverse object database
-            g_SpatialSpace->q_frustum(
-                lstRenderables, ISpatial_DB::O_ORDERED, STYPE_RENDERABLE + STYPE_LIGHTSOURCE, ViewBase);
+            g_SpatialSpace->q_frustum(lstRenderables, ISpatial_DB::O_ORDERED, STYPE_RENDERABLE + STYPE_LIGHTSOURCE, ViewBase);
 
             // (almost) Exact sorting order (front-to-back)
             std::sort(lstRenderables.begin(), lstRenderables.end(), pred_sp_sort);
@@ -64,10 +62,7 @@ void CRender::render_main(Fmatrix& m_ViewProjection, bool _fportals)
         }
 
         // Traverse sector/portal structure
-        PortalTraverser.traverse(pLastSector, ViewBase, Device.vCameraPosition, m_ViewProjection,
-            CPortalTraverser::VQ_HOM + CPortalTraverser::VQ_SSA + CPortalTraverser::VQ_FADE
-            //. disabled scissoring (HW.Caps.bScissor?CPortalTraverser::VQ_SCISSOR:0)	// generate scissoring info
-            );
+        PortalTraverser.traverse(pLastSector, ViewBase, Device.vCameraPosition, m_ViewProjection, CPortalTraverser::VQ_HOM + CPortalTraverser::VQ_SSA + CPortalTraverser::VQ_FADE);
 
         // Determine visibility for static geometry hierrarhy
         for (u32 s_it = 0; s_it < PortalTraverser.r_sectors.size(); s_it++)
@@ -198,10 +193,8 @@ void CRender::render_menu()
     RCache.Render(D3DPT_TRIANGLELIST, Offset, 0, 4, 0, 2);
 }
 
-extern u32 g_r;
 void CRender::Render()
 {
-    g_r = 1;
     VERIFY(0 == mapDistort.size());
 
     bool _menu_pp = g_pGamePersistent ? g_pGamePersistent->OnRenderPPUI_query() : false;
@@ -223,15 +216,12 @@ void CRender::Render()
         return;
     }
 
-    //.	VERIFY					(g_pGameLevel && g_pGameLevel->pHUD);
-
     // Configure
     RImplementation.o.distortion = FALSE; // disable distorion
     Fcolor sun_color = ((light*)Lights.sun_adapted._get())->color;
     BOOL bSUN = ps_r2_ls_flags.test(R2FLAG_SUN) && (u_diffuse2s(sun_color.r, sun_color.g, sun_color.b) > EPS);
     if (o.sunstatic)
         bSUN = FALSE;
-    // Msg						("sstatic: %s, sun: %s",o.sunstatic?"true":"false", bSUN?"true":"false");
 
     // HOM
     ViewBase.CreateFromMatrix(Device.mFullTransform, FRUSTUM_P_LRTB + FRUSTUM_P_FAR);
@@ -248,8 +238,7 @@ void CRender::Render()
         BasicStats.Culling.Begin();
         float z_distance = ps_r2_zfill;
         Fmatrix m_zfill, m_project;
-        m_project.build_projection(deg2rad(Device.fFOV /* *Device.fASPECT*/), Device.fASPECT, VIEWPORT_NEAR,
-            z_distance * g_pGamePersistent->Environment().CurrentEnv->far_plane);
+        m_project.build_projection(deg2rad(Device.fFOV /* *Device.fASPECT*/), Device.fASPECT, VIEWPORT_NEAR, z_distance * g_pGamePersistent->Environment().CurrentEnv->far_plane);
         m_zfill.mul(m_project, Device.mView);
         r_pmask(true, false); // enable priority "0"
         set_Recorder(NULL);
@@ -395,7 +384,6 @@ void CRender::Render()
     if (Wallmarks)
     {
         Target->phase_wallmarks();
-        g_r = 0;
         Wallmarks->Render(); // wallmarks has priority as normal geometry
     }
 

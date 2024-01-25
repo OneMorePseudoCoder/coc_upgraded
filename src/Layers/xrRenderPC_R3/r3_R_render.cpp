@@ -15,7 +15,6 @@ IC bool pred_sp_sort(ISpatial* _1, ISpatial* _2)
 void CRender::render_main(Fmatrix& m_ViewProjection, bool _fportals)
 {
     PIX_EVENT(render_main);
-    //	Msg						("---begin");
     marker++;
 
     // Calculate sector(s) and their objects
@@ -203,12 +202,10 @@ void CRender::render_menu()
     RCache.Render(D3DPT_TRIANGLELIST, Offset, 0, 4, 0, 2);
 }
 
-extern u32 g_r;
 void CRender::Render()
 {
     PIX_EVENT(CRender_Render);
 
-    g_r = 1;
     VERIFY(0 == mapDistort.size());
 
     rmNormal();
@@ -421,7 +418,6 @@ void CRender::Render()
     {
         PIX_EVENT(DEFER_WALLMARKS);
         Target->phase_wallmarks();
-        g_r = 0;
         Wallmarks->Render(); // wallmarks has priority as normal geometry
     }
 

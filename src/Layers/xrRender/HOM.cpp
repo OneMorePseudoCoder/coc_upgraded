@@ -12,8 +12,6 @@
 #include "xrEngine/GameFont.h"
 #include "xrEngine/PerformanceAlert.hpp"
 
-float psOSSR = .001f;
-
 void __stdcall CHOM::MT_RENDER()
 {
     MT.Enter();

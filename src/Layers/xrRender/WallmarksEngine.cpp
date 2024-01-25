@@ -9,8 +9,6 @@
 #include "xrEngine/GameFont.h"
 #include "SkeletonCustom.h"
 
-u32 g_r = 1;
-
 namespace WallmarksEngine
 {
 struct wm_slot
@@ -31,7 +29,7 @@ struct wm_slot
 const float W_DIST_FADE = 15.f;
 const float W_DIST_FADE_SQR = W_DIST_FADE * W_DIST_FADE;
 const float I_DIST_FADE_SQR = 1.f / W_DIST_FADE_SQR;
-const int MAX_TRIS = 1024;
+const int MAX_TRIS = 1024*16; //Prevent crash when explode on burer
 
 IC bool operator==(const CWallmarksEngine::wm_slot* slot, const ref_shader& shader) { return slot->shader == shader; }
 CWallmarksEngine::wm_slot* CWallmarksEngine::FindSlot(ref_shader shader)

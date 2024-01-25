@@ -20,11 +20,6 @@ namespace inventory
 {
 namespace upgrade
 {
-// using inventory::upgrade::Manager;
-// using inventory::upgrade::UpgradeBase;
-// using inventory::upgrade::Upgrade;
-// using inventory::upgrade::Root;
-// using inventory::upgrade::Group;
 
 Manager::Manager()
 {
@@ -157,32 +152,6 @@ bool Manager::item_upgrades_exist(shared_str const& item_id)
 
 void Manager::load_all_inventory()
 {
-    /*
-    pcstr const items_section = "upgraded_inventory";
-
-    VERIFY2(pSettings->section_exist(items_section), make_string("Section [%s] does not exist !", items_section));
-    VERIFY2(pSettings->line_count(items_section), make_string("Section [%s] is empty !", items_section));
-
-    if (g_upgrades_log == 1)
-        Msg("# Inventory upgrade manager is loaded.");
-    
-
-    CInifile::Sect& inv_section = pSettings->r_section(items_section);
-    for (auto& it : inv_section.Data)
-    {
-        shared_str root_id(it.first);
-
-        //if(!item_upgrades_exist(root_id))
-        //    continue;
-
-        item_upgrades_exist(root_id);
-        add_root(root_id);
-    }
-
-    if (g_upgrades_log == 1)
-        Msg("# Upgrades of inventory items loaded.");
-    */
-
     //Alundaio: No longer the need to define upgradeable sections in [upgraded_inventory]
     for (auto& section : pSettings->sections())
     {
@@ -195,21 +164,13 @@ void Manager::load_all_inventory()
         add_root(section->Name);
     }
     //-Alundaio
-    
-    /*
-    float low, high; ///? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    pcstr const param = "cost";
-    compute_range(param, low, high);
-    Msg( "Parameter <%s> min = %.3f, max = %.3f", param, low, high );
-    */
 }
 
 void Manager::load_all_properties()
 {
     LPCSTR properties_section = "upgrades_properties";
 
-    VERIFY2(
-        pSettings->section_exist(properties_section), make_string("Section [%s] does not exist !", properties_section));
+    VERIFY2(pSettings->section_exist(properties_section), make_string("Section [%s] does not exist !", properties_section));
     VERIFY2(pSettings->line_count(properties_section), make_string("Section [%s] is empty !", properties_section));
 
     CInifile::Sect& inv_section = pSettings->r_section(properties_section);
@@ -339,14 +300,6 @@ bool Manager::is_known_upgrade(shared_str const& upgrade_id)
     return (upgrade_p->is_known());
 }
 
-/*
-bool Manager::is_disabled_upgrade( CInventoryItem& item, shared_str const& upgrade_id )
-{
-    Upgrade* upgrade_p = upgrade_verify( item.m_section_id, upgrade_id );
-    return upgrade_p->can_install( item );
-}
-*/
-
 bool Manager::upgrade_install(CInventoryItem& item, shared_str const& upgrade_id, bool loading)
 {
     Upgrade* upgrade = upgrade_verify(item.m_section_id, upgrade_id);
@@ -366,23 +319,19 @@ bool Manager::upgrade_install(CInventoryItem& item, shared_str const& upgrade_id
 
             if (g_upgrades_log == 1)
             {
-                Msg("# Upgrade <%s> of inventory item [%s] (id = %d) is installed.", upgrade_id.c_str(),
-                    item.m_section_id.c_str(), item.object_id());
+                Msg("# Upgrade <%s> of inventory item [%s] (id = %d) is installed.", upgrade_id.c_str(), item.m_section_id.c_str(), item.object_id());
             }
             return true;
         }
         else
         {
-            FATAL(make_string("! Upgrade <%s> of item [%s] (id = %d) is EMPTY or FAILED !", upgrade_id.c_str(),
-                item.m_section_id.c_str(), item.object_id())
-                      .c_str());
+            FATAL(make_string("! Upgrade <%s> of item [%s] (id = %d) is EMPTY or FAILED !", upgrade_id.c_str(), item.m_section_id.c_str(), item.object_id()).c_str());
         }
     }
 
     if (g_upgrades_log == 1)
     {
-        Msg("- Upgrade <%s> of inventory item [%s] (id = %d) can`t be installed. Error = %d", upgrade_id.c_str(),
-            item.m_section_id.c_str(), item.object_id(), res);
+        Msg("- Upgrade <%s> of inventory item [%s] (id = %d) can`t be installed. Error = %d", upgrade_id.c_str(), item.m_section_id.c_str(), item.object_id(), res);
     }
     return false;
 }
