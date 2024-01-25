@@ -2276,7 +2276,6 @@
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="Level_SLS_Default.cpp" />
     <ClCompile Include="level_sounds.cpp" />
     <ClCompile Include="Level_start.cpp" />
     <ClCompile Include="location_manager.cpp" />

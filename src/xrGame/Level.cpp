@@ -766,6 +766,12 @@ bool CLevel::IsClient()
     return true;
 }
 
+void CLevel::SLS_Default() // Default/Editor Load
+{
+    if (Server)
+        Server->SLS_Default();
+}
+
 void CLevel::OnAlifeSimulatorUnLoaded()
 {
     MapManager().ResetStorage();

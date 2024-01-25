@@ -112,23 +112,25 @@ void CLevelChanger::feel_touch_new(IGameObject* tpObject)
     if (!l_tpActor->g_Alive())
         return;
 
+	auto offset = Fvector().sub(tpObject->Position(), Position());
+	auto nextPosition = Fvector().add(m_position, offset);
     if (m_bSilentMode)
     {
         NET_Packet p;
         p.w_begin(M_CHANGE_LEVEL);
         p.w(&m_game_vertex_id, sizeof(m_game_vertex_id));
         p.w(&m_level_vertex_id, sizeof(m_level_vertex_id));
-        p.w_vec3(m_position);
+        p.w_vec3(nextPosition);
         p.w_vec3(m_angles);
         Level().Send(p);
         return;
     }
     Fvector p, r;
     bool b = get_reject_pos(p, r);
+	p.add(offset);
     CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
     if (pGameSP)
-        pGameSP->ChangeLevel(
-            m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b, m_invite_str, m_b_enabled);
+        pGameSP->ChangeLevel(m_game_vertex_id, m_level_vertex_id, nextPosition, m_angles, p, r, b, m_invite_str, m_b_enabled);
 
     m_entrance_time = Device.fTimeGlobal;
 }
@@ -137,9 +139,6 @@ bool CLevelChanger::get_reject_pos(Fvector& p, Fvector& r)
 {
     p.set(0, 0, 0);
     r.set(0, 0, 0);
-    //--		db.actor:set_actor_position(patrol("t_way"):point(0))
-    //--		local dir = patrol("t_look"):point(0):sub(patrol("t_way"):point(0))
-    //--		db.actor:set_actor_direction(-dir:getH())
 
     if (m_ini_file && m_ini_file->section_exist("pt_move_if_reject"))
     {
@@ -187,10 +186,12 @@ void CLevelChanger::update_actor_invitation()
             CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
             Fvector p, r;
             bool b = get_reject_pos(p, r);
+			auto offset = Fvector().sub(l_tpActor->Position(), Position());
+			auto nextPosition = Fvector().add(m_position, offset);
+			p.add(offset);
 
             if (pGameSP)
-                pGameSP->ChangeLevel(
-                    m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b, m_invite_str, m_b_enabled);
+                pGameSP->ChangeLevel(m_game_vertex_id, m_level_vertex_id, nextPosition, m_angles, p, r, b, m_invite_str, m_b_enabled);
 
             m_entrance_time = Device.fTimeGlobal;
         }
