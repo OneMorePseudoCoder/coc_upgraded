@@ -21,9 +21,6 @@ void CUIDialogWndEx::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
         return inherited::SendMessage(pWnd, msg, pData);
 
     ((*it)->m_callback)();
-
-    //	if ( (*it)->m_cpp_callback )
-    //		(*it)->m_cpp_callback(pData);
 }
 
 bool CUIDialogWndEx::Load(LPCSTR xml_name) { return true; }
@@ -33,8 +30,7 @@ SCallbackInfo* CUIDialogWndEx::NewCallback()
     return m_callbacks.back();
 }
 
-void CUIDialogWndEx::AddCallback(
-    LPCSTR control_id, s16 evt, const luabind::functor<void>& functor, const luabind::object& object)
+void CUIDialogWndEx::AddCallback(LPCSTR control_id, s16 evt, const luabind::functor<void>& functor, const luabind::object& object)
 {
     SCallbackInfo* c = NewCallback();
     c->m_callback.set(functor, object);
@@ -46,4 +42,11 @@ bool CUIDialogWndEx::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
     return inherited::OnKeyboardAction(dik, keyboard_action);
 }
+
 void CUIDialogWndEx::Update() { inherited::Update(); }
+
+void CUIDialogWndEx::ClearCallbacks() 
+{
+	for (auto it = m_callbacks.begin(); it != m_callbacks.end(); ++it)
+		(*it)->m_callback.clear();
+}
