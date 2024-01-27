@@ -46,6 +46,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 
     if (IsTalking())
         return;
+
     if (m_input_external_handler && !m_input_external_handler->authorized(cmd))
         return;
 
@@ -271,8 +272,10 @@ void CActor::IR_OnKeyboardHold(int cmd)
 
     if (Remote() || !g_Alive())
         return;
+
     if (m_input_external_handler && !m_input_external_handler->authorized(cmd))
         return;
+
     if (IsTalking())
         return;
 
@@ -283,8 +286,7 @@ void CActor::IR_OnKeyboardHold(int cmd)
     }
 
 #if defined(DEBUG) || defined(COC_DEBUG)
-    if (psActorFlags.test(AF_NO_CLIP) &&
-        (cmd == kFWD || cmd == kBACK || cmd == kL_STRAFE || cmd == kR_STRAFE || cmd == kJUMP || cmd == kCROUCH))
+    if (psActorFlags.test(AF_NO_CLIP) && (cmd == kFWD || cmd == kBACK || cmd == kL_STRAFE || cmd == kR_STRAFE || cmd == kJUMP || cmd == kCROUCH))
     {
         NoClipFly(cmd);
         return;
@@ -355,6 +357,7 @@ void CActor::IR_OnMouseMove(int dx, int dy)
         cam_Active()->Move((d > 0) ? kUP : kDOWN, _abs(d));
     }
 }
+
 #include "HudItem.h"
 bool CActor::use_Holder(CHolderCustom* holder)
 {
@@ -375,7 +378,6 @@ bool CActor::use_Holder(CHolderCustom* holder)
     else
     {
         bool b = use_HolderEx(holder, false);
-
 
         if (b)
         { // used succesfully
@@ -469,35 +471,30 @@ void CActor::ActorUse()
 
             VERIFY(pEntityAliveWeLookingAt);
 
-            {
-                if (pEntityAliveWeLookingAt->g_Alive())
-                {
-                    TryToTalk();
-                }
-                else if (!bCaptured)
-                {
-                    //только если находимся в режиме single
-                    CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
-                    if (pGameSP)
-                    {
-                        if (!m_pPersonWeLookingAt->deadbody_closed_status())
-                        {
-                            if (pEntityAliveWeLookingAt->AlreadyDie() &&
-                                pEntityAliveWeLookingAt->GetLevelDeathTime() + 3000 < Device.dwTimeGlobal)
-                                // 99.9% dead
-                                pGameSP->StartCarBody(this, m_pPersonWeLookingAt);
-                        }
-                    }
-                }
-            }
+			if (pEntityAliveWeLookingAt->g_Alive())
+			{
+				TryToTalk();
+			}
+			else if (!bCaptured)
+			{
+				//только если находимся в режиме single
+				CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
+				if (pGameSP)
+				{
+					if (!m_pPersonWeLookingAt->deadbody_closed_status())
+					{
+						if (pEntityAliveWeLookingAt->AlreadyDie() && pEntityAliveWeLookingAt->GetLevelDeathTime() + 3000 < Device.dwTimeGlobal)
+							pGameSP->StartCarBody(this, m_pPersonWeLookingAt); // 99.9% dead
+					}
+				}
+			}
         }
     }
 }
 
 BOOL CActor::HUDview() const
 {
-    return IsFocused() && (cam_active == eacFirstEye) &&
-        ((!m_holder) || (m_holder && m_holder->allowWeapon() && m_holder->HUDView()));
+    return IsFocused() && (cam_active == eacFirstEye) && ((!m_holder) || (m_holder && m_holder->allowWeapon() && m_holder->HUDView()));
 }
 
 static u16 SlotsToCheck[] = {
@@ -665,14 +662,13 @@ void CActor::actorKick()
     if (RQ.O == O && RQ.element != 0xffff)
         bone_id = (u16)RQ.element;
 
-    clamp<float>(mass_f, 1.0f, 100.f); // îãðàíè÷èòü ïàðàìåòðû õèòà
+    clamp<float>(mass_f, 1.0f, 100.f); 
 
-                                       // The smaller the mass, the more damage given capped at 60 mass. 60+ mass take 0 damage
+	// The smaller the mass, the more damage given capped at 60 mass. 60+ mass take 0 damage
     float hit_power = 100.f * ((mass_f / 100.f) - 0.6f) / (0.f - 0.6f);
     clamp<float>(hit_power, 0.f, 100.f);
     hit_power /= 100;
 
-    //shell->applyForce(dir, kick_power * conditions().GetPower());
     Fvector h_pos = O->Position();
     SHit hit = SHit(hit_power, dir, this, bone_id, h_pos, kick_impulse, ALife::eHitTypeStrike, 0.f, false);
     O->Hit(&hit);
@@ -695,7 +691,7 @@ void CActor::actorKick()
 #if defined(DEBUG) || defined(COC_DEBUG)
 void CActor::NoClipFly(int cmd)
 {
-    Fvector cur_pos; // = Position();
+    Fvector cur_pos;
     cur_pos.set(0, 0, 0);
     float scale = 1.0f;
     if (pInput->iGetAsyncKeyState(DIK_LSHIFT))

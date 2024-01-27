@@ -16,8 +16,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDemoPlay::CDemoPlay(const char* name, float ms, u32 cycles, float life_time)
-    : CEffectorCam(cefDemo, life_time /*,FALSE*/)
+CDemoPlay::CDemoPlay(const char* name, float ms, u32 cycles, float life_time) : CEffectorCam(cefDemo, life_time)
 {
     Msg("*** Playing demo: %s", name);
     Console->Execute("hud_weapon 0");
@@ -81,7 +80,6 @@ CDemoPlay::~CDemoPlay()
 
 void CDemoPlay::stat_Start()
 {
-    // if (stat_started) return;
     VERIFY(!stat_started);
     stat_started = TRUE;
     Sleep(1);
@@ -99,8 +97,6 @@ void CDemoPlay::stat_Stop()
 {
     if (!stat_started)
         return;
-
-    // g_SASH.EndBenchmark();
 
     stat_started = FALSE;
     float stat_total = stat_Timer_total.GetElapsed_sec();
@@ -150,17 +146,6 @@ void CDemoPlay::stat_Stop()
         }
         rfps_middlepoint /= float(stat_table.size() - 1);
     }
-
-    /*
-    for (u32 it=1; it<stat_table.size(); it++)
-    {
-    float fps = 1.f / stat_table[it];
-    if (fps<rfps_min) rfps_min = fps;
-    if (fps>rfps_max) rfps_max = fps;
-    rfps_middlepoint += fps;
-    }
-    rfps_middlepoint /= float(stat_table.size()-1);
-    */
 
     Msg("* [DEMO] FPS: average[%f], min[%f], max[%f], middle[%f]", rfps_average, rfps_min, rfps_max, rfps_middlepoint);
 
@@ -225,13 +210,8 @@ BOOL CDemoPlay::ProcessCam(SCamEffectorInfo& info)
     if (Device.dwPrecacheFrame)
         return TRUE;
 
-    if (stat_started)
+    if (!stat_started)
     {
-        // g_SASH.DisplayFrame(Device.fTimeGlobal);
-    }
-    else
-    {
-        // g_SASH.StartBenchmark();
         stat_Start();
     }
 
@@ -280,9 +260,6 @@ BOOL CDemoPlay::ProcessCam(SCamEffectorInfo& info)
             if (0 == dwCyclesLeft)
                 return FALSE;
             fStartTime = 0;
-            // just continue
-            // stat_Stop ();
-            // stat_Start ();
         }
 
         int f1 = frame;

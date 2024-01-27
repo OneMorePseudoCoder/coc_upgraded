@@ -32,7 +32,6 @@
 #include "activatingcharcollisiondelay.h"
 #include "stalker_movement_manager_smart_cover.h"
 
-// const float default_hinge_friction = 5.f;//gray_wolf comment
 #ifdef DEBUG
 #include "PHDebug.h"
 extern BOOL death_anim_debug;
@@ -42,6 +41,8 @@ extern BOOL death_anim_debug;
 
 #define USE_SMART_HITS
 #define USE_IK
+constexpr float IK_CALC_DIST = 100.f;
+constexpr float IK_ALWAYS_CALC_DIST = 20.f;
 
 IC bool is_imotion(interactive_motion* im) { return im && im->is_enabled(); }
 
@@ -551,7 +552,7 @@ void CCharacterPhysicsSupport::in_UpdateCL()
         VERIFY(m_pPhysicsShell->isFullActive());
         m_pPhysicsShell->SetRagDoll(); //Теперь шела относиться к классу объектов cbClassRagDoll
 
-        if (!is_imotion(m_interactive_motion)) //! m_flags.test(fl_use_death_motion)
+        if (!is_imotion(m_interactive_motion))
             m_pPhysicsShell->InterpolateGlobalTransform(&mXFORM);
         else
             m_interactive_motion->update();
@@ -562,8 +563,22 @@ void CCharacterPhysicsSupport::in_UpdateCL()
     }
     else if (ik_controller())
     {
-        update_interactive_anims();
-        ik_controller()->Update();
+        CFrustum& view_frust = GEnv.Render->ViewBase;
+        vis_data& vis = m_EntityAlife.Visual()->getVisData();
+        Fvector p;
+
+        m_EntityAlife.XFORM().transform_tiny(p, vis.sphere.P);
+
+        float dist = Device.vCameraPosition.distance_to(p);
+
+        if (dist < IK_CALC_DIST)
+        {
+            if (view_frust.testSphere_dirty(p, vis.sphere.R) || dist < IK_ALWAYS_CALC_DIST)
+            {
+				update_interactive_anims();
+				ik_controller()->Update();
+            }
+        }
     }
 
 #ifdef DEBUG
@@ -1077,14 +1092,7 @@ void CCharacterPhysicsSupport::in_ChangeVisual()
 
 bool CCharacterPhysicsSupport::CanRemoveObject()
 {
-    if (m_eType == etActor)
-    {
-        return false;
-    }
-    else
-    {
-        return !m_EntityAlife.IsPlaying();
-    }
+    return m_eType == etActor ? false : !m_EntityAlife.IsPlaying();
 }
 
 void CCharacterPhysicsSupport::PHGetLinearVell(Fvector& velocity)
@@ -1103,6 +1111,7 @@ void CCharacterPhysicsSupport::CreateIKController()
     m_ik_controller = new CIKLimbsController();
     m_ik_controller->Create(&m_EntityAlife);
 }
+
 void CCharacterPhysicsSupport::DestroyIKController()
 {
     if (!m_ik_controller)
@@ -1124,7 +1133,9 @@ void CCharacterPhysicsSupport::set_collision_hit_callback(ICollisionHitCallback*
     xr_delete(m_collision_hit_callback);
     m_collision_hit_callback = cc;
 }
+
 ICollisionHitCallback* CCharacterPhysicsSupport::get_collision_hit_callback() { return m_collision_hit_callback; }
+
 void CCharacterPhysicsSupport::FlyTo(const Fvector& disp)
 {
     R_ASSERT(m_pPhysicsShell);
@@ -1147,23 +1158,9 @@ void CCharacterPhysicsSupport::FlyTo(const Fvector& disp)
     for (u16 i = 0; steps_num > i; ++i)
     {
         m_pPhysicsShell->set_LinearVel(vel);
-#if 0
-	DBG_OpenCashedDraw();
-	//m_pPhysicsShell->dbg_draw_geometry( 0.2f, color_xrgb( 255, 100, 0 ) );
-	m_pPhysicsShell->dbg_draw_velocity( 0.01f, color_xrgb( 0, 255, 0 ) );
-	m_pPhysicsShell->dbg_draw_force( 0.1f, color_xrgb( 0, 0, 255 ) );
-//	DBG_ClosedCashedDraw( 50000 );
-#endif
         physics_world()->Step();
-#if 0
-//	DBG_OpenCashedDraw();
-	//m_pPhysicsShell->dbg_draw_geometry( 0.2f, color_xrgb( 255, 100, 0 ) );
-	m_pPhysicsShell->dbg_draw_velocity( 0.01f, color_xrgb( 100, 255, 0 ) );
-	m_pPhysicsShell->dbg_draw_force( 0.1f, color_xrgb( 100, 0, 255 ) );
-	DBG_ClosedCashedDraw( 50000 );
-#endif
     }
-    // u16 step_num=disp.magnitude()/fixed_step;
+
     m_pPhysicsShell->set_ApplyByGravity(g);
     m_pPhysicsShell->set_CallbackData(cd);
     m_pPhysicsShell->remove_ObjectContactCallback(StaticEnvironmentCB);
@@ -1173,9 +1170,6 @@ void CCharacterPhysicsSupport::FlyTo(const Fvector& disp)
 void CCharacterPhysicsSupport::on_create_anim_mov_ctrl()
 {
     VERIFY(!anim_mov_state.active);
-    // anim_mov_state.character_exist = m_PhysicMovementControl->CharacterExist();
-    // if(anim_mov_state.character_exist)
-    // m_PhysicMovementControl->DestroyCharacter();
     m_PhysicMovementControl->SetNonInteractive(true);
     anim_mov_state.active = true;
 }
@@ -1183,13 +1177,12 @@ void CCharacterPhysicsSupport::on_create_anim_mov_ctrl()
 void CCharacterPhysicsSupport::on_destroy_anim_mov_ctrl()
 {
     VERIFY(anim_mov_state.active);
-    // if( anim_mov_state.character_exist )
-    // CreateCharacter();
     m_PhysicMovementControl->SetNonInteractive(false);
     anim_mov_state.active = false;
 }
 
 bool CCharacterPhysicsSupport::interactive_motion() { return is_imotion(m_interactive_motion); }
+
 bool CCharacterPhysicsSupport::can_drop_active_weapon()
 {
     return !interactive_motion() && m_flags.test(fl_death_anim_on);
@@ -1215,6 +1208,7 @@ u16 CCharacterPhysicsSupport::PHGetSyncItemsNumber()
     else
         return m_EntityAlife.CPhysicsShellHolder::PHGetSyncItemsNumber();
 }
+
 CPHSynchronize* CCharacterPhysicsSupport::PHGetSyncItem(u16 item)
 {
     if (movement()->CharacterExist())
