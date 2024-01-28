@@ -2,7 +2,7 @@
 
 #include "xrEngine/IGame_Level.h"
 #include "xrEngine/IGame_Persistent.h"
-#include "xrNetServer/NET_Client.h"
+#include "../xrEngine/NET_Server_Trash/NET_Client.h"
 #include "xrEngine/StatGraph.h"
 #include "xrMessages.h"
 #include "alife_space.h"

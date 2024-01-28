@@ -1,11 +1,11 @@
 #pragma once
 #include "NET_Shared.h"
-#include "xrCommon/xr_deque.h"
-#include "xrCommon/xr_vector.h"
-#include "Common/Noncopyable.hpp"
-#include "xrCore/xrstring.h"
+#include "../xrCommon/xr_deque.h"
+#include "../xrCommon/xr_vector.h"
+#include "../Common/Noncopyable.hpp"
+#include "../xrCore/xrstring.h"
 
-class XRNETSERVER_API INetQueue : Noncopyable
+class ENGINE_API INetQueue : Noncopyable
 {
     Lock* pcs;
     xr_deque<NET_Packet*> ready;
@@ -25,7 +25,7 @@ public:
 
 //==============================================================================
 
-class XRNETSERVER_API IPureClient : Noncopyable
+class ENGINE_API IPureClient : Noncopyable
 {
 protected:
     CTimer* device_timer;

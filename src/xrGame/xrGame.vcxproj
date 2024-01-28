@@ -3138,9 +3138,6 @@
     <ProjectReference Include="$(SolutionDir)Layers\xrAPI\xrAPI.vcxproj">
       <Project>{1daec516-e52c-4a3c-a4da-ae3553e6e0f8}</Project>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)xrNetServer\xrNetServer.vcxproj">
-      <Project>{435bac9a-b225-457d-ab40-c9bd0cc8838c}</Project>
-    </ProjectReference>
     <ProjectReference Include="$(xrExternals)cximage\cximage.vcxproj">
       <Project>{880cd250-ba77-4daf-a8d4-552f12dd3ae4}</Project>
     </ProjectReference>

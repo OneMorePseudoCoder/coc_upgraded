@@ -5,7 +5,7 @@
 
 #include "xrCore/client_id.h"
 #include "game_sv_event_queue.h"
-#include "xrNetServer/NET_Server.h"
+#include "../xrEngine/NET_Server_Trash/NET_Server.h"
 
 class CSE_Abstract;
 class xrServer;
@@ -120,8 +120,7 @@ public:
     virtual void Create(shared_str& options);
     virtual void Update();
     virtual void net_Export_State(NET_Packet& P, ClientID id_to); // full state
-    virtual void net_Export_Update(
-        NET_Packet& P, ClientID id_to, ClientID id); // just incremental update for specific client
+    virtual void net_Export_Update(NET_Packet& P, ClientID id_to, ClientID id); // just incremental update for specific client
     virtual void net_Export_GameTime(NET_Packet& P); // update GameTime only for remote clients
 
     virtual bool change_level(NET_Packet& net_packet, ClientID sender);

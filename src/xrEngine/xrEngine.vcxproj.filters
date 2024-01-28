@@ -235,6 +235,9 @@
     <Filter Include="Game API\StringTable">
       <UniqueIdentifier>{948b4643-0f42-4027-ac44-dbe3702887f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NET_Server_Trash">
+      <UniqueIdentifier>{f8099575-6b7c-4bb8-8acb-2059791c45ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defines.h">
@@ -467,6 +470,15 @@
     </ClInclude>
     <ClInclude Include="ShadersExternalData.h">
       <Filter>Render\Visibility</Filter>
+    </ClInclude>
+    <ClInclude Include="NET_Server_Trash\NET_Client.h">
+      <Filter>NET_Server_Trash</Filter>
+    </ClInclude>
+    <ClInclude Include="NET_Server_Trash\NET_Server.h">
+      <Filter>NET_Server_Trash</Filter>
+    </ClInclude>
+    <ClInclude Include="NET_Server_Trash\NET_Shared.h">
+      <Filter>NET_Server_Trash</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
       <Filter>General</Filter>
@@ -742,6 +754,12 @@
     </ClCompile>
     <ClCompile Include="StringTable\IStringTable.cpp">
       <Filter>Game API\StringTable</Filter>
+    </ClCompile>
+    <ClCompile Include="NET_Server_Trash\NET_Client.cpp">
+      <Filter>NET_Server_Trash</Filter>
+    </ClCompile>
+    <ClCompile Include="NET_Server_Trash\NET_Server.cpp">
+      <Filter>NET_Server_Trash</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

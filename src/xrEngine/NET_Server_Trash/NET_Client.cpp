@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "net_Client.h"
 #include "net_Server.h"
-#include "xrCore/Threading/Lock.hpp"
+#include "../xrCore/Threading/Lock.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4995)
 #include <malloc.h>
-#include "xrCore/Debug/dxerr.h"
+#include "../xrCore/Debug/dxerr.h"
 
 #ifdef CONFIG_PROFILE_LOCKS
 INetQueue::INetQueue() : pcs(new Lock(MUTEX_PROFILE_ID(INetQueue)))

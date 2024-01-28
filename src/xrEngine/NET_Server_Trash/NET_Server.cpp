@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "xrCore/Debug/dxerr.h"
+#include "../xrCore/Debug/dxerr.h"
 #include "NET_Server.h"
 #include <functional>
 
-XRNETSERVER_API ClientID BroadcastCID(0xffffffff);
+ENGINE_API ClientID BroadcastCID(0xffffffff);
 
 //------------------------------------------------------------------------------
 IClient* IPureServer::ID_to_client(ClientID ID, bool ScanAll)

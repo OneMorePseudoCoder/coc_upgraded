@@ -382,8 +382,7 @@ void CLevel::OnFrame()
     {
         if (g_mt_config.test(mtLevelSounds))
         {
-            Device.seqParallel.push_back(
-                fastdelegate::FastDelegate0<>(m_level_sound_manager, &CLevelSoundManager::Update));
+            Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_level_sound_manager, &CLevelSoundManager::Update));
         }
         else
             m_level_sound_manager->Update();

@@ -6,7 +6,6 @@
 #include "Common/Common.hpp"
 
 #include "xrEngine/stdafx.h" // XXX: This seems bad. PCH's are for internal (building) use.
-#include "DPlay/dplay8.h"
 
 // xrEngine src file count is ~1100.
 // Comments following individual includes refers to number of times they are included in xrEngine as a whole.

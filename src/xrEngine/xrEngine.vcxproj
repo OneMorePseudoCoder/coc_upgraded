@@ -165,6 +165,9 @@
     <ClInclude Include="Rain.h" />
     <ClInclude Include="Render.h" />
     <ClInclude Include="splash.h" />
+    <ClInclude Include="NET_Server_Trash\NET_Client.h" />
+    <ClInclude Include="NET_Server_Trash\NET_Server.h" />
+    <ClInclude Include="NET_Server_Trash\NET_Shared.h" />
     <ClInclude Include="ShadersExternalData.h" />
     <ClInclude Include="StatGraph.h" />
     <ClInclude Include="Stats.h" />
@@ -200,6 +203,8 @@
     <ClCompile Include="cf_dynamic_mesh.cpp" />
     <ClCompile Include="CustomHUD.cpp" />
     <ClCompile Include="defines.cpp" />
+    <ClCompile Include="NET_Server_Trash\NET_Client.cpp" />
+    <ClCompile Include="NET_Server_Trash\NET_Server.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="Device_create.cpp" />
     <ClCompile Include="Device_destroy.cpp" />
@@ -296,9 +301,6 @@
     </ProjectReference>
     <ProjectReference Include="..\Layers\xrAPI\xrAPI.vcxproj">
       <Project>{1daec516-e52c-4a3c-a4da-ae3553e6e0f8}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\xrNetServer\xrNetServer.vcxproj">
-      <Project>{435bac9a-b225-457d-ab40-c9bd0cc8838c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\xrSound\xrSound.vcxproj">
       <Project>{ccca7859-eb86-493e-9b53-c4235f45b3c5}</Project>

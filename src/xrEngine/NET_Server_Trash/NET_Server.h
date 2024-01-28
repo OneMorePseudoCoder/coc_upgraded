@@ -3,7 +3,7 @@
 
 class IPureServer;
 
-class XRNETSERVER_API IClient
+class ENGINE_API IClient
 {
 public:
     IClient() {}
@@ -20,7 +20,7 @@ class CSE_Abstract;
 class CServerInfo;
 class IServerGameState;
 
-class XRNETSERVER_API IPureServer
+class ENGINE_API IPureServer
 {
 public:
     enum EConnect
