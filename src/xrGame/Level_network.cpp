@@ -289,8 +289,7 @@ void CLevel::ClearAllObjects()
             ParentFound = true;
 //-------------------------------------------------------------
 #ifdef DEBUG
-            Msg("Rejection of %s[%d] from %s[%d]", *(pObj->cNameSect()), pObj->ID(), *(pObj->H_Parent()->cNameSect()),
-                pObj->H_Parent()->ID());
+            Msg("Rejection of %s[%d] from %s[%d]", *(pObj->cNameSect()), pObj->ID(), *(pObj->H_Parent()->cNameSect()), pObj->H_Parent()->ID());
 #endif
         };
         ProcessGameEvents();

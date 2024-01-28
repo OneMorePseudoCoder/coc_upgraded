@@ -25,7 +25,6 @@ class XRCORE_API CBoneInstance;
 // callback
 using BoneCallbackFunction = void(CBoneInstance* P);
 using BoneCallback = BoneCallbackFunction*;
-// typedef void (* BoneCallback) (CBoneInstance* P);
 
 //*** Bone Instance *******************************************************************************
 #pragma pack(push, 8)
@@ -275,7 +274,6 @@ public:
     virtual float hi_limit(u8 k) const = 0;
 };
 
-// static const Fobb dummy ;//= Fobb().identity();
 // refs
 class CBone;
 using BoneVec = xr_vector<CBone*>;
@@ -303,9 +301,6 @@ private:
     Fmatrix rest_transform;
     Fmatrix rest_i_transform;
 
-    // Fmatrix last_transform;
-
-    // Fmatrix render_transform;
 public:
     int SelfID;
     CBone* parent;

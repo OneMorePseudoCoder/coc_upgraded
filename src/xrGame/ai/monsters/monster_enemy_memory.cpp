@@ -39,9 +39,7 @@ void CMonsterEnemyMemory::update()
     {
         if (CEntityAlive* enemy = smart_cast<CEntityAlive*>(monster->HitMemory.get_last_hit_object()))
         {
-            if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) &&
-                monster->Position().distance_to(enemy->Position()) <
-                    monster->get_feel_enemy_who_just_hit_max_distance())
+            if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) && monster->Position().distance_to(enemy->Position()) < monster->get_feel_enemy_who_just_hit_max_distance())
             {
                 add_enemy(enemy);
 
@@ -58,8 +56,7 @@ void CMonsterEnemyMemory::update()
     // XXX: monster doesn't react to sounds when Actor doesn't see him
     // Probably this was made for optimization
     // But this conflicts with the ALife idea
-    if (monster->SoundMemory.IsRememberSound() && g_actor
-        && g_actor->memory().visual().visible_now(monster))
+    if (monster->SoundMemory.IsRememberSound() && g_actor && g_actor->memory().visual().visible_now(monster))
     {
         SoundElem sound;
         bool dangerous;
@@ -71,8 +68,7 @@ void CMonsterEnemyMemory::update()
                 float const xz_dist = monster->Position().distance_to_xz(enemy->Position());
                 float const y_dist = _abs(monster->Position().y - enemy->Position().y);
 
-                if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) && y_dist < 10 &&
-                    xz_dist < monster->get_feel_enemy_who_made_sound_max_distance())
+                if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) && y_dist < 10 && xz_dist < monster->get_feel_enemy_who_made_sound_max_distance())
                 {
                     add_enemy(enemy);
 
@@ -91,8 +87,7 @@ void CMonsterEnemyMemory::update()
 
     for (const auto& enemy : objects)
     {
-        const bool feel_enemy =
-            monster->Position().distance_to(enemy->Position()) < feel_enemy_max_distance;
+        const bool feel_enemy = monster->Position().distance_to(enemy->Position()) < feel_enemy_max_distance;
 
         if (feel_enemy || monster->memory().visual().visible_now(enemy))
             add_enemy(enemy);
@@ -178,9 +173,7 @@ void CMonsterEnemyMemory::remove_non_actual()
         nit = it;
         ++nit;
         // проверить условия удаления
-        if (!it->first || !it->first->g_Alive() || it->first->getDestroy() ||
-            (it->second.time + time_memory < cur_time) || (it->first->g_Team() == monster->g_Team()) ||
-            !monster->memory().enemy().is_useful(it->first))
+        if (!it->first || !it->first->g_Alive() || it->first->getDestroy() || (it->second.time + time_memory < cur_time) || (it->first->g_Team() == monster->g_Team()) || !monster->memory().enemy().is_useful(it->first))
         {
             m_objects.erase(it);
         }

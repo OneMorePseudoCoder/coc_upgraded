@@ -13,20 +13,14 @@
 class CUIGameLog;
 class CUIChatWnd;
 struct GAME_NEWS_DATA;
-struct KillMessageStruct;
 
 class CUIMessagesWindow : public CUIWindow
 {
 public:
     CUIMessagesWindow();
     virtual ~CUIMessagesWindow();
-
     void AddIconedPdaMessage(GAME_NEWS_DATA* news);
-
     void AddLogMessage(const shared_str& msg);
-    void AddLogMessage(KillMessageStruct& msg);
-    void AddChatMessage(shared_str msg, shared_str author);
-    //.	void				SetChatOwner					(game_cl_GameState* owner);
     void PendingMode(bool const is_in_pending_mode);
     CUIChatWnd* GetChatWnd() { return m_pChatWnd; }
     virtual void Show(bool show);

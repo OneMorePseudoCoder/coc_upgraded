@@ -485,10 +485,7 @@ void CConsole::DrawBackgrounds(bool bGame)
             u_height = 0.5f * font_h;
         }
 
-        // float u_pos = (back_height - u_height) * float(m_start_tip) / float(tips_sz);
         float u_pos = back_height * float(m_start_tip) / float(tips_sz);
-
-        // clamp( u_pos, 0.0f, back_height - u_height );
 
         rs = rb;
         rs.y1 = pr.y1 + u_pos;
@@ -513,9 +510,9 @@ void CConsole::DrawRect(Frect const& r, u32 color)
 void CConsole::ExecuteCommand(LPCSTR cmd_str, bool record_cmd)
 {
     u32 str_size = xr_strlen(cmd_str);
-    PSTR edt = (PSTR)_alloca((str_size + 1) * sizeof(char));
-    PSTR first = (PSTR)_alloca((str_size + 1) * sizeof(char));
-    PSTR last = (PSTR)_alloca((str_size + 1) * sizeof(char));
+	char* edt = new char[str_size + 1];
+	char* first = new char[str_size + 1];
+	char* last = new char[str_size + 1];
 
     xr_strcpy(edt, str_size + 1, cmd_str);
     edt[str_size] = 0;
@@ -524,7 +521,6 @@ void CConsole::ExecuteCommand(LPCSTR cmd_str, bool record_cmd)
     reset_cmd_history_idx();
     reset_selected_tip();
 
-    //text_editor::remove_spaces(edt);
     _Trim(edt);
     if (edt[0] == 0)
     {
@@ -587,6 +583,10 @@ void CConsole::ExecuteCommand(LPCSTR cmd_str, bool record_cmd)
     {
         Log("! Unknown command: ", first);
     }
+
+	xr_delete(edt);
+	xr_delete(first);
+	xr_delete(last);
 
     if (record_cmd)
     {

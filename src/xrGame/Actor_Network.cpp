@@ -485,7 +485,6 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
 
     ROS()->force_mode(IRender_ObjectSpecific::TRACE_ALL);
 
-    // mstate_wishful = E->mstate;
     mstate_wishful = 0;
     mstate_wishful = E->mstate & (mcCrouch | mcAccel);
     mstate_old = mstate_real = mstate_wishful;
@@ -493,9 +492,7 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
     m_pPhysics_support->in_NetSpawn(e);
 
     if (E->m_holderID != u16(-1))
-    {
         character_physics_support()->movement()->DestroyCharacter();
-    }
 
     if (m_bOutBorder)
         character_physics_support()->movement()->setOutBorder();
@@ -510,11 +507,6 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
     unaffected_r_torso.yaw = r_torso.yaw;
     unaffected_r_torso.pitch = r_torso.pitch;
     unaffected_r_torso.roll = r_torso.roll;
-
-    if (psActorFlags.test(AF_PSP))
-        cam_Set(eacLookAt);
-    else
-        cam_Set(eacFirstEye);
 
     bool cameraRestoredFromPacket = abs(cam_Active()->yaw) > 0.f || abs(cam_Active()->pitch) > 0.f || abs(cam_Active()->roll) > 0.f;
     if (!cameraRestoredFromPacket)
@@ -1161,6 +1153,9 @@ void CActor::save(NET_Packet& output_packet)
     output_packet.w_u8(task_wnd->IsSecondaryTasksEnabled() ? 1 : 0);
     output_packet.w_u8(task_wnd->IsPrimaryObjectsEnabled() ? 1 : 0);
 
+	cam_Active()->save(output_packet);
+	output_packet.w_u8(cam_active);
+
     output_packet.w_stringZ(g_quick_use_slots[0]);
     output_packet.w_stringZ(g_quick_use_slots[1]);
     output_packet.w_stringZ(g_quick_use_slots[2]);
@@ -1185,6 +1180,9 @@ void CActor::load(IReader& input_packet)
     task_wnd->QuestNpcsEnabled(!!input_packet.r_u8());
     task_wnd->SecondaryTasksEnabled(!!input_packet.r_u8());
     task_wnd->PrimaryObjectsEnabled(!!input_packet.r_u8());
+
+	cam_Active()->load(input_packet);
+	cam_Set(EActorCameras(input_packet.r_u8()));
 
     input_packet.r_stringZ(g_quick_use_slots[0], sizeof(g_quick_use_slots[0]));
     input_packet.r_stringZ(g_quick_use_slots[1], sizeof(g_quick_use_slots[1]));

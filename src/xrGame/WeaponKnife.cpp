@@ -138,8 +138,7 @@ void CWeaponKnife::KnifeStrike(const Fvector& pos, const Fvector& dir)
     {
 #ifdef DEBUG
         m_dbg_data.m_targets_vectors.clear();
-        std::copy(dest_hits.begin(), dest_hits.end(),
-            std::back_insert_iterator<dbg_draw_data::targets_t>(m_dbg_data.m_targets_vectors));
+        std::copy(dest_hits.begin(), dest_hits.end(), std::back_insert_iterator<dbg_draw_data::targets_t>(m_dbg_data.m_targets_vectors));
 #endif
         float tmp_k_hit = 1.0f;
         for (shot_targets_t::const_iterator i = dest_hits.begin(), ie = dest_hits.end(); i != ie; ++i)
@@ -162,7 +161,6 @@ void CWeaponKnife::MakeShot(Fvector const& pos, Fvector const& dir, float const 
     cartridge.param_s.impair = 1.0f;
     cartridge.param_s.kDisp = 1.0f;
     cartridge.param_s.kHit = k_hit;
-    //.	cartridge.param_s.kCritical		= 1.0f;
     cartridge.param_s.kImpulse = 1.0f;
     cartridge.param_s.kAP = EPS_L;
     cartridge.m_flags.set(CCartridge::cfTracer, FALSE);
@@ -170,15 +168,14 @@ void CWeaponKnife::MakeShot(Fvector const& pos, Fvector const& dir, float const 
     cartridge.param_s.fWallmarkSize = fWallmarkSize;
     cartridge.bullet_material_idx = knife_material_idx;
 
-    //while (m_magazine.size() < 2)
-        m_magazine.push_back(cartridge);
+	m_magazine.push_back(cartridge);
     m_ammoElapsed.type1 = m_magazine.size();
     bool SendHit = SendHitAllowed(H_Parent());
 
     PlaySound("sndShot", pos);
 
-    Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed, fCurrentHit, fHitImpulse_cur, H_Parent()->ID(),
-        ID(), m_eHitType, fireDistance, cartridge, 1.f, SendHit);
+	CActor* actor = smart_cast<CActor*>(H_Parent());
+	Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed, fCurrentHit, fHitImpulse_cur, H_Parent()->ID(), ID(), m_eHitType, actor->active_cam() != eacFirstEye ? fireDistance + 1.5f : fireDistance, cartridge, 1.f, SendHit);
 }
 
 void CWeaponKnife::OnMotionMark(u32 state, const motion_marks& M)

@@ -375,9 +375,8 @@ void CUITalkWnd::PlaySnd(LPCSTR text)
     strncat_s(fn, sizeof(fn), text, text_len);
     strncat_s(fn, sizeof(fn), ext, xr_strlen(ext));
 
-    //	strconcat( sizeof(fn), fn, "characters_voice\\dialogs\\", text2, ".ogg" );
-
     StopSnd();
+
     if (FS.exist("$game_sounds$", fn))
     {
         VERIFY(m_pActor);

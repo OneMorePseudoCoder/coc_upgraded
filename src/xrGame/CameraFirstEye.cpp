@@ -5,6 +5,7 @@
 #include "xr_level_controller.h"
 #include "xrEngine/xr_object.h"
 #include "xrCore/_quaternion.h"
+#include "Common/object_broker.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -17,6 +18,10 @@ void CCameraFirstEye::Load(LPCSTR section)
     inherited::Load(section);
     style = csFirstEye;
 }
+
+void CCameraFirstEye::save(NET_Packet& packet) { save_data(pitch, packet); }
+
+void CCameraFirstEye::load(IReader& packet) { load_data(pitch, packet); }
 
 void CCameraFirstEye::UpdateLookat()
 {

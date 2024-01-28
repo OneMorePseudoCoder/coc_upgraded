@@ -130,6 +130,8 @@ void CMovementManager::set_level_dest_vertex(u32 const& level_vertex_id)
     VERIFY2(restrictions().accessible(level_vertex_id), *object().cName());
     level_path().set_dest_vertex(level_vertex_id);
     m_path_actuality = m_path_actuality && level_path().actual();
+	if (m_path_actuality && m_path_state == ePathStatePathCompleted)
+		m_path_actuality = (m_object->ai_location().level_vertex_id() == level_dest_vertex_id());
 }
 
 u32 CMovementManager::level_dest_vertex_id() const { return (level_path().dest_vertex_id()); }
@@ -173,8 +175,7 @@ void CMovementManager::update_path()
             if (!restrictions().accessible(level_path().dest_vertex_id()))
             {
                 Fvector temp;
-                level_path().set_dest_vertex(restrictions().accessible_nearest(
-                    ai().level_graph().vertex_position(level_path().dest_vertex_id()), temp));
+                level_path().set_dest_vertex(restrictions().accessible_nearest(ai().level_graph().vertex_position(level_path().dest_vertex_id()), temp));
                 detail().set_dest_position(temp);
             }
             else
@@ -188,7 +189,6 @@ void CMovementManager::update_path()
         }
         case ePathTypePatrolPath:
         {
-            //				Msg				("[%6d][%s] actuality is false",Device.dwFrame,*object().cName());
             m_path_state = ePathStateSelectPatrolPoint;
             break;
         }
@@ -343,7 +343,6 @@ void CMovementManager::on_travel_point_change(const u32& previous_travel_point_i
 
 void CMovementManager::enable_movement(bool enabled)
 {
-    //	m_path_actuality					= m_path_actuality && (m_enabled == enabled);
     if (!enabled && m_enabled)
         m_on_disable_object_position = object().Position();
     else
@@ -357,14 +356,10 @@ void CMovementManager::enable_movement(bool enabled)
 
 CRestrictedObject* CMovementManager::create_restricted_object() { return (new CRestrictedObject(m_object)); }
 CMovementManager::CLevelPathManager::PATH& CMovementManager::level_path_path() { return (level_path().m_path); }
+
 void CMovementManager::build_level_path()
 {
-    //	CTimer								timer;
-    //	timer.Start							();
     level_path_builder().process_impl();
-    //	static int i=0;
-    //	Msg									("[%6d][%6d][%4d][%f]
-    // build_level_path",Device.dwTimeGlobal,Device.dwFrame,++i,timer.GetElapsed_sec()*1000.f);
 }
 
 Fvector CMovementManager::predict_position(
@@ -438,6 +433,7 @@ Fvector CMovementManager::predict_position(const float& time_delta) const
 }
 
 const float& CMovementManager::prediction_speed() const { return (old_desirable_speed()); }
+
 Fvector CMovementManager::target_position() const
 {
     if (detail().path().empty())

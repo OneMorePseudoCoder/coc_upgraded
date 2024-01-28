@@ -36,8 +36,7 @@ static const float r_spin1_factor = 0.3f;
 static const float r_shoulder_factor = 0.2f;
 static const float r_head_factor = 0.2f;
 
-CBlend* PlayMotionByParts(
-    IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam);
+CBlend* PlayMotionByParts(IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam);
 
 void CActor::Spin0Callback(CBoneInstance* B)
 {
@@ -53,6 +52,7 @@ void CActor::Spin0Callback(CBoneInstance* B)
     B->mTransform.mulA_43(spin);
     B->mTransform.c = c;
 }
+
 void CActor::Spin1Callback(CBoneInstance* B)
 {
     CActor* A = static_cast<CActor*>(B->callback_param());
@@ -67,6 +67,7 @@ void CActor::Spin1Callback(CBoneInstance* B)
     B->mTransform.mulA_43(spin);
     B->mTransform.c = c;
 }
+
 void CActor::ShoulderCallback(CBoneInstance* B)
 {
     CActor* A = static_cast<CActor*>(B->callback_param());
@@ -80,6 +81,7 @@ void CActor::ShoulderCallback(CBoneInstance* B)
     B->mTransform.mulA_43(spin);
     B->mTransform.c = c;
 }
+
 void CActor::HeadCallback(CBoneInstance* B)
 {
     CActor* A = static_cast<CActor*>(B->callback_param());
@@ -130,6 +132,7 @@ void STorsoWpn::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
     all_attack_1 = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_all", base1, "_attack_1"));
     all_attack_2 = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_all", base1, "_attack_2"));
 }
+
 void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 {
     char buf[128];
@@ -169,7 +172,7 @@ void SActorState::CreateClimb(IKinematicsAnimated* K)
     m_torso[11].Create(K, base, "_12");
     m_torso[12].Create(K, base, "_13");
 
-    m_head_idle.invalidate(); /// K->ID_Cycle("head_idle_0");
+    m_head_idle.invalidate();
     jump_begin = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_jump_begin"));
     jump_idle = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_jump_idle"));
     landing[0] = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_jump_end"));
@@ -232,7 +235,6 @@ void SActorMotions::Create(IKinematicsAnimated* V)
 
     m_normal.Create(V, "norm");
     m_crouch.Create(V, "cr");
-    // m_climb.Create	(V,"cr");
     m_climb.CreateClimb(V);
     m_sprint.Create(V);
 }
@@ -321,9 +323,7 @@ CMotion* FindMotionKeys(MotionID motion_ID, IRenderVisual* V)
 #ifdef DEBUG
 BOOL g_ShowAnimationInfo = FALSE;
 #endif // DEBUG
-constexpr pcstr mov_state[] = {
-    "idle", "walk", "run", "sprint",
-};
+constexpr pcstr mov_state[] = {"idle", "walk", "run", "sprint"};
 void CActor::g_SetAnimation(u32 mstate_rl)
 {
     if (!g_Alive())
@@ -338,12 +338,11 @@ void CActor::g_SetAnimation(u32 mstate_rl)
             mstate_real = 0;
             m_current_legs.invalidate();
             m_current_torso.invalidate();
-
-            // smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(m_anims->m_dead_stop);
         }
 
         return;
     }
+
     STorsoWpn::eMovingState moving_idx = STorsoWpn::eIdle;
     SActorState* ST = 0;
     SAnimState* AS = 0;
@@ -371,6 +370,7 @@ void CActor::g_SetAnimation(u32 mstate_rl)
         else
             moving_idx = STorsoWpn::eWalk;
     }
+
     // анимации
     MotionID M_legs;
     MotionID M_torso;
@@ -431,6 +431,8 @@ void CActor::g_SetAnimation(u32 mstate_rl)
             M_torso = AS->legs_ls;
         else if (mstate_rl & mcRStrafe)
             M_torso = AS->legs_rs;
+		else
+			M_torso = ST->m_torso_idle;
     }
 
     if (!M_torso)
@@ -596,8 +598,7 @@ void CActor::g_SetAnimation(u32 mstate_rl)
     if (m_current_torso != M_torso)
     {
         if (m_bAnimTorsoPlayed)
-            m_current_torso_blend =
-                smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_torso, TRUE, AnimTorsoPlayCallBack, this);
+            m_current_torso_blend = smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_torso, TRUE, AnimTorsoPlayCallBack, this);
         else
             m_current_torso_blend = smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_torso);
 
@@ -617,17 +618,14 @@ void CActor::g_SetAnimation(u32 mstate_rl)
         float pos = 0.f;
         VERIFY(!m_current_legs_blend || !fis_zero(m_current_legs_blend->timeTotal));
         if ((mstate_real & mcAnyMove) && (mstate_old & mcAnyMove) && m_current_legs_blend)
-            pos = fmod(m_current_legs_blend->timeCurrent, m_current_legs_blend->timeTotal) /
-                m_current_legs_blend->timeTotal;
+            pos = fmod(m_current_legs_blend->timeCurrent, m_current_legs_blend->timeTotal) / m_current_legs_blend->timeTotal;
 
         IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
         m_current_legs_blend = PlayMotionByParts(ka, M_legs, TRUE, legs_play_callback, this);
-        //		m_current_legs_blend		=
-        // smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_legs,TRUE,legs_play_callback,this);
 
         if ((!(mstate_old & mcAnyMove)) && (mstate_real & mcAnyMove))
         {
-            pos = 0.5f; // 0.5f*Random.randI(2);
+            pos = 0.5f;
         }
         if (m_current_legs_blend)
             m_current_legs_blend->timeCurrent = m_current_legs_blend->timeTotal * pos;
@@ -685,8 +683,6 @@ void CActor::g_SetAnimation(u32 mstate_rl)
         pFontStat->OutNext("Vel Actual:           [%3.2f]", movement->GetVelocityActual());
 
         pFontStat->SetColor(color);
-
-        //Game().m_WeaponUsageStatistic->Draw();
     };
 #endif
 
@@ -708,6 +704,5 @@ void CActor::g_SetAnimation(u32 mstate_rl)
     if (!(motion1->flags & esmSyncPart))
         return;
 
-    m_current_torso_blend->timeCurrent =
-        m_current_legs_blend->timeCurrent / m_current_legs_blend->timeTotal * m_current_torso_blend->timeTotal;
+    m_current_torso_blend->timeCurrent = m_current_legs_blend->timeCurrent / m_current_legs_blend->timeTotal * m_current_torso_blend->timeTotal;
 }

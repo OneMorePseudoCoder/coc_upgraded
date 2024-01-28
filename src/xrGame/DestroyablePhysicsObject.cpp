@@ -15,9 +15,8 @@
 #include "xrPhysics/PhysicsShell.h"
 #ifdef DEBUG
 #include "xrPhysics/IPHWorld.h"
-
-// extern CPHWorld			*ph_world;
 #endif
+
 CDestroyablePhysicsObject::CDestroyablePhysicsObject() { m_fHealth = 1.f; }
 CDestroyablePhysicsObject::~CDestroyablePhysicsObject() {}
 void CDestroyablePhysicsObject::OnChangeVisual()
@@ -30,6 +29,7 @@ void CDestroyablePhysicsObject::OnChangeVisual()
     }
     inherited::OnChangeVisual();
 }
+
 CPhysicsShellHolder* CDestroyablePhysicsObject::PPhysicsShellHolder() { return cast_physics_shell_holder(); }
 void CDestroyablePhysicsObject::net_Destroy()
 {
@@ -43,7 +43,6 @@ BOOL CDestroyablePhysicsObject::net_Spawn(CSE_Abstract* DC)
     BOOL res = inherited::net_Spawn(DC);
     IKinematics* K = smart_cast<IKinematics*>(Visual());
     CInifile* ini = K->LL_UserData();
-    // R_ASSERT2(ini->section_exist("destroyed"),"destroyable_object must have -destroyed- section in model user data");
     CPHDestroyable::Init();
     if (ini && ini->section_exist("destroyed"))
         CPHDestroyable::Load(ini, "destroyed");
@@ -64,29 +63,24 @@ BOOL CDestroyablePhysicsObject::net_Spawn(CSE_Abstract* DC)
     return res;
 }
 
-// void CDestroyablePhysicsObject::Hit							(float P,Fvector &dir,IGameObject *who,s16
-// element,Fvector
-// p_in_object_space, float impulse,  ALife::EHitType hit_type)
 void CDestroyablePhysicsObject::Hit(SHit* pHDS)
 {
     SHit HDS = *pHDS;
-    callback(GameObject::eHit)(
-        lua_game_object(), HDS.power, HDS.dir, smart_cast<const CGameObject*>(HDS.who)->lua_game_object(), HDS.bone());
+    callback(GameObject::eHit)(lua_game_object(), HDS.power, HDS.dir, smart_cast<const CGameObject*>(HDS.who)->lua_game_object(), HDS.bone());
     HDS.power = CHitImmunity::AffectHit(HDS.power, HDS.hit_type);
     float hit_scale = 1.f, wound_scale = 1.f;
     CDamageManager::HitScale(HDS.bone(), hit_scale, wound_scale);
     HDS.power *= hit_scale;
-    //	inherited::Hit(P,dir,who,element,p_in_object_space,impulse,hit_type);
     inherited::Hit(&HDS);
     m_fHealth -= HDS.power;
     if (m_fHealth <= 0.f)
     {
-        //		CPHDestroyable::SetFatalHit(SHit(P,dir,who,element,p_in_object_space,impulse,hit_type));
         CPHDestroyable::SetFatalHit(HDS);
         if (CPHDestroyable::CanDestroy())
             Destroy();
     }
 }
+
 void CDestroyablePhysicsObject::Destroy()
 {
 #ifdef DEBUG
@@ -101,12 +95,9 @@ void CDestroyablePhysicsObject::Destroy()
     }
     if (*m_destroy_particles)
     {
-        // Fvector dir;dir.set(0,1,0);
         Fmatrix m;
         m.identity();
-        /////////////////////////////////////////////////
         m.j.set(0, 1.f, 0);
-        ///////////////////////////////////////////////
 
         Fvector hdir;
         hdir.set(CPHDestroyable::FatalHit().direction());
@@ -116,7 +107,8 @@ void CDestroyablePhysicsObject::Destroy()
             do
             {
                 hdir.random_dir();
-            } while (fsimilar(_abs(m.j.dotproduct(hdir)), 1.f, EPS_L));
+            }
+			while (fsimilar(_abs(m.j.dotproduct(hdir)), 1.f, EPS_L));
         }
         m.i.crossproduct(m.j, hdir);
         m.i.normalize();
@@ -125,6 +117,7 @@ void CDestroyablePhysicsObject::Destroy()
     }
     SheduleRegister();
 }
+
 void CDestroyablePhysicsObject::InitServerObject(CSE_Abstract* D)
 {
     CSE_PHSkeleton* ps = smart_cast<CSE_PHSkeleton*>(D);
@@ -138,6 +131,7 @@ void CDestroyablePhysicsObject::InitServerObject(CSE_Abstract* D)
     if (PO)
         PO->type = epotSkeleton;
 }
+
 void CDestroyablePhysicsObject::shedule_Update(u32 dt)
 {
     inherited::shedule_Update(dt);
@@ -146,8 +140,9 @@ void CDestroyablePhysicsObject::shedule_Update(u32 dt)
 
 bool CDestroyablePhysicsObject::CanRemoveObject()
 {
-    return !CParticlesPlayer::IsPlaying() && !m_destroy_sound._feedback(); //&& sound!
+    return !CParticlesPlayer::IsPlaying() && !m_destroy_sound._feedback();
 }
+
 IFactoryObject* CDestroyablePhysicsObject::_construct()
 {
     CDamageManager::_construct();

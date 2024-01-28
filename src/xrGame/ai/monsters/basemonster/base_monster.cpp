@@ -540,8 +540,7 @@ void CBaseMonster::set_state_sound(u32 type, bool once)
     else
     {
         // handle situation, when monster want to play attack sound for the first time
-        if ((type == MonsterSound::eMonsterSoundAggressive) &&
-            (m_prev_sound_type != MonsterSound::eMonsterSoundAggressive))
+        if ((type == MonsterSound::eMonsterSoundAggressive) && (m_prev_sound_type != MonsterSound::eMonsterSoundAggressive))
         {
             sound().play(MonsterSound::eMonsterSoundAttackHit);
         }
@@ -559,7 +558,6 @@ void CBaseMonster::set_state_sound(u32 type, bool once)
             {
             case MonsterSound::eMonsterSoundIdle:
                 // check distance to actor
-
                 if (Actor()->Position().distance_to(Position()) > db().m_fDistantIdleSndRange)
                 {
                     delay = u32(float(db().m_dwDistantIdleSndDelay) * _sqrt(float(objects_count)));
@@ -569,7 +567,6 @@ void CBaseMonster::set_state_sound(u32 type, bool once)
                 {
                     delay = u32(float(db().m_dwIdleSndDelay) * _sqrt(float(objects_count)));
                 }
-
                 break;
             case MonsterSound::eMonsterSoundEat:
                 delay = u32(float(db().m_dwEatSndDelay) * _sqrt(float(objects_count)));

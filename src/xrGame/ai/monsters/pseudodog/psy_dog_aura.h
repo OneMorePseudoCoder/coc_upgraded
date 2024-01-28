@@ -33,9 +33,10 @@ class CPsyDogAura : public CPPEffectorCustomController<CPPEffectorPsyDogAura>
 	
     u32 m_time_actor_saw_phantom;
     u32 m_time_phantom_saw_actor;
+    CActor* m_actor;
 
 public:
-    CPsyDogAura(CPsyDog* dog) : m_object(dog) {}
+    CPsyDogAura(CPsyDog* dog) : m_object(dog), m_time_actor_saw_phantom(0), m_time_phantom_saw_actor(0), m_actor(nullptr) {}
     void reinit();
     void on_death();
     void update_schedule();

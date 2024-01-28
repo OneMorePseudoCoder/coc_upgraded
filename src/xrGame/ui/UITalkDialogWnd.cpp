@@ -88,10 +88,8 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
     SetWindowName("----CUITalkDialogWnd");
 
     Register(&UIToTradeButton);
-    AddCallbackStr(
-        "question_item", LIST_ITEM_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnQuestionClicked));
-    AddCallback(
-        &UIToTradeButton, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnTradeClicked));
+    AddCallbackStr("question_item", LIST_ITEM_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnQuestionClicked));
+    AddCallback(&UIToTradeButton, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnTradeClicked));
     //	AddCallback					(&UIToExitButton,BUTTON_CLICKED,CUIWndCallback::void_function(this,
     //&CUITalkDialogWnd::OnExitClicked));
 }
@@ -155,13 +153,13 @@ void CUITalkDialogWnd::AddQuestion(LPCSTR str, LPCSTR value, int number, bool b_
     CUIQuestionItem* itm = new CUIQuestionItem(m_uiXml, "question_item");
     itm->Init(value, str);
     ++number; // zero-based index
+
+	string16 buff;
+	xr_sprintf(buff, "%d.", number);
+	itm->m_num_text->SetText(buff);
     if (number <= 10)
-    {
-        string16 buff;
-        xr_sprintf(buff, "%d.", (number == 10) ? 0 : number);
-        itm->m_num_text->SetText(buff);
         itm->m_text->SetAccelerator(DIK_ESCAPE + number, 0);
-    }
+
     if (b_finalizer)
     {
         itm->m_text->SetAccelerator(kQUIT, 2);

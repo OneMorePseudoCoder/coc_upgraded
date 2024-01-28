@@ -23,8 +23,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
     //	Use D3DTADDRESS_CLAMP,	D3DTEXF_POINT,			D3DTEXF_NONE,	D3DTEXF_POINT
     if (0 == xr_strcmp(ResourceName, "smp_nofilter"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_CLAMP);
-        // i_dx10Filter(stage, D3DTEXF_POINT, D3DTEXF_NONE, D3DTEXF_POINT);
         desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
         return defSampler(ResourceName, desc);
@@ -33,8 +31,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
     //	Use D3DTADDRESS_CLAMP,	D3DTEXF_LINEAR,			D3DTEXF_NONE,	D3DTEXF_LINEAR
     if (0 == xr_strcmp(ResourceName, "smp_rtlinear"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_CLAMP);
-        // i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
         desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
         return defSampler(ResourceName, desc);
@@ -43,8 +39,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
     //	Use	D3DTADDRESS_WRAP,	D3DTEXF_LINEAR,			D3DTEXF_LINEAR,	D3DTEXF_LINEAR
     if (0 == xr_strcmp(ResourceName, "smp_linear"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_WRAP);
-        // i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_LINEAR, D3DTEXF_LINEAR);
         desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
         desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
         return defSampler(ResourceName, desc);
@@ -53,20 +47,15 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
     //	Use D3DTADDRESS_WRAP,	D3DTEXF_ANISOTROPIC, 	D3DTEXF_LINEAR,	D3DTEXF_ANISOTROPIC
     if (0 == xr_strcmp(ResourceName, "smp_base"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_WRAP);
-        // i_dx10FilterAnizo( stage, TRUE);
         desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
         desc.Filter = D3D11_FILTER_ANISOTROPIC;
-        desc.MaxAnisotropy = 8;
+        desc.MaxAnisotropy = ps_r__tf_Anisotropic;
         return defSampler(ResourceName, desc);
     }
 
     //	Use D3DTADDRESS_CLAMP,	D3DTEXF_LINEAR,			D3DTEXF_NONE,	D3DTEXF_LINEAR
     if (0 == xr_strcmp(ResourceName, "smp_material"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_CLAMP);
-        // i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
-        // RS.SetSAMP(stage,D3DSAMP_ADDRESSW,	D3DTADDRESS_WRAP);
         desc.AddressU = desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
         desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
@@ -75,10 +64,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
 
     if (0 == xr_strcmp(ResourceName, "smp_smap"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_CLAMP);
-        // i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
-        // RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFILTER, TRUE);
-        // RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFUNC, D3D_COMPARISON_LESS_EQUAL);
         desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
         desc.ComparisonFunc = D3D_COMPARISON_LESS_EQUAL;
@@ -87,8 +72,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
 
     if (0 == xr_strcmp(ResourceName, "smp_jitter"))
     {
-        // i_dx10Address( stage, D3DTADDRESS_WRAP);
-        // i_dx10Filter(stage, D3DTEXF_POINT, D3DTEXF_NONE, D3DTEXF_POINT);
         desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
         desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
         return defSampler(ResourceName, desc);
@@ -172,9 +155,7 @@ void CSCompiler::end()
         m_Outputs[i]->AddRef();
 
     // Samplers create by us, thou they should not be AddRef'ed
-
-    m_Target.Construct(
-        m_cs, RImplementation.Resources->_CreateConstantTable(m_constants), m_Samplers, m_Textures, m_Outputs);
+    m_Target.Construct( m_cs, RImplementation.Resources->_CreateConstantTable(m_constants), m_Samplers, m_Textures, m_Outputs);
 }
 
 void CSCompiler::compile(const char* name)
@@ -196,8 +177,7 @@ void CSCompiler::compile(const char* name)
     LPCSTR c_target = "cs_5_0";
     LPCSTR c_entry = "main";
 
-    HRESULT const _hr = GEnv.Render->shader_compile(name, file, c_entry,
-        c_target, D3D10_SHADER_PACK_MATRIX_ROW_MAJOR, (void*&)m_cs);
+    HRESULT const _hr = GEnv.Render->shader_compile(name, file, c_entry, c_target, D3D10_SHADER_PACK_MATRIX_ROW_MAJOR, (void*&)m_cs);
 
     FS.r_close(file);
 

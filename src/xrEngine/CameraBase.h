@@ -88,6 +88,9 @@ public:
     virtual float CheckLimPitch();
     virtual float CheckLimRoll();
 
+	virtual void save(NET_Packet& output_packet) {};
+	virtual void load(IReader& input_packet) {};
+
 private: //--#SM+#--
     float saved_yaw, saved_pitch, saved_roll;
     Fvector vSavedPosition;
@@ -121,7 +124,7 @@ IC void tviewport_size(CRenderDeviceBase& D, float _viewport_near, const T& cam_
 {
     h_h = _viewport_near * tan(deg2rad(cam_info.Fov()) / 2.f);
     VERIFY2(_valid(h_h), make_string("invalide viewporrt params fov: %f ", cam_info.Fov()));
-    float aspect = D.fASPECT; // cam_info.Aspect();
+    float aspect = D.fASPECT;
     VERIFY(aspect > EPS);
     h_w = h_h / aspect;
 }

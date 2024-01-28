@@ -76,7 +76,6 @@ void dxUIRender::StartPrimitive(u32 iMaxVerts, ePrimitiveType primType, ePointTy
 {
     VERIFY(PrimitiveType == ptNone);
     VERIFY(m_PointType == pttNone);
-    //.	R_ASSERT(pointType==pttLIT);
 
     m_iMaxVerts = iMaxVerts;
     PrimitiveType = primType;

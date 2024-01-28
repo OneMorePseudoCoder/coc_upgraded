@@ -11,20 +11,16 @@
 #include "xrUICore/ScrollView/UIScrollView.h"
 
 class CUIXml;
-class CUIPdaKillMessage;
 class CUIPdaMsgListItem;
 class CUIStatic;
 class CUITextWnd;
-struct KillMessageStruct;
 
 class CUIGameLog : public CUIScrollView
 {
 public:
     CUIGameLog();
     CUITextWnd* AddLogMessage(LPCSTR msg);
-    CUIPdaKillMessage* AddLogMessage(KillMessageStruct& msg);
     CUIPdaMsgListItem* AddPdaMessage();
-    void AddChatMessage(LPCSTR msg, LPCSTR author);
     virtual void Update();
 
     void SetTextAtrib(CGameFont* pFont, u32 color);

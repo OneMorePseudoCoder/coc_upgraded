@@ -37,10 +37,6 @@ void CAttachmentOwner::net_Destroy()
     if (!attached_objects().empty())
     {
         Msg("Object %s has attached items :", *smart_cast<CGameObject*>(this)->cName());
-        //		xr_vector<CAttachableItem*>::const_iterator	I = attached_objects().begin();
-        //		xr_vector<CAttachableItem*>::const_iterator	E = attached_objects().end();
-        //		for ( ; I != E; ++I)
-        //			Msg					("* %s",*(*I)->item().object().cName());
     }
 #endif
     R_ASSERT(attached_objects().empty());
@@ -56,8 +52,7 @@ void CAttachmentOwner::renderable_Render()
 
 void __stdcall AttachmentCallback(IKinematics* tpKinematics)
 {
-    CGameObject* game_object =
-        smart_cast<CGameObject*>(static_cast<IGameObject*>(tpKinematics->GetUpdateCallbackParam()));
+    CGameObject* game_object = smart_cast<CGameObject*>(static_cast<IGameObject*>(tpKinematics->GetUpdateCallbackParam()));
     VERIFY(game_object);
 
     CAttachmentOwner* attachment_owner = smart_cast<CAttachmentOwner*>(game_object);
@@ -65,14 +60,13 @@ void __stdcall AttachmentCallback(IKinematics* tpKinematics)
 
     IKinematics* kinematics = smart_cast<IKinematics*>(game_object->Visual());
 
-    xr_vector<CAttachableItem*>::const_iterator I = attachment_owner->attached_objects().begin();
-    xr_vector<CAttachableItem*>::const_iterator E = attachment_owner->attached_objects().end();
-    for (; I != E; ++I)
-    {
-        (*I)->item().object().XFORM().mul_43(
-            kinematics->LL_GetBoneInstance((*I)->bone_id()).mTransform, (*I)->offset());
-        (*I)->item().object().XFORM().mulA_43(game_object->XFORM());
-    }
+	for (const auto* it : attachment_owner->attached_objects()) 
+	{
+		Fmatrix bone_mtx;
+		kinematics->Bone_GetAnimPos(bone_mtx, it->bone_id(), u8(-1), false);
+		it->item().object().XFORM().mul_43(bone_mtx, it->offset());
+		it->item().object().XFORM().mulA_43(game_object->XFORM());
+	}
 }
 
 void CAttachmentOwner::attach(CInventoryItem* inventory_item)
@@ -83,7 +77,6 @@ void CAttachmentOwner::attach(CInventoryItem* inventory_item)
     {
         if ((*I)->item().object().ID() == inventory_item->object().ID())
             return; // already attached, fake, I'll repair It
-        //		VERIFY								((*I)->ID() != inventory_item->object().ID());
     }
 
     if (can_attach(inventory_item))
@@ -94,8 +87,7 @@ void CAttachmentOwner::attach(CInventoryItem* inventory_item)
         VERIFY(game_object && game_object->Visual());
         if (m_attached_objects.empty())
             game_object->add_visual_callback(AttachmentCallback);
-        attachable_item->set_bone_id(
-            smart_cast<IKinematics*>(game_object->Visual())->LL_BoneID(attachable_item->bone_name()));
+        attachable_item->set_bone_id(smart_cast<IKinematics*>(game_object->Visual())->LL_BoneID(attachable_item->bone_name()));
         m_attached_objects.push_back(smart_cast<CAttachableItem*>(inventory_item));
 
         inventory_item->object().setVisible(true);
@@ -162,8 +154,7 @@ void CAttachmentOwner::reattach_items()
     {
         CAttachableItem* attachable_item = *I;
         VERIFY(attachable_item);
-        attachable_item->set_bone_id(
-            smart_cast<IKinematics*>(game_object->Visual())->LL_BoneID(attachable_item->bone_name()));
+        attachable_item->set_bone_id(smart_cast<IKinematics*>(game_object->Visual())->LL_BoneID(attachable_item->bone_name()));
     }
 }
 

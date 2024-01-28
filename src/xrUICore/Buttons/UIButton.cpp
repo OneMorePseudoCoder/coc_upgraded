@@ -100,14 +100,12 @@ void CUIButton::DrawTexture()
         if (GetButtonState() == BUTTON_UP || GetButtonState() == BUTTON_NORMAL)
             m_UIStaticItem.SetPos(rect.left + m_TextureOffset.x, rect.top + m_TextureOffset.y);
         else
-            m_UIStaticItem.SetPos(
-                rect.left + PUSH_OFFSET_RIGHT + m_TextureOffset.x, rect.top + PUSH_OFFSET_DOWN + m_TextureOffset.y);
+            m_UIStaticItem.SetPos(rect.left + PUSH_OFFSET_RIGHT + m_TextureOffset.x, rect.top + PUSH_OFFSET_DOWN + m_TextureOffset.y);
 
         if (m_bStretchTexture)
             m_UIStaticItem.SetSize(Fvector2().set(rect.width(), rect.height()));
         else
-            m_UIStaticItem.SetSize(
-                Fvector2().set(m_UIStaticItem.GetTextureRect().width(), m_UIStaticItem.GetTextureRect().height()));
+            m_UIStaticItem.SetSize(Fvector2().set(m_UIStaticItem.GetTextureRect().width(), m_UIStaticItem.GetTextureRect().height()));
 
         if (Heading())
             m_UIStaticItem.Render(GetHeading());
@@ -146,8 +144,7 @@ void CUIButton::Update()
 {
     inherited::Update();
 
-    if (CursorOverWindow() && m_hint_text.size() && !g_btnHint->Owner() &&
-        Device.dwTimeGlobal > m_dwFocusReceiveTime + 700)
+    if (CursorOverWindow() && m_hint_text.size() && !g_btnHint->Owner() && Device.dwTimeGlobal > m_dwFocusReceiveTime + 700)
     {
         g_btnHint->SetHintText(this, m_hint_text.c_str());
 
@@ -178,7 +175,7 @@ void CUIButton::OnFocusLost()
     inherited::OnFocusLost();
 
     if (m_eButtonState == BUTTON_PUSHED && pInput->iGetAsyncBtnState(0) && !m_bIsSwitch)
-        SetButtonState(BUTTON_NORMAL); //???
+        SetButtonState(BUTTON_NORMAL);
 
     if (g_btnHint->Owner() == this)
         g_btnHint->Discard();
@@ -213,9 +210,7 @@ bool CUIButton::IsAccelerator(int iAccel) const
 {
     bool res = GetAccelerator(0) == iAccel || GetAccelerator(1) == iAccel;
     if (!res)
-    {
-        res = ((m_uAccelerator[2] != -1) ? is_binded((EGameActions)GetAccelerator(2), iAccel) : false) ||
-            ((m_uAccelerator[3] != -1) ? is_binded((EGameActions)GetAccelerator(3), iAccel) : false);
-    }
+        res = ((m_uAccelerator[2] != -1) ? is_binded((EGameActions)GetAccelerator(2), iAccel) : false) || ((m_uAccelerator[3] != -1) ? is_binded((EGameActions)GetAccelerator(3), iAccel) : false);
+
     return res;
 }

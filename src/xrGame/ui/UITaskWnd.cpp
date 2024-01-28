@@ -40,14 +40,12 @@ void CUITaskWnd::Init()
 
     m_cbPrimaryObjects = UIHelper::CreateCheck(xml, "filter_primary_objects", this);
     m_cbPrimaryObjects->SetCheck(true);
-    AddCallback(
-        m_cbPrimaryObjects, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITaskWnd::OnShowPrimaryObjects));
+    AddCallback(m_cbPrimaryObjects, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITaskWnd::OnShowPrimaryObjects));
     m_bPrimaryObjectsEnabled = true;
 
     m_cbSecondaryTasks = UIHelper::CreateCheck(xml, "filter_secondary_tasks", this);
     m_cbSecondaryTasks->SetCheck(true);
-    AddCallback(
-        m_cbSecondaryTasks, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITaskWnd::OnShowSecondaryTasks));
+    AddCallback(m_cbSecondaryTasks, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITaskWnd::OnShowSecondaryTasks));
     m_bSecondaryTasksEnabled = true;
 
     m_cbQuestNpcs = UIHelper::CreateCheck(xml, "filter_quest_npcs", this);
@@ -68,8 +66,7 @@ void CUITaskWnd::Init()
     m_pStoryLineTaskItem->Init(xml, "storyline_task_item");
     AttachChild(m_pStoryLineTaskItem);
     m_pStoryLineTaskItem->SetAutoDelete(true);
-    AddCallback(m_pStoryLineTaskItem, WINDOW_LBUTTON_DB_CLICK,
-        CUIWndCallback::void_function(this, &CUITaskWnd::OnTask1DbClicked));
+    AddCallback(m_pStoryLineTaskItem, WINDOW_LBUTTON_DB_CLICK, CUIWndCallback::void_function(this, &CUITaskWnd::OnTask1DbClicked));
 
     m_btn_focus = UIHelper::Create3tButton(xml, "btn_task_focus", this);
     Register(m_btn_focus);
@@ -206,7 +203,6 @@ void CUITaskWnd::Show(bool status)
     }
     else
     {
-        //		m_task_wnd_show = false;
         m_task_wnd->Show(false);
     }
 }
@@ -383,11 +379,6 @@ void CUITaskItem::Update()
 void CUITaskItem::OnMouseScroll(float iDirection) {}
 bool CUITaskItem::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
-    if (inherited::OnMouseAction(x, y, mouse_action))
-    {
-        // return true;
-    }
-
     switch (mouse_action)
     {
     case WINDOW_LBUTTON_DOWN:

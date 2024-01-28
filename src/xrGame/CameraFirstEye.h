@@ -27,6 +27,8 @@ public:
         lookat_point = p;
         lookat_active = true;
     }
+	void save(NET_Packet& output_packet) override;
+	void load(IReader& input_packet) override;
 };
 
 #endif // __CAMERALOOK_H__

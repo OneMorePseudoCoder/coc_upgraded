@@ -73,8 +73,7 @@ void HUD_SOUND_ITEM::DestroySound(HUD_SOUND_ITEM& hud_snd)
     hud_snd.m_activeSnd = nullptr;
 }
 
-void HUD_SOUND_ITEM::PlaySound(
-    HUD_SOUND_ITEM& hud_snd, const Fvector& position, const IGameObject* parent, bool b_hud_mode, bool looped, u8 index)
+void HUD_SOUND_ITEM::PlaySound(HUD_SOUND_ITEM& hud_snd, const Fvector& position, const IGameObject* parent, bool b_hud_mode, bool looped, u8 index)
 {
     if (hud_snd.sounds.empty())
         return;
@@ -95,17 +94,11 @@ void HUD_SOUND_ITEM::PlaySound(
     hud_snd.m_activeSnd = &hud_snd.sounds[index];
     if (hud_snd.m_b_exclusive)
     {
-        hud_snd.m_activeSnd->snd.play_at_pos(const_cast<IGameObject*>(parent),
-                                             flags & sm_2D ? Fvector().set(0, 0, 0) : position, flags,
-                                             hud_snd.m_activeSnd->delay);
+        hud_snd.m_activeSnd->snd.play_at_pos(const_cast<IGameObject*>(parent), flags & sm_2D ? Fvector().set(0, 0, 0) : position, flags, hud_snd.m_activeSnd->delay);
     }
     else
     {
-        hud_snd.m_activeSnd->snd.play_no_feedback(const_cast<IGameObject*>(parent), flags, hud_snd.m_activeSnd->delay,
-                                                  flags & sm_2D
-                                                      ? &Fvector().set(0, 0, 0)
-                                                      : &Fvector().set(position.x, position.y, position.z), nullptr,
-                                                  nullptr, nullptr);
+        hud_snd.m_activeSnd->snd.play_no_feedback(const_cast<IGameObject*>(parent), flags, hud_snd.m_activeSnd->delay, flags & sm_2D ? &Fvector().set(0, 0, 0) : &Fvector().set(position.x, position.y, position.z), nullptr, nullptr, nullptr);
     }
 
     hud_snd.m_activeSnd->snd.set_volume(hud_snd.m_activeSnd->volume * (b_hud_mode ? psHUDSoundVolume : 1.0f));
@@ -142,8 +135,7 @@ HUD_SOUND_ITEM* HUD_SOUND_COLLECTION::FindSoundItem(LPCSTR alias, bool b_assert)
     return nullptr;
 }
 
-void HUD_SOUND_COLLECTION::PlaySound(
-    LPCSTR alias, const Fvector& position, const IGameObject* parent, bool hud_mode, bool looped, u8 index)
+void HUD_SOUND_COLLECTION::PlaySound(LPCSTR alias, const Fvector& position, const IGameObject* parent, bool hud_mode, bool looped, u8 index)
 {
     for (auto& sound_item : m_sound_items)
         if (sound_item.m_b_exclusive)
@@ -218,8 +210,7 @@ void HUD_SOUND_COLLECTION_LAYERED::SetPosition(pcstr alias, const Fvector& pos)
             sound_item.SetPosition(alias, pos);
 }
 
-void HUD_SOUND_COLLECTION_LAYERED::PlaySound(pcstr alias, const Fvector& position, const IGameObject* parent,
-                                             bool hud_mode, bool looped, u8 index)
+void HUD_SOUND_COLLECTION_LAYERED::PlaySound(pcstr alias, const Fvector& position, const IGameObject* parent, bool hud_mode, bool looped, u8 index)
 {
     for (auto& sound_item : m_sound_items)
         if (sound_item.m_alias == alias)
@@ -269,8 +260,7 @@ void HUD_SOUND_COLLECTION_LAYERED::LoadSound(pcstr section, pcstr line, pcstr al
     }
 }
 
-void HUD_SOUND_COLLECTION_LAYERED::LoadSound(CInifile const* ini, pcstr section, pcstr line, pcstr alias,
-                                             bool exclusive, int type)
+void HUD_SOUND_COLLECTION_LAYERED::LoadSound(CInifile const* ini, pcstr section, pcstr line, pcstr alias, bool exclusive, int type)
 {
     pcstr str = ini->r_string(section, line);
     string256 buf_str;

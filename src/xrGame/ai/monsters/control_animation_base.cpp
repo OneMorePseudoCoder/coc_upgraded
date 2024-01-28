@@ -15,9 +15,7 @@
 #include "xrGame/actor.h"
 
 // DEBUG purpose only
-constexpr pcstr dbg_action_name_table[] = {"ACT_STAND_IDLE", "ACT_SIT_IDLE", "ACT_LIE_IDLE", "ACT_WALK_FWD", "ACT_WALK_BKWD",
-    "ACT_RUN", "ACT_EAT", "ACT_SLEEP", "ACT_REST", "ACT_DRAG", "ACT_ATTACK", "ACT_STEAL", "ACT_LOOK_AROUND",
-    "ACT_JUMP"};
+constexpr pcstr dbg_action_name_table[] = {"ACT_STAND_IDLE", "ACT_SIT_IDLE", "ACT_LIE_IDLE", "ACT_WALK_FWD", "ACT_WALK_BKWD", "ACT_RUN", "ACT_EAT", "ACT_SLEEP", "ACT_REST", "ACT_DRAG", "ACT_ATTACK", "ACT_STEAL", "ACT_LOOK_AROUND", "ACT_JUMP"};
 
 void SCurrentAnimationInfo::set_motion(EMotionAnim new_motion) { motion = new_motion; }
 CControlAnimationBase::CControlAnimationBase()
@@ -222,8 +220,7 @@ void CControlAnimationBase::select_animation(bool anim_end)
 
     // установить анимацию
     string128 s1, s2;
-    MotionID cur_anim = smart_cast<IKinematicsAnimated*>(
-        m_object->Visual())->ID_Cycle_Safe(strconcat(sizeof(s2), s2, *anim_it->target_name, xr_itoa(index, s1, 10)));
+    MotionID cur_anim = smart_cast<IKinematicsAnimated*>(m_object->Visual())->ID_Cycle_Safe(strconcat(sizeof(s2), s2, *anim_it->target_name, xr_itoa(index, s1, 10)));
     if (!cur_anim.valid())
         FATAL(s2);
 
@@ -235,7 +232,6 @@ void CControlAnimationBase::select_animation(bool anim_end)
     // Заполнить текущую анимацию
     string64 st, tmp;
     strconcat(sizeof(st), st, *anim_it->target_name, xr_itoa(index, tmp, 10));
-    //	xr_sprintf		(st, "%s%d", *anim_it->second.target_name, index);
     m_cur_anim.name = st;
     m_cur_anim.index = u8(index);
     m_cur_anim.time_started = Device.dwTimeGlobal;
@@ -266,8 +262,6 @@ bool CControlAnimationBase::CheckTransition(EMotionAnim from, EMotionAnim to)
 
         if (from_is_good && target_is_good)
         {
-            // if (I->skip_if_aggressive && m_object->m_bAggressive) return;
-
             // переход годится
             if (!b_activated)
             {
@@ -388,10 +382,10 @@ bool CControlAnimationBase::IsTurningCurAnim()
 {
     SAnimItem* item_it = m_anim_storage[cur_anim_info().get_motion()];
     VERIFY2(item_it, make_string("animation not found in m_anim_storage!"));
-    ;
 
     if (!fis_zero(item_it->velocity.velocity.angular_real))
         return true;
+
     return false;
 }
 
@@ -399,10 +393,10 @@ bool CControlAnimationBase::IsStandCurAnim()
 {
     SAnimItem* item_it = m_anim_storage[cur_anim_info().get_motion()];
     VERIFY2(item_it, make_string("animation not found in m_anim_storage!"));
-    ;
 
     if (fis_zero(item_it->velocity.velocity.linear))
         return true;
+
     return false;
 }
 
@@ -432,14 +426,12 @@ EAction CControlAnimationBase::GetActionFromPath()
 {
     EAction action;
 
-    u32 cur_point_velocity_index =
-        m_object->movement().detail().path()[m_object->movement().detail().curr_travel_point_index()].velocity;
+    u32 cur_point_velocity_index = m_object->movement().detail().path()[m_object->movement().detail().curr_travel_point_index()].velocity;
     action = VelocityIndex2Action(cur_point_velocity_index);
 
     u32 next_point_velocity_index = u32(-1);
     if (m_object->movement().detail().path().size() > m_object->movement().detail().curr_travel_point_index() + 1)
-        next_point_velocity_index =
-            m_object->movement().detail().path()[m_object->movement().detail().curr_travel_point_index() + 1].velocity;
+        next_point_velocity_index = m_object->movement().detail().path()[m_object->movement().detail().curr_travel_point_index() + 1].velocity;
 
     if ((cur_point_velocity_index == MonsterMovement::eVelocityParameterStand) &&
         (next_point_velocity_index != u32(-1)))
@@ -458,7 +450,6 @@ LPCSTR CControlAnimationBase::GetAnimationName(EMotionAnim anim)
 {
     SAnimItem* item_it = m_anim_storage[anim];
     VERIFY2(item_it, make_string("animation not found in m_anim_storage!"));
-    ;
 
     return *item_it->target_name;
 }
@@ -492,8 +483,7 @@ void CControlAnimationBase::ValidateAnimation()
         return;
     }
 
-    if (!m_object->control().direction().is_turning() &&
-        ((cur_anim_info().get_motion() == eAnimStandTurnLeft) || (cur_anim_info().get_motion() == eAnimStandTurnRight)))
+    if (!m_object->control().direction().is_turning() && ((cur_anim_info().get_motion() == eAnimStandTurnLeft) || (cur_anim_info().get_motion() == eAnimStandTurnRight)))
     {
         cur_anim_info().set_motion(eAnimStandIdle);
         return;
@@ -547,8 +537,7 @@ CMotionDef* CControlAnimationBase::get_motion_def(SAnimItem* it, u32 index)
 {
     string128 s1, s2;
     IKinematicsAnimated* skeleton_animated = smart_cast<IKinematicsAnimated*>(m_object->Visual());
-    const MotionID& motion_id =
-        skeleton_animated->ID_Cycle_Safe(strconcat(sizeof(s2), s2, *it->target_name, xr_itoa(index, s1, 10)));
+    const MotionID& motion_id = skeleton_animated->ID_Cycle_Safe(strconcat(sizeof(s2), s2, *it->target_name, xr_itoa(index, s1, 10)));
     return (skeleton_animated->LL_GetMotionDef(motion_id));
 }
 
@@ -556,6 +545,7 @@ void CControlAnimationBase::AddAnimTranslation(const MotionID& motion, LPCSTR st
 {
     m_anim_motion_map.insert(std::make_pair(motion, str));
 }
+
 shared_str CControlAnimationBase::GetAnimTranslation(const MotionID& motion)
 {
     shared_str ret_value;
@@ -586,14 +576,12 @@ MotionID CControlAnimationBase::get_motion_id(EMotionAnim a, u32 index)
     }
 
     string128 s1, s2;
-    return (smart_cast<IKinematicsAnimated*>(m_object->Visual())
-                ->ID_Cycle_Safe(strconcat(sizeof(s2), s2, *anim_it->target_name, xr_itoa(index, s1, 10))));
+    return (smart_cast<IKinematicsAnimated*>(m_object->Visual())->ID_Cycle_Safe(strconcat(sizeof(s2), s2, *anim_it->target_name, xr_itoa(index, s1, 10))));
 }
 
 void CControlAnimationBase::stop_now()
 {
     m_object->move().stop();
-    //	m_object->path().disable_path	();
 }
 
 void CControlAnimationBase::set_animation_speed()
@@ -612,30 +600,31 @@ class ray_query_param
         const CEntityAlive* m_enemy;
         bool m_can_hit_enemy;
 
-    IC ray_query_param( const CBaseMonster* holder, const CEntityAlive* enemy )
+    IC ray_query_param(const CBaseMonster* holder, const CEntityAlive* enemy)
     {
         m_holder = holder;
-        m_enemy  = enemy;
+        m_enemy = enemy;
         m_can_hit_enemy = false;
     }
 };
 
-ICF static BOOL check_hit_trace_callback( collide::rq_result& result, LPVOID params )
+ICF static BOOL check_hit_trace_callback(collide::rq_result& result, LPVOID params)
 {
     ray_query_param* param = (ray_query_param*)params;
-    if ( result.O )
+    if (result.O)
     {
-        const CBaseMonster* monster      = smart_cast<const CBaseMonster*>( result.O );
-        const CEntityAlive* entity_alive = smart_cast<const CEntityAlive*>( result.O );
-        if ( monster == param->m_holder ) return TRUE;
-        else if ( entity_alive == param->m_enemy )
+        const CBaseMonster* monster = smart_cast<const CBaseMonster*>(result.O);
+        const CEntityAlive* entity_alive = smart_cast<const CEntityAlive*>(result.O);
+        if (monster == param->m_holder)
+			return TRUE;
+        else if (entity_alive == param->m_enemy)
            param->m_can_hit_enemy = true;
     }
     else
     {
         // получить треугольник и узнать его материал 
         CDB::TRI* T = Level().ObjectSpace.GetStaticTris() + result.element;
-        if ( GMLib.GetMaterialByIdx( T->material) ->Flags.is( SGameMtl::flPassable ) )
+        if (GMLib.GetMaterialByIdx( T->material) ->Flags.is( SGameMtl::flPassable))
             return TRUE;
     }
     return FALSE;
@@ -645,6 +634,7 @@ void CControlAnimationBase::check_hit(MotionID motion, float time_perc)
 {
     if (!m_object->EnemyMan.get_enemy())
         return;
+
     const CEntityAlive* enemy = m_object->EnemyMan.get_enemy();
 
     SAAParam& params = AA_GetParams(motion, time_perc);
@@ -677,20 +667,20 @@ void CControlAnimationBase::check_hit(MotionID motion, float time_perc)
     if (!is_angle_between(p, from, to))
         should_hit = false;
     
-    const CActor *pA = smart_cast<const CActor*>( enemy );
-    if ( should_hit && pA )
+    const CActor *pA = smart_cast<const CActor*>(enemy);
+    if (should_hit && pA)
     {
         Fvector C, enemy_center;
-        m_object->Center( C );
-        enemy->Center( enemy_center );
+        m_object->Center(C);
+        enemy->Center(enemy_center);
         Fvector dir;
-        dir.sub( enemy_center, C );
+        dir.sub(enemy_center, C);
         dir.normalize();
         collide::rq_results RQR;
-        collide::ray_defs RD( C, dir, params.dist, CDB::OPT_CULL, collide::rqtBoth );
-        ray_query_param params( m_object, enemy );
-        Level().ObjectSpace.RayQuery( RQR, RD, check_hit_trace_callback, &params, NULL, m_object );
-            should_hit = params.m_can_hit_enemy;
+        collide::ray_defs RD(C, dir, params.dist, CDB::OPT_CULL, collide::rqtBoth);
+        ray_query_param params(m_object, enemy);
+        Level().ObjectSpace.RayQuery(RQR, RD, check_hit_trace_callback, &params, NULL, m_object);
+		should_hit = params.m_can_hit_enemy;
     }
 
     if (should_hit)

@@ -996,7 +996,7 @@ bool CWeapon::Action(u16 cmd, u32 flags)
 
     case kWPN_ZOOM_INC:
     case kWPN_ZOOM_DEC:
-        if (IsZoomEnabled() && IsZoomed() && (flags&CMD_START) )
+        if (IsZoomEnabled() && IsZoomed() && (flags&CMD_START))
         {
             if (g_invert_zoom == 0)
             {

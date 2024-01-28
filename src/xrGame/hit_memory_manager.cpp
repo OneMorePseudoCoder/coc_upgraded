@@ -138,9 +138,7 @@ void CHitMemoryManager::add(float amount, const Fvector& vLocalDir, const IGameO
     }
     else
     {
-        (*J).fill(entity_alive, m_object,
-            (!m_stalker ? (*J).m_squad_mask.get() :
-                          ((*J).m_squad_mask.get() | m_stalker->agent_manager().member().mask(m_stalker))));
+        (*J).fill(entity_alive, m_object, (!m_stalker ? (*J).m_squad_mask.get() : ((*J).m_squad_mask.get() | m_stalker->agent_manager().member().mask(m_stalker))));
         (*J).m_amount = _max(amount, (*J).m_amount);
     }
 }
@@ -157,7 +155,7 @@ void CHitMemoryManager::add(const CHitObject& _hit_object)
         return;
 
     CHitObject hit_object = _hit_object;
-    hit_object.m_squad_mask.set(m_stalker->agent_manager().member().mask(m_stalker), TRUE);
+    hit_object.m_squad_mask.set(!m_stalker ? squad_mask_type(-1) : m_stalker->agent_manager().member().mask(m_stalker), TRUE);
 
     const CEntityAlive* entity_alive = hit_object.m_object;
     HITS::iterator J = std::find(m_hits->begin(), m_hits->end(), object_id(entity_alive));

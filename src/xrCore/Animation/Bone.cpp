@@ -30,8 +30,7 @@ bool SBoneShape::Valid()
         return !fis_zero(box.m_halfsize.x) && !fis_zero(box.m_halfsize.y) && !fis_zero(box.m_halfsize.z);
     case stSphere: return !fis_zero(sphere.R);
     case stCylinder:
-        return !fis_zero(cylinder.m_height) && !fis_zero(cylinder.m_radius) &&
-            !fis_zero(cylinder.m_direction.square_magnitude());
+        return !fis_zero(cylinder.m_height) && !fis_zero(cylinder.m_radius) && !fis_zero(cylinder.m_direction.square_magnitude());
     default:
         return true;
     }
@@ -42,17 +41,11 @@ void SJointIKData::Export(IWriter& F)
     F.w_u32(type);
     for (int k = 0; k < 3; k++)
     {
-        // Kostya Slipchenko say:
-        // направление вращения в ОДЕ отличается от направления вращение в X-Ray
-        // поэтому меняем знак у лимитов
-        // F.w_float (std::min(-limits[k].limit.x,-limits[k].limit.y)); // min (swap special for ODE)
-        // F.w_float (std::max(-limits[k].limit.x,-limits[k].limit.y)); // max (swap special for ODE)
-
         VERIFY(std::min(-limits[k].limit.x, -limits[k].limit.y) == -limits[k].limit.y);
         VERIFY(std::max(-limits[k].limit.x, -limits[k].limit.y) == -limits[k].limit.x);
 
-        F.w_float(-limits[k].limit.y); // min (swap special for ODE)
-        F.w_float(-limits[k].limit.x); // max (swap special for ODE)
+        F.w_float(-limits[k].limit.y);
+        F.w_float(-limits[k].limit.x);
 
         F.w_float(limits[k].spring_factor);
         F.w_float(limits[k].damping_factor);
@@ -260,6 +253,7 @@ void CBoneInstance::set_param(u32 idx, float data)
     VERIFY(idx < MAX_BONE_PARAMS);
     param[idx] = data;
 }
+
 float CBoneInstance::get_param(u32 idx)
 {
     VERIFY(idx < MAX_BONE_PARAMS);

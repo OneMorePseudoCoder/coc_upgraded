@@ -22,7 +22,6 @@ CUIMessagesWindow::CUIMessagesWindow() : m_pChatLog(NULL), m_pChatWnd(NULL), m_p
 }
 
 CUIMessagesWindow::~CUIMessagesWindow() {}
-void CUIMessagesWindow::AddLogMessage(KillMessageStruct& msg) { m_pGameLog->AddLogMessage(msg); }
 void CUIMessagesWindow::AddLogMessage(const shared_str& msg) { m_pGameLog->AddLogMessage(*msg); }
 void CUIMessagesWindow::PendingMode(bool const is_pending_mode)
 {
@@ -58,8 +57,7 @@ void CUIMessagesWindow::AddIconedPdaMessage(GAME_NEWS_DATA* news)
 {
     CUIPdaMsgListItem* pItem = m_pGameLog->AddPdaMessage();
 
-    LPCSTR time_str =
-        InventoryUtilities::GetTimeAsString(news->receive_time, InventoryUtilities::etpTimeToMinutes).c_str();
+    LPCSTR time_str = InventoryUtilities::GetTimeAsString(news->receive_time, InventoryUtilities::etpTimeToMinutes).c_str();
     pItem->UITimeText.SetText(time_str);
     pItem->UITimeText.AdjustWidthToText();
     Fvector2 p = pItem->UICaptionText.GetWndPos();
@@ -69,19 +67,13 @@ void CUIMessagesWindow::AddIconedPdaMessage(GAME_NEWS_DATA* news)
     pItem->UIMsgText.SetTextST(news->news_text.c_str());
     pItem->UIMsgText.AdjustHeightToText();
 
-    pItem->SetColorAnimation(
-        "ui_main_msgs_short", LA_ONLYALPHA | LA_TEXTCOLOR | LA_TEXTURECOLOR, float(news->show_time));
+    pItem->SetColorAnimation("ui_main_msgs_short", LA_ONLYALPHA | LA_TEXTCOLOR | LA_TEXTURECOLOR, float(news->show_time));
     pItem->UIIcon.InitTexture(news->texture_name.c_str());
 
     float h1 = _max(pItem->UIIcon.GetHeight(), pItem->UIMsgText.GetWndPos().y + pItem->UIMsgText.GetHeight());
     pItem->SetHeight(h1 + 3.0f);
 
     m_pGameLog->SendMessage(pItem, CHILD_CHANGED_SIZE);
-}
-
-void CUIMessagesWindow::AddChatMessage(shared_str msg, shared_str author)
-{
-
 }
 
 void CUIMessagesWindow::Show(bool show)

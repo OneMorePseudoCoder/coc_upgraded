@@ -35,14 +35,13 @@ using namespace ALife;
 
 extern string_path g_last_saved_game;
 
-CALifeStorageManager::~CALifeStorageManager() { *g_last_saved_game = 0; }
+CALifeStorageManager::~CALifeStorageManager() {}
 void CALifeStorageManager::save(LPCSTR save_name_no_check, bool update_name)
 {
     LPCSTR game_saves_path = FS.get_path("$game_saves$")->m_Path;
 
     string_path save_name;
-    strncpy_s(save_name, sizeof(save_name), save_name_no_check,
-        sizeof(save_name) - 5 - xr_strlen(SAVE_EXTENSION) - xr_strlen(game_saves_path));
+    strncpy_s(save_name, sizeof(save_name), save_name_no_check, sizeof(save_name) - 5 - xr_strlen(SAVE_EXTENSION) - xr_strlen(game_saves_path));
 
     xr_strcpy(g_last_saved_game, save_name);
 
@@ -196,12 +195,10 @@ bool CALifeStorageManager::load(LPCSTR save_name_no_check)
         return (false);
     }
 
-    CHECK_OR_EXIT(CSavedGameWrapper::valid_saved_game(*stream),
-        make_string("%s\nSaved game version mismatch or saved game is corrupted", file_name));
+    CHECK_OR_EXIT(CSavedGameWrapper::valid_saved_game(*stream), make_string("%s\nSaved game version mismatch or saved game is corrupted", file_name));
 
     string512 temp;
-    strconcat(sizeof(temp), temp, StringTable().translate("st_loading_saved_game").c_str(),
-        "\"", save_name,SAVE_EXTENSION, "\"");
+    strconcat(sizeof(temp), temp, StringTable().translate("st_loading_saved_game").c_str(), "\"", save_name,SAVE_EXTENSION, "\"");
 
     g_pGamePersistent->SetLoadStageTitle(temp);
     g_pGamePersistent->LoadTitle();

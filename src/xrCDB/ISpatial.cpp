@@ -14,8 +14,7 @@
 ISpatial_DB* g_SpatialSpace = NULL;
 ISpatial_DB* g_SpatialSpacePhysic = NULL;
 
-Fvector c_spatial_offset[8] = {
-    {-1, -1, -1}, {1, -1, -1}, {-1, 1, -1}, {1, 1, -1}, {-1, -1, 1}, {1, -1, 1}, {-1, 1, 1}, {1, 1, 1}};
+Fvector c_spatial_offset[8] = {{-1, -1, -1}, {1, -1, -1}, {-1, 1, -1}, {1, 1, -1}, {-1, -1, 1}, {1, -1, 1}, {-1, 1, 1}, {1, 1, 1}};
 
 //////////////////////////////////////////////////////////////////////////
 SpatialBase::SpatialBase(ISpatial_DB* space)
@@ -28,6 +27,7 @@ SpatialBase::SpatialBase(ISpatial_DB* space)
     spatial.sector = NULL;
     spatial.space = space;
 }
+
 SpatialBase::~SpatialBase(void) { spatial_unregister(); }
 bool SpatialBase::spatial_inside()
 {
@@ -68,11 +68,7 @@ BOOL verify_sp(ISpatial* sp, Fvector& node_center, float node_radius)
 void SpatialBase::spatial_register()
 {
     spatial.type |= STYPEFLAG_INVALIDSECTOR;
-    if (spatial.node_ptr)
-    {
-        // already registered - nothing to do
-    }
-    else
+    if (!spatial.node_ptr)
     {
         // register
         R_ASSERT(spatial.space);
@@ -90,10 +86,6 @@ void SpatialBase::spatial_unregister()
         spatial.node_ptr = NULL;
         spatial.sector = NULL;
     }
-    else
-    {
-        // already unregistered
-    }
 }
 
 void SpatialBase::spatial_move()
@@ -109,11 +101,6 @@ void SpatialBase::spatial_move()
         spatial.space->remove(this);
         spatial.space->insert(this);
     }
-    else
-    {
-        //*** we are not registered yet, or already unregistered
-        //*** ignore request
-    }
 }
 
 void SpatialBase::spatial_updatesector_internal()
@@ -128,8 +115,7 @@ void SpatialBase::spatial_updatesector_internal()
 void ISpatial_NODE::_init(ISpatial_NODE* _parent)
 {
     parent = _parent;
-    children[0] = children[1] = children[2] = children[3] = children[4] = children[5] = children[6] = children[7] =
-        NULL;
+    children[0] = children[1] = children[2] = children[3] = children[4] = children[5] = children[6] = children[7] = NULL;
     items.clear();
 }
 
@@ -187,9 +173,6 @@ void ISpatial_DB::initialize(Fbox& BB)
         Fvector bbc, bbd;
         BB.get_CD(bbc, bbd);
 
-        bbc.set(0, 0, 0); // generic
-        bbd.set(1024, 1024, 1024); // generic
-
         allocator_pool.reserve(128);
         m_center.set(bbc);
         m_bounds = _max(_max(bbd.x, bbd.y), bbd.z);
@@ -199,6 +182,7 @@ void ISpatial_DB::initialize(Fbox& BB)
         m_root->_init(NULL);
     }
 }
+
 ISpatial_NODE* ISpatial_DB::_node_create()
 {
     Stats.NodeCount++;
@@ -211,6 +195,7 @@ ISpatial_NODE* ISpatial_DB::_node_create()
         return N;
     }
 }
+
 void ISpatial_DB::_node_destroy(ISpatial_NODE*& P)
 {
     VERIFY(P->_empty());
@@ -285,11 +270,9 @@ void ISpatial_DB::insert(ISpatial* S)
         {
             CPS_Instance* P = dynamic_cast<CPS_Instance*>(S);
             if (P)
-                xrDebug::Fatal(DEBUG_INFO, "Invalid PS spatial position{%3.2f,%3.2f,%3.2f} or radius{%3.2f}",
-                    VPUSH(S->GetSpatialData().sphere.P), S->GetSpatialData().sphere.R);
+                xrDebug::Fatal(DEBUG_INFO, "Invalid PS spatial position{%3.2f,%3.2f,%3.2f} or radius{%3.2f}", VPUSH(S->GetSpatialData().sphere.P), S->GetSpatialData().sphere.R);
             else
-                xrDebug::Fatal(DEBUG_INFO, "Invalid OTHER spatial position{%3.2f,%3.2f,%3.2f} or radius{%3.2f}",
-                    VPUSH(S->GetSpatialData().sphere.P), S->GetSpatialData().sphere.R);
+                xrDebug::Fatal(DEBUG_INFO, "Invalid OTHER spatial position{%3.2f,%3.2f,%3.2f} or radius{%3.2f}", VPUSH(S->GetSpatialData().sphere.P), S->GetSpatialData().sphere.R);
         }
     }
 #endif

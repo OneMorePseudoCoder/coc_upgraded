@@ -20,7 +20,6 @@
 
 const float right_forward_angle = PI_DIV_4;
 const float left_forward_angle = PI_DIV_4;
-// const float standing_turn_angle			= PI_DIV_6;
 const float epsilon = EPS_L;
 
 const u32 direction_switch_interval = 500;
@@ -149,17 +148,13 @@ MotionID CStalkerAnimationManager::legs_move_animation()
             return (m_data_storage->m_part_animations.A[eBodyStateStand].m_movement.A[2].A[4].A[0]);
 #endif
 
-        return (m_data_storage->m_part_animations.A[body_state()]
-                    .m_movement.A[movement.movement_type()]
-                    .A[eMovementDirectionForward]
-                    .A[1]);
+        return (m_data_storage->m_part_animations.A[body_state()].m_movement.A[movement.movement_type()].A[eMovementDirectionForward].A[1]);
     }
 
     float yaw, pitch;
     object().sight().GetDirectionAngles(yaw, pitch);
 
     yaw = angle_normalize_signed(-yaw);
-    ;
     legs_process_direction(yaw);
 
     float body_current = movement.body_orientation().current.yaw;
@@ -208,10 +203,7 @@ MotionID CStalkerAnimationManager::legs_move_animation()
     m_target_speed = movement.speed(speed_direction);
     m_last_non_zero_speed = m_target_speed;
 
-    return (m_data_storage->m_part_animations.A[body_state()]
-                .m_movement.A[movement.movement_type()]
-                .A[speed_direction]
-                .A[0]);
+    return (m_data_storage->m_part_animations.A[body_state()].m_movement.A[movement.movement_type()].A[speed_direction].A[0]);
 }
 
 MotionID CStalkerAnimationManager::legs_no_move_animation()
@@ -239,7 +231,6 @@ MotionID CStalkerAnimationManager::legs_no_move_animation()
     float target = body_orientation.target.yaw;
     if (angle_difference(target, current) < EPS_L)
     {
-        //		float					head_current = movement.head_orientation().current.yaw;
         if ((movement.mental_state() != eMentalStateFree) || !object().sight().turning_in_place())
         {
             if (movement.mental_state() == eMentalStateFree)

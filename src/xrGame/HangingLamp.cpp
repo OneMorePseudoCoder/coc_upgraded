@@ -76,9 +76,6 @@ BOOL CHangingLamp::net_Spawn(CSE_Abstract* DC)
     inherited::net_Spawn(DC);
     Fcolor clr;
 
-    // set bone id
-    //	CInifile* pUserData		= K->LL_UserData();
-    //	R_ASSERT3				(pUserData,"Empty HangingLamp user data!",lamp->get_visual());
     xr_delete(CForm);
     if (Visual())
     {
@@ -98,8 +95,7 @@ BOOL CHangingLamp::net_Spawn(CSE_Abstract* DC)
     light_render = GEnv.Render->light_create();
     light_render->set_shadow(!!lamp->flags.is(CSE_ALifeObjectHangingLamp::flCastShadow));
     light_render->set_volumetric(!!lamp->flags.is(CSE_ALifeObjectHangingLamp::flVolumetric));
-    light_render->set_type(
-        lamp->flags.is(CSE_ALifeObjectHangingLamp::flTypeSpot) ? IRender_Light::SPOT : IRender_Light::POINT);
+    light_render->set_type(lamp->flags.is(CSE_ALifeObjectHangingLamp::flTypeSpot) ? IRender_Light::SPOT : IRender_Light::POINT);
     light_render->set_range(lamp->range);
 	light_render->set_virtual_size(lamp->m_virtual_size);
     light_render->set_color(clr);
@@ -137,15 +133,16 @@ BOOL CHangingLamp::net_Spawn(CSE_Abstract* DC)
     CPHSkeleton::Spawn(e);
     if (smart_cast<IKinematicsAnimated*>(Visual()))
         smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle("idle");
+
     if (smart_cast<IKinematics*>(Visual()))
     {
         smart_cast<IKinematics*>(Visual())->CalculateBones_Invalidate();
         smart_cast<IKinematics*>(Visual())->CalculateBones(TRUE);
-        //.intepolate_pos
+
     }
     if (lamp->flags.is(CSE_ALifeObjectHangingLamp::flPhysic) && !Visual())
         Msg("! WARNING: lamp, obj name [%s],flag physics set, but has no visual", *cName());
-    //.	if (lamp->flags.is(CSE_ALifeObjectHangingLamp::flPhysic)&&Visual()&&!guid_physic_bone)	fHealth=0.f;
+
     if (Alive() && m_bState)
         TurnOn();
     else
@@ -165,11 +162,11 @@ void CHangingLamp::SpawnInitPhysics(CSE_Abstract* D)
     CSE_ALifeObjectHangingLamp* lamp = smart_cast<CSE_ALifeObjectHangingLamp*>(D);
     if (lamp->flags.is(CSE_ALifeObjectHangingLamp::flPhysic))
         CreateBody(lamp);
+
     if (smart_cast<IKinematics*>(Visual()))
     {
         smart_cast<IKinematics*>(Visual())->CalculateBones_Invalidate();
         smart_cast<IKinematics*>(Visual())->CalculateBones(TRUE);
-        //.intepolate_pos
     }
 }
 
@@ -317,21 +314,16 @@ void CHangingLamp::TurnOff()
         IKinematics* K = smart_cast<IKinematics*>(Visual());
         VERIFY(K);
         K->LL_SetBoneVisible(light_bone, FALSE, TRUE);
-        VERIFY2(K->LL_GetBonesVisible() != 0,
-            make_string("can not Turn Off lamp: %s, visual %s - because all bones become invisible",
-                cNameVisual().c_str(), cName().c_str()));
+        VERIFY2(K->LL_GetBonesVisible() != 0, make_string("can not Turn Off lamp: %s, visual %s - because all bones become invisible", cNameVisual().c_str(), cName().c_str()));
     }
     processing_deactivate();
     m_bState = 0;
 }
 
-// void CHangingLamp::Hit(float P,Fvector &dir, IGameObject* who,s16 element,
-//					   Fvector p_in_object_space, float impulse, ALife::EHitType hit_type)
 void CHangingLamp::Hit(SHit* pHDS)
 {
     SHit HDS = *pHDS;
-    callback(GameObject::eHit)(
-        lua_game_object(), HDS.power, HDS.dir, smart_cast<const CGameObject*>(HDS.who)->lua_game_object(), HDS.bone());
+    callback(GameObject::eHit)(lua_game_object(), HDS.power, HDS.dir, smart_cast<const CGameObject*>(HDS.who)->lua_game_object(), HDS.bone());
     BOOL bWasAlive = Alive();
 
     if (m_pPhysicsShell)
@@ -382,16 +374,14 @@ void CHangingLamp::CreateBody(CSE_ALifeObjectHangingLamp* lamp)
     m_pPhysicsShell->build_FromKinematics(pKinematics, &bone_map);
     m_pPhysicsShell->set_PhysicsRefObject(this);
     m_pPhysicsShell->mXFORM.set(XFORM());
-    m_pPhysicsShell->Activate(true); //,
-    // m_pPhysicsShell->SmoothElementsInertia(0.3f);
-    m_pPhysicsShell->SetAirResistance(); // 0.0014f,1.5f
+    m_pPhysicsShell->Activate(true);
+    m_pPhysicsShell->SetAirResistance();
 
     /////////////////////////////////////////////////////////////////////////////
     auto i = bone_map.begin(), e = bone_map.end();
     for (; i != e; i++)
     {
         CPhysicsElement* fixed_element = i->second.element;
-        /// R_ASSERT2(fixed_element,"fixed bone has no physics");
         if (fixed_element)
             fixed_element->Fix();
     }

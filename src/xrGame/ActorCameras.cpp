@@ -323,8 +323,7 @@ void CActor::cam_Update(float dt, float fFOV)
     float flCurrentPlayerY = xform.c.y;
 
     // Smooth out stair step ups
-    if ((character_physics_support()->movement()->Environment() == CPHMovementControl::peOnGround) &&
-        (flCurrentPlayerY - fPrevCamPos > 0))
+    if ((character_physics_support()->movement()->Environment() == CPHMovementControl::peOnGround) && (flCurrentPlayerY - fPrevCamPos > 0))
     {
         fPrevCamPos += dt * 1.5f;
         if (fPrevCamPos > flCurrentPlayerY)
@@ -347,27 +346,12 @@ void CActor::cam_Update(float dt, float fFOV)
     C->Update(point, dangle);
     C->f_fov = fFOV;
 
-    //Alun: for third person zoom to first person
-    /*
-    if (eacFirstEye != cam_active)
-    {
-        cameras[eacFirstEye]->Update(point, dangle);
-        cameras[eacFirstEye]->f_fov = fFOV;
-    }
-    */
-
     if (Level().CurrentEntity() == this)
     {
         collide_camera(*cameras[eacFirstEye], _viewport_near, this);
     }
-    if (psActorFlags.test(AF_PSP))
-    {
-        Cameras().UpdateFromCamera(C);
-    }
-    else
-    {
-        Cameras().UpdateFromCamera(cameras[eacFirstEye]);
-    }
+
+	Cameras().UpdateFromCamera(C);
 
     fCurAVelocity = vPrevCamDir.sub(cameras[eacFirstEye]->vDirection).magnitude() / Device.fTimeDelta;
     vPrevCamDir = cameras[eacFirstEye]->vDirection;
@@ -395,11 +379,12 @@ void CActor::update_camera(CCameraShotEffector* effector)
 {
     if (!effector)
         return;
-    //	if (Level().CurrentViewEntity() != this) return;
 
-    CCameraBase* pACam = cam_Active();
-    if (!pACam)
-        return;
+	CCameraBase* pACam = NULL;
+	if (eacLookAt == cam_active)
+		pACam = cam_Active();
+	else
+		pACam = cam_FirstEye();
 
     if (pACam->bClampPitch)
     {

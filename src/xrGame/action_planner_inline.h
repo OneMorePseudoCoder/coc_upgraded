@@ -62,8 +62,7 @@ void CPlanner::update()
         {
             show_current_world_state();
             show_target_world_state();
-            Msg("%6d : Solution for object %s [%d vertices searched]", Device.dwTimeGlobal, object_name(),
-                ai().graph_engine().solver_algorithm().data_storage().get_visited_node_count());
+            Msg("%6d : Solution for object %s [%d vertices searched]", Device.dwTimeGlobal, object_name(), ai().graph_engine().solver_algorithm().data_storage().get_visited_node_count());
             for (int i = 0; i < (int)this->solution().size(); ++i)
                 Msg("%s", action2string(this->solution()[i]));
         }
@@ -82,9 +81,6 @@ void CPlanner::update()
 
         show_current_world_state();
         show_target_world_state();
-        //		VERIFY2						(!this->m_failed,"Problem solver couldn't build a valid path - verify your
-        //conditions,
-        // effects and goals!");
     }
 #endif
 
@@ -162,8 +158,7 @@ TEMPLATE_SPECIALIZATION
 IC void CPlanner::add_condition(_world_operator* action, _condition_type condition_id, _value_type condition_value)
 {
 #ifdef DEBUG
-    VERIFY2(!m_solving, make_string("do not change preconditions during planner update, object %s, id[%d]",
-                            object_name(), condition_id));
+    VERIFY2(!m_solving, make_string("do not change preconditions during planner update, object %s, id[%d]", object_name(), condition_id));
 #endif
     action->add_condition(CWorldProperty(condition_id, condition_value));
 }
@@ -195,8 +190,7 @@ TEMPLATE_SPECIALIZATION
 IC void CPlanner::add_operator(const _edge_type& operator_id, _operator_ptr _operator)
 {
 #ifdef DEBUG
-    VERIFY2(!m_solving,
-        make_string("do not add operators during planner update, object %s, id[%d]", object_name(), operator_id));
+    VERIFY2(!m_solving, make_string("do not add operators during planner update, object %s, id[%d]", object_name(), operator_id));
 #endif
     inherited::add_operator(operator_id, _operator);
     _operator->setup(m_object, &m_storage);
@@ -209,8 +203,7 @@ TEMPLATE_SPECIALIZATION
 IC void CPlanner::remove_operator(const _edge_type& operator_id)
 {
 #ifdef DEBUG
-    VERIFY2(!m_solving,
-        make_string("do not remove operators during planner update, object %s, id[%d]", object_name(), operator_id));
+    VERIFY2(!m_solving, make_string("do not remove operators during planner update, object %s, id[%d]", object_name(), operator_id));
 #endif
     inherited::remove_operator(operator_id);
 }
@@ -219,8 +212,7 @@ TEMPLATE_SPECIALIZATION
 IC void CPlanner::add_evaluator(const _condition_type& condition_id, _condition_evaluator_ptr evaluator)
 {
 #ifdef DEBUG
-    VERIFY2(!m_solving,
-        make_string("do not add evaluators during planner update, object %s, id[%d]", object_name(), condition_id));
+    VERIFY2(!m_solving, make_string("do not add evaluators during planner update, object %s, id[%d]", object_name(), condition_id));
 #endif
     inherited::add_evaluator(condition_id, evaluator);
     evaluator->setup(m_object, &m_storage);
@@ -230,8 +222,7 @@ TEMPLATE_SPECIALIZATION
 IC void CPlanner::remove_evaluator(const _condition_type& condition_id)
 {
 #ifdef DEBUG
-    VERIFY2(!m_solving,
-        make_string("do not remove evaluators during planner update, object %s, id[%d]", object_name(), condition_id));
+    VERIFY2(!m_solving, make_string("do not remove evaluators during planner update, object %s, id[%d]", object_name(), condition_id));
 #endif
     inherited::remove_evaluator(condition_id);
 }
@@ -251,8 +242,7 @@ IC void CPlanner::show_current_world_state()
     Log("Current world state :");
     for (const auto& it : this->evaluators())
     {
-        auto J = std::lower_bound(this->current_state().conditions().cbegin(),
-            this->current_state().conditions().cend(), CWorldProperty(it.first, false));
+        auto J = std::lower_bound(this->current_state().conditions().cbegin(), this->current_state().conditions().cend(), CWorldProperty(it.first, false));
         char temp = '?';
         if ((J != this->current_state().conditions().end()) && ((*J).condition() == it.first))
         {
@@ -268,8 +258,7 @@ IC void CPlanner::show_target_world_state()
     Msg("Target world state :");
     for (const auto& it : this->evaluators())
     {
-        auto J = std::lower_bound(
-            this->target_state().conditions().cbegin(), this->target_state().conditions().cend(), CWorldProperty(it.first, false));
+        auto J = std::lower_bound(this->target_state().conditions().cbegin(), this->target_state().conditions().cend(), CWorldProperty(it.first, false));
         char temp = '?';
         if ((J != this->target_state().conditions().end()) && ((*J).condition() == it.first))
         {
@@ -295,11 +284,9 @@ IC void CPlanner::show(LPCSTR offset)
         Msg("%soperator    [%d][%s]", offset, it.m_operator_id, it.m_operator->m_action_name);
 
         for (const auto& it2 : it.m_operator->conditions().conditions())
-            Msg("%s	condition [%d][%s] = %s", offset, it2.condition(), property2string(it2.condition()),
-                it2.value() ? "TRUE" : "FALSE");
+            Msg("%s	condition [%d][%s] = %s", offset, it2.condition(), property2string(it2.condition()), it2.value() ? "TRUE" : "FALSE");
         for (const auto& it2 : it.m_operator->effects().conditions())
-            Msg("%s	effect    [%d][%s] = %s", offset, it2.condition(), property2string(it2.condition()),
-                it2.value() ? "TRUE" : "FALSE");
+            Msg("%s	effect    [%d][%s] = %s", offset, it2.condition(), property2string(it2.condition()), it2.value() ? "TRUE" : "FALSE");
 
         it.m_operator->show(temp);
         Log(" ");
@@ -333,17 +320,16 @@ IC void CPlanner::load(IReader& packet)
     for (auto& it : this->m_operators)
         it.m_operator->load(packet);
 
-    {
-        u32 count = packet.r_u32();
-        GraphEngineSpace::_solver_condition_type condition;
-        GraphEngineSpace::_solver_value_type value;
-        for (u32 i = 0; i < count; ++i)
-        {
-            packet.r(&condition, sizeof(condition));
-            packet.r(&value, sizeof(value));
-            m_storage.set_property(condition, value);
-        }
-    }
+	u32 count = packet.r_u32();
+	GraphEngineSpace::_solver_condition_type condition;
+	GraphEngineSpace::_solver_value_type value;
+	for (u32 i = 0; i < count; ++i)
+	{
+		packet.r(&condition, sizeof(condition));
+		packet.r(&value, sizeof(value));
+		m_storage.set_property(condition, value);
+	}
+
     m_loaded = true;
 }
 

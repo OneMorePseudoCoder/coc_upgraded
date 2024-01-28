@@ -13,6 +13,7 @@ static void generate_orthonormal_basis(const Fvector& dir, Fmatrix& result)
     result.k.normalize(dir);
     Fvector::generate_orthonormal_basis(result.k, result.j, result.i);
 }
+
 CParticlesPlayer::SParticlesInfo* CParticlesPlayer::SBoneInfo::FindParticles(const shared_str& ps_name)
 {
     for (auto it = particles.begin(); it != particles.end(); it++)
@@ -20,8 +21,8 @@ CParticlesPlayer::SParticlesInfo* CParticlesPlayer::SBoneInfo::FindParticles(con
             return &(*it);
     return 0;
 }
-CParticlesPlayer::SParticlesInfo* CParticlesPlayer::SBoneInfo::AppendParticles(
-    IGameObject* object, const shared_str& ps_name)
+
+CParticlesPlayer::SParticlesInfo* CParticlesPlayer::SBoneInfo::AppendParticles(IGameObject* object, const shared_str& ps_name)
 {
     SParticlesInfo* pi = FindParticles(ps_name);
     if (pi)
@@ -31,6 +32,7 @@ CParticlesPlayer::SParticlesInfo* CParticlesPlayer::SBoneInfo::AppendParticles(
     pi->ps = CParticlesObject::Create(*ps_name, FALSE);
     return pi;
 }
+
 void CParticlesPlayer::SBoneInfo::StopParticles(const shared_str& ps_name, bool bDestroy)
 {
     SParticlesInfo* pi = FindParticles(ps_name);
@@ -99,6 +101,7 @@ void CParticlesPlayer::LoadParticles(IKinematics* K)
         m_Bones.push_back(SBoneInfo(K->LL_GetBoneRoot(), Fvector().set(0, 0, 0)));
     }
 }
+
 //уничтожение партиклов на net_Destroy
 void CParticlesPlayer::net_DestroyParticles()
 {
@@ -129,15 +132,14 @@ CParticlesPlayer::SBoneInfo* CParticlesPlayer::get_nearest_bone_info(IKinematics
     return get_bone_info(play_bone);
 }
 
-void CParticlesPlayer::StartParticles(
-    const shared_str& particles_name, u16 bone_num, const Fvector& dir, u16 sender_id, int life_time, bool auto_stop)
+void CParticlesPlayer::StartParticles(const shared_str& particles_name, u16 bone_num, const Fvector& dir, u16 sender_id, int life_time, bool auto_stop)
 {
     Fmatrix xform;
     generate_orthonormal_basis(dir, xform);
     StartParticles(particles_name, bone_num, xform, sender_id, life_time, auto_stop);
 }
-void CParticlesPlayer::StartParticles(
-    const shared_str& particles_name, u16 bone_num, const Fmatrix& xform, u16 sender_id, int life_time, bool auto_stop)
+
+void CParticlesPlayer::StartParticles(const shared_str& particles_name, u16 bone_num, const Fmatrix& xform, u16 sender_id, int life_time, bool auto_stop)
 {
     VERIFY(fis_zero(xform.c.magnitude()));
     R_ASSERT(*particles_name);
@@ -166,8 +168,7 @@ void CParticlesPlayer::StartParticles(
     m_bActiveBones = true;
 }
 
-void CParticlesPlayer::StartParticles(
-    const shared_str& ps_name, const Fmatrix& xform, u16 sender_id, int life_time, bool auto_stop)
+void CParticlesPlayer::StartParticles(const shared_str& ps_name, const Fmatrix& xform, u16 sender_id, int life_time, bool auto_stop)
 {
     IGameObject* object = m_self_object;
     VERIFY(object);
@@ -178,8 +179,8 @@ void CParticlesPlayer::StartParticles(
 
         particles_info.life_time = auto_stop ? life_time : u32(-1);
         xform.getHPB(particles_info.angles);
-        //начать играть партиклы
 
+        //начать играть партиклы
         Fmatrix m;
         m.set(xform);
         GetBonePos(object, it->index, it->offset, m.c);
@@ -191,8 +192,7 @@ void CParticlesPlayer::StartParticles(
     m_bActiveBones = true;
 }
 
-void CParticlesPlayer::StartParticles(
-    const shared_str& ps_name, const Fvector& dir, u16 sender_id, int life_time, bool auto_stop)
+void CParticlesPlayer::StartParticles(const shared_str& ps_name, const Fvector& dir, u16 sender_id, int life_time, bool auto_stop)
 {
     Fmatrix xform;
     generate_orthonormal_basis(dir, xform);
@@ -257,6 +257,7 @@ void CParticlesPlayer::UpdateParticles()
 {
     if (!m_bActiveBones)
         return;
+
     m_bActiveBones = false;
 
     IGameObject* object = m_self_object;
@@ -316,8 +317,7 @@ void CParticlesPlayer::GetBonePos(IGameObject* pObject, u16 bone_id, const Fvect
     pObject->XFORM().transform_tiny(result);
 }
 
-void CParticlesPlayer::MakeXFORM(
-    IGameObject* pObject, u16 bone_id, const Fvector& dir, const Fvector& offset, Fmatrix& result)
+void CParticlesPlayer::MakeXFORM(IGameObject* pObject, u16 bone_id, const Fvector& dir, const Fvector& offset, Fmatrix& result)
 {
     generate_orthonormal_basis(dir, result);
     GetBonePos(pObject, bone_id, offset, result.c);

@@ -300,14 +300,11 @@ void CActor::Load(LPCSTR section)
     character_physics_support()->movement()->SetCrashSpeeds(cs_min, cs_max);
     character_physics_support()->movement()->SetMass(mass);
     if (pSettings->line_exist(section, "stalker_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(
-            rtStalker, pSettings->r_float(section, "stalker_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(rtStalker, pSettings->r_float(section, "stalker_restrictor_radius"));
     if (pSettings->line_exist(section, "stalker_small_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(
-            rtStalkerSmall, pSettings->r_float(section, "stalker_small_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(rtStalkerSmall, pSettings->r_float(section, "stalker_small_restrictor_radius"));
     if (pSettings->line_exist(section, "medium_monster_restrictor_radius"))
-        character_physics_support()->movement()->SetActorRestrictorRadius(
-            rtMonsterMedium, pSettings->r_float(section, "medium_monster_restrictor_radius"));
+        character_physics_support()->movement()->SetActorRestrictorRadius(rtMonsterMedium, pSettings->r_float(section, "medium_monster_restrictor_radius"));
     character_physics_support()->movement()->Load(section);
 
     set_box(section, *character_physics_support()->movement(), 2);
@@ -591,7 +588,6 @@ void CActor::HitMark(float P, Fvector dir, IGameObject* who_object, s16 element,
         string64 sect_name;
         xr_sprintf(sect_name, "effector_fire_hit_%d", id);
         AddEffector(this, effFireHit, sect_name, P * 0.001f);
-
     } // if hit_type
 }
 
@@ -763,7 +759,7 @@ float CActor::currentFOV()
     if (!psHUD_Flags.is(HUD_WEAPON | HUD_WEAPON_RT | HUD_WEAPON_RT2))
         return g_fov;
 
-    if (eacFirstEye == cam_active)
+    if (eacFreeLook != cam_active)
     {
         CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());
         if (pWeapon && pWeapon->IsZoomed())
@@ -948,6 +944,7 @@ void CActor::UpdateCL()
         else
             xr_delete(m_sndShockEffector);
     }
+
     Fmatrix trans;
     Cameras().hud_camera_Matrix(trans);
 
@@ -1165,8 +1162,11 @@ void CActor::shedule_Update(u32 DT)
     //что актер видит перед собой
     collide::rq_result& RQ = HUD().GetCurrentRayQuery();
 
-    float fAcquistionRange = cam_active == eacFirstEye ? 2.0f : 3.0f;
-    if (!input_external_handler_installed() && RQ.O && RQ.O->getVisible() && RQ.range < fAcquistionRange)
+	Fvector ActorPos, PickPos = { 0.0f, 0.0f, 0.0f };
+	Center(ActorPos);
+	PickPos.mad(Device.vCameraPosition, Device.vCameraDirection, RQ.range);
+
+    if (!input_external_handler_installed() && RQ.O && RQ.O->getVisible() && ActorPos.distance_to_sqr(PickPos) < 4.0f)
     {
         CGameObject* game_object = smart_cast<CGameObject*>(RQ.O);
         m_pObjectWeLookingAt = game_object;

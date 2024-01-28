@@ -125,6 +125,7 @@ struct ECORE_API R_constant : public xr_resource
         case RC_dest_hull: return hs;
         case RC_dest_domain: return ds;
         case RC_dest_compute: return cs;
+		case RC_dest_sampler: return samp;
 #endif
 #endif
         default: FATAL("invalid enumeration for shader");
@@ -134,8 +135,7 @@ struct ECORE_API R_constant : public xr_resource
 
     BOOL equal(R_constant& C)
     {
-        return (!xr_strcmp(name, C.name)) && (type == C.type) && (destination == C.destination) && ps.equal(C.ps) &&
-            vs.equal(C.vs) && samp.equal(C.samp) && handler == C.handler;
+        return (!xr_strcmp(name, C.name)) && (type == C.type) && (destination == C.destination) && ps.equal(C.ps) && vs.equal(C.vs) && samp.equal(C.samp) && handler == C.handler;
     }
 
     BOOL equal(R_constant* C) { return equal(*C); }
