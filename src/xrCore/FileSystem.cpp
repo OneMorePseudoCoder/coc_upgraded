@@ -156,20 +156,8 @@ bool EFS_Utils::GetOpenNameInternal(
     string512 path;
     xr_strcpy(path, (offset && offset[0]) ? offset : P.m_Path);
     ofn.lpstrInitialDir = path;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR |
-        (bMulti ? OFN_ALLOWMULTISELECT | OFN_EXPLORER : 0);
-
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | (bMulti ? OFN_ALLOWMULTISELECT | OFN_EXPLORER : 0);
     ofn.FlagsEx = OFN_EX_NOPLACESBAR;
-
-    /*
-     unsigned int dwVersion = GetVersion();
-     unsigned int dwWindowsMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-     if ( dwWindowsMajorVersion == 6 )
-     {
-     ofn.Flags |= OFN_ENABLEHOOK;
-     ofn.lpfnHook = OFNHookProcOldStyle;
-     }
-     */
 
     bool bRes = !!GetOpenFileName(&ofn);
     if (!bRes)
@@ -215,14 +203,12 @@ bool EFS_Utils::GetOpenNameInternal(
 
 bool EFS_Utils::GetSaveName(LPCSTR initial, string_path& buffer, LPCSTR offset, int start_flt_ext)
 {
-    // unsigned int dwVersion = GetVersion();
-    // unsigned int dwWindowsMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
 #if defined(WINDOWS)
     FS_Path& P = *FS.get_path(initial);
     string1024 flt;
 
     LPCSTR def_ext = P.m_DefExt;
-    if (false) //&& dwWindowsMajorVersion == 6 )
+    if (false)
     {
         if (strstr(P.m_DefExt, "*."))
             def_ext = strstr(P.m_DefExt, "*.") + 2;
@@ -254,14 +240,6 @@ bool EFS_Utils::GetSaveName(LPCSTR initial, string_path& buffer, LPCSTR offset, 
     ofn.lpstrInitialDir = path;
     ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
     ofn.FlagsEx = OFN_EX_NOPLACESBAR;
-
-    /*
-     if ( dwWindowsMajorVersion == 6 )
-     {
-     ofn.Flags |= OFN_ENABLEHOOK;
-     ofn.lpfnHook = OFNHookProcOldStyle;
-     }
-     */
 
     bool bRes = !!GetSaveFileName(&ofn);
     if (!bRes)
@@ -320,8 +298,7 @@ LPCSTR EFS_Utils::AppendFolderToName(
     return dest_name;
 }
 
-LPCSTR EFS_Utils::GenerateName(
-    LPCSTR base_path, LPCSTR base_name, LPCSTR def_ext, LPSTR out_name, u32 const out_name_size)
+LPCSTR EFS_Utils::GenerateName(LPCSTR base_path, LPCSTR base_name, LPCSTR def_ext, LPSTR out_name, u32 const out_name_size)
 {
     int cnt = 0;
     string_path fn;

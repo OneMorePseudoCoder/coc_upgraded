@@ -49,10 +49,8 @@ void CPoltergeist::Load(LPCSTR section)
     anim().accel_load(section);
     anim().accel_chain_add(eAnimWalkFwd, eAnimRun);
 
-    invisible_vel.set(pSettings->r_float(section, "Velocity_Invisible_Linear"),
-        pSettings->r_float(section, "Velocity_Invisible_Angular"));
-    movement().detail().add_velocity(MonsterMovement::eVelocityParameterInvisible,
-        CDetailPathManager::STravelParams(invisible_vel.linear, invisible_vel.angular));
+    invisible_vel.set(pSettings->r_float(section, "Velocity_Invisible_Linear"), pSettings->r_float(section, "Velocity_Invisible_Angular"));
+    movement().detail().add_velocity(MonsterMovement::eVelocityParameterInvisible, CDetailPathManager::STravelParams(invisible_vel.linear, invisible_vel.angular));
 
     anim().AddReplacedAnim(&m_bDamaged, eAnimWalkFwd, eAnimWalkDamaged);
     anim().AddReplacedAnim(&m_bDamaged, eAnimRun, eAnimRunDamaged);
@@ -63,37 +61,21 @@ void CPoltergeist::Load(LPCSTR section)
     SVelocityParam& velocity_run = move().get_velocity(MonsterMovement::eVelocityParameterRunNormal);
     SVelocityParam& velocity_walk_dmg = move().get_velocity(MonsterMovement::eVelocityParameterWalkDamaged);
     SVelocityParam& velocity_run_dmg = move().get_velocity(MonsterMovement::eVelocityParameterRunDamaged);
-    // SVelocityParam &velocity_steal		= move().get_velocity(MonsterMovement::eVelocityParameterSteal);
-    // SVelocityParam &velocity_drag		= move().get_velocity(MonsterMovement::eVelocityParameterDrag);
 
-    anim().AddAnim(eAnimStandIdle, "stand_idle_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimStandTurnLeft, "stand_turn_ls_", -1, &velocity_turn, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimStandTurnRight, "stand_turn_rs_", -1, &velocity_turn, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimWalkFwd, "stand_walk_fwd_", -1, &velocity_walk, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimRun, "stand_run_fwd_", -1, &velocity_run, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l",
-        "fx_stand_r");
-    anim().AddAnim(eAnimAttack, "stand_attack_", -1, &velocity_turn, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l",
-        "fx_stand_r");
-    anim().AddAnim(
-        eAnimDie, "stand_idle_", 0, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimMiscAction_00, "fall_down_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimMiscAction_01, "fly_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l",
-        "fx_stand_r");
-    anim().AddAnim(eAnimCheckCorpse, "stand_check_corpse_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(
-        eAnimEat, "stand_eat_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimLookAround, "stand_look_around_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimWalkDamaged, "stand_walk_dmg_", -1, &velocity_walk_dmg, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
-    anim().AddAnim(eAnimRunDamaged, "stand_walk_dmg_", -1, &velocity_run_dmg, PS_STAND, "fx_stand_f", "fx_stand_b",
-        "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimStandIdle, "stand_idle_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimStandTurnLeft, "stand_turn_ls_", -1, &velocity_turn, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimStandTurnRight, "stand_turn_rs_", -1, &velocity_turn, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimWalkFwd, "stand_walk_fwd_", -1, &velocity_walk, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimRun, "stand_run_fwd_", -1, &velocity_run, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimAttack, "stand_attack_", -1, &velocity_turn, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimDie, "stand_idle_", 0, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimMiscAction_00, "fall_down_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimMiscAction_01, "fly_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimCheckCorpse, "stand_check_corpse_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimEat, "stand_eat_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimLookAround, "stand_look_around_", -1, &velocity_none, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimWalkDamaged, "stand_walk_dmg_", -1, &velocity_walk_dmg, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+    anim().AddAnim(eAnimRunDamaged, "stand_walk_dmg_", -1, &velocity_run_dmg, PS_STAND, "fx_stand_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 
     anim().LinkAction(ACT_STAND_IDLE, eAnimStandIdle);
     anim().LinkAction(ACT_SIT_IDLE, eAnimStandIdle);
@@ -113,9 +95,6 @@ void CPoltergeist::Load(LPCSTR section)
     anim().accel_chain_test();
 #endif
 
-    // READ_IF_EXISTS(pSettings,r_u32,section,"PsyAura_Fake_Delay", 8000);
-    // READ_IF_EXISTS(pSettings,r_float,section,"PsyAura_Fake_MaxAddDist", 90.f);
-
     m_height_change_velocity = READ_IF_EXISTS(pSettings, r_float, section, "Height_Change_Velocity", 0.5f);
     m_height_change_min_time = READ_IF_EXISTS(pSettings, r_u32, section, "Height_Change_Min_Time", 3000);
     m_height_change_max_time = READ_IF_EXISTS(pSettings, r_u32, section, "Height_Change_Max_Time", 10000);
@@ -125,8 +104,7 @@ void CPoltergeist::Load(LPCSTR section)
     m_fly_around_level = READ_IF_EXISTS(pSettings, r_float, section, "detection_fly_around_level", 5.f);
     m_fly_around_distance = READ_IF_EXISTS(pSettings, r_float, section, "detection_fly_around_distance", 15.f);
 
-    m_fly_around_change_direction_time =
-        READ_IF_EXISTS(pSettings, r_float, section, "detection_fly_around_change_direction_time", 7);
+    m_fly_around_change_direction_time = READ_IF_EXISTS(pSettings, r_float, section, "detection_fly_around_change_direction_time", 7);
 
     LPCSTR polter_type = pSettings->r_string(section, "type");
 
@@ -194,8 +172,7 @@ void CPoltergeist::update_detection()
     if (!get_actor_ignore() && time_passed_sec > 0.f && time_passed_sec < 2.f && dist2actor < get_detection_far_range())
     {
         float const relative_range = dist2actor / get_detection_far_range();
-        float const range_factor = relative_range * get_detection_far_range_factor() +
-            (1.f - relative_range) * get_detection_near_range_factor();
+        float const range_factor = relative_range * get_detection_far_range_factor() + (1.f - relative_range) * get_detection_near_range_factor();
 
         float const speed_factor = get_detection_speed_factor();
         float const raw_speed = m_last_actor_pos.distance_to(actor_pos) / time_passed_sec;
@@ -221,15 +198,12 @@ void CPoltergeist::update_detection()
     {
         if (!m_detection_pp_type_index)
         {
-            for (m_detection_pp_type_index = (u32)effPoltergeistTeleDetectStartEffect;
-                 Actor()->Cameras().GetPPEffector((EEffectorPPType)m_detection_pp_type_index);
-                 ++m_detection_pp_type_index)
+            for (m_detection_pp_type_index = (u32)effPoltergeistTeleDetectStartEffect; Actor()->Cameras().GetPPEffector((EEffectorPPType)m_detection_pp_type_index); ++m_detection_pp_type_index)
             {
                 ;
             }
 
-            AddEffector(Actor(), m_detection_pp_type_index, m_detection_pp_effector_name,
-                GET_KOEFF_FUNC(this, &CPoltergeist::get_post_process_factor));
+            AddEffector(Actor(), m_detection_pp_type_index, m_detection_pp_effector_name, GET_KOEFF_FUNC(this, &CPoltergeist::get_post_process_factor));
         }
     }
     else if (m_detection_pp_type_index != 0)
@@ -322,11 +296,7 @@ void CPoltergeist::UpdateCL()
     ability()->update_frame();
 
     if (Actor()->memory().visual().visible_now(this) && Actor()->Position().distance_to(Position()) < 85.f)
-    {
         MakeMeCrow();
-    }
-
-    //	Visual()->getVisData().hom_frame = Device.dwFrame;
 }
 
 void CPoltergeist::ForceFinalAnimation()
@@ -404,7 +374,6 @@ void CPoltergeist::OnDie()
     CTelekinesis::deactivate();
     ability()->on_die();
 }
-
 
 void CPoltergeist::Die(IGameObject* who)
 {

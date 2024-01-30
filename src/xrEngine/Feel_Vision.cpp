@@ -16,11 +16,10 @@ struct SFeelParam
     Vision::feel_visible_Item* item;
     float vis;
     float vis_threshold;
-    SFeelParam(Vision* _parent, Vision::feel_visible_Item* _item, float _vis_threshold)
-        : parent(_parent), item(_item), vis(1.f), vis_threshold(_vis_threshold)
-    {
-    }
+    SFeelParam(Vision* _parent, Vision::feel_visible_Item* _item, float _vis_threshold) : parent(_parent), item(_item), vis(1.f), vis_threshold(_vis_threshold)
+    {}
 };
+
 IC BOOL feel_vision_callback(collide::rq_result& result, LPVOID params)
 {
     SFeelParam* fp = (SFeelParam*)params;
@@ -36,6 +35,7 @@ IC BOOL feel_vision_callback(collide::rq_result& result, LPVOID params)
     }
     return (fp->vis > fp->vis_threshold);
 }
+
 void Vision::o_new(IGameObject* O)
 {
     feel_visible.push_back(feel_visible_Item());
@@ -49,6 +49,7 @@ void Vision::o_new(IGameObject* O)
     I.cp_LP = O->get_new_local_point_on_mesh(I.bone_id);
     I.cp_LAST = O->get_last_local_point_on_mesh(I.cp_LP, I.bone_id);
 }
+
 void Vision::o_delete(IGameObject* O)
 {
     xr_vector<feel_visible_Item>::iterator I = feel_visible.begin(), TE = feel_visible.end();
@@ -149,6 +150,7 @@ void Vision::feel_vision_update(IGameObject* parent, Fvector& P, float dt, float
     query = seen;
     o_trace(P, dt, vis_threshold);
 }
+
 void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
 {
     RQR.r_clear();
@@ -161,16 +163,10 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
             continue;
         }
 
-        // verify relation
-        // if (positive(I->fuzzy) && I->O->Position().similar(I->cp_LR_dst,lr_granularity) &&
-        // P.similar(I->cp_LR_src,lr_granularity))
-        // continue;
-
         I->cp_LR_dst = I->O->Position();
         I->cp_LR_src = P;
         I->cp_LAST = I->O->get_last_local_point_on_mesh(I->cp_LP, I->bone_id);
 
-        //
         Fvector D, OP = I->cp_LAST;
         D.sub(OP, P);
         if (fis_zero(D.magnitude()))
@@ -184,15 +180,13 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
         {
             D.div(f);
             // setup ray defs & feel params
-            collide::ray_defs RD(P, D, f, CDB::OPT_CULL,
-                collide::rq_target(collide::rqtStatic | /**/ collide::rqtObject | /**/ collide::rqtObstacle));
+            collide::ray_defs RD(P, D, f, CDB::OPT_CULL, collide::rq_target(collide::rqtStatic | collide::rqtObject | collide::rqtObstacle));
             SFeelParam feel_params(this, &*I, vis_threshold);
             // check cache
             if (I->Cache.result && I->Cache.similar(P, D, f))
             {
                 // similar with previous query
                 feel_params.vis = I->Cache_vis;
-                // Log("cache 0");
             }
             else
             {
@@ -200,7 +194,6 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
                 if (CDB::TestRayTri(P, D, I->Cache.verts, _u, _v, _range, false) && (_range > 0 && _range < f))
                 {
                     feel_params.vis = 0.f;
-                    // Log("cache 1");
                 }
                 else
                 {
@@ -214,14 +207,11 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
                     }
                     else
                     {
-                        // feel_params.vis = 0.f;
-                        // I->Cache_vis = feel_params.vis ;
                         I->Cache.set(P, D, f, FALSE);
                     }
-                    // Log("query");
                 }
             }
-            // Log("Vis",feel_params.vis);
+
             r_spatial.clear();
             g_SpatialSpace->q_ray(r_spatial, 0, STYPE_VISIBLEFORAI, P, D, f);
 

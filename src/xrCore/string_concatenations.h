@@ -29,25 +29,25 @@ IC pstr strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4
 }
 
 // dest = S1+S2+S3+S4+S5
-IC pstr strconcat(
-    int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4, pcstr S5)
+IC pstr strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4, pcstr S5)
 {
-    return xr_strcat(
-        xr_strcat(xr_strcat(xr_strcat(xr_strcpy(dest, dest_sz, S1), dest_sz, S2), dest_sz, S3), dest_sz, S4), dest_sz,
-        S5);
+    return xr_strcat(xr_strcat(xr_strcat(xr_strcat(xr_strcpy(dest, dest_sz, S1), dest_sz, S2), dest_sz, S3), dest_sz, S4), dest_sz, S5);
 }
 
 // dest = S1+S2+S3+S4+S5+S6
-IC pstr strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4,
-    pcstr S5, pcstr S6)
+IC pstr strconcat(int dest_sz, pstr dest, pcstr S1, pcstr S2, pcstr S3, pcstr S4, pcstr S5, pcstr S6)
 {
-    return xr_strcat(
-        xr_strcat(xr_strcat(xr_strcat(xr_strcat(xr_strcpy(dest, dest_sz, S1), dest_sz, S2), dest_sz, S3), dest_sz, S4),
-            dest_sz, S5),
-        dest_sz, S6);
+    return xr_strcat(xr_strcat(xr_strcat(xr_strcat(xr_strcat(xr_strcpy(dest, dest_sz, S1), dest_sz, S2), dest_sz, S3), dest_sz, S4), dest_sz, S5), dest_sz, S6);
 }
 
 #endif
+
+template <size_t Size, typename... Args>
+pstr strconcat(char(&outStr)[Size], const Args... args)
+{
+	strconcat(Size, &outStr[0], args...);
+	return &outStr[0];
+}
 
 // warning: do not comment this macro, as stack overflow check is very light
 // (consumes ~1% performance of STRCONCAT macro)

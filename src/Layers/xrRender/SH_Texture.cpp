@@ -169,7 +169,7 @@ void CTexture::Load()
     }
 
     Preload();
-    if (!GEnv.isDedicatedServer)
+
     {
         // Check for OGM
         string_path fn;

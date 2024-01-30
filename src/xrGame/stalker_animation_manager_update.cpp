@@ -14,7 +14,7 @@
 #include "xrEngine/profiler.h"
 #include "stalker_movement_manager_smart_cover.h"
 
-/*IC*/ void CStalkerAnimationManager::play_delayed_callbacks() // XXX: can't compile Release because of "inline"
+void CStalkerAnimationManager::play_delayed_callbacks() // XXX: can't compile Release because of "inline"
 {
     if (m_call_script_callback)
     {
@@ -226,7 +226,7 @@ void CStalkerAnimationManager::update()
     }
     catch (...)
     {
-        Msg("! error in stalker with visual %s and ID %s", *object().cNameVisual(), object().ID());
+		Msg("! error in stalker [%s] with visual [%s]", object().cNameSect().c_str(), object().cNameVisual().c_str());
         global().reset();
         head().reset();
         torso().reset();

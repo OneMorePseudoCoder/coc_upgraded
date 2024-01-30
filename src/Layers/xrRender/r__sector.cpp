@@ -309,13 +309,8 @@ void CSector::load(IReader& fs)
         count--;
     }
 
-    if (GEnv.isDedicatedServer)
-        m_root = nullptr;
-    else
-    {
-        // Assign visual
-        size = fs.find_chunk(fsP_Root);
-        R_ASSERT(size == 4);
-        m_root = (dxRender_Visual*)RImplementation.getVisual(fs.r_u32());
-    }
+    // Assign visual
+    size = fs.find_chunk(fsP_Root);
+    R_ASSERT(size == 4);
+    m_root = (dxRender_Visual*)RImplementation.getVisual(fs.r_u32());
 }

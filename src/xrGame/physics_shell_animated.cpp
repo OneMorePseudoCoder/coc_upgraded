@@ -3,10 +3,11 @@
 
 #include "xrPhysics/physicsshell.h"
 
+#include "PhysicsShellHolder.h" // need it to properly do cast to IPhysicsShellHolder, otherwise it cast to whatever on its mind
+
 #include "Include/xrRender/Kinematics.h"
 
-physics_shell_animated::physics_shell_animated(CPhysicsShellHolder* O, bool _update_velocity)
-    : update_velocity(_update_velocity)
+physics_shell_animated::physics_shell_animated(CPhysicsShellHolder* O, bool _update_velocity) : update_velocity(_update_velocity)
 {
     create_shell(O);
 }

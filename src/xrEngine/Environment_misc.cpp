@@ -152,8 +152,7 @@ void CEnvAmbient::destroy()
     delete_data(m_sound_channels);
 }
 
-void CEnvAmbient::load(
-    CInifile& ambients_config, CInifile& sound_channels_config, CInifile& effects_config, const shared_str& sect)
+void CEnvAmbient::load(CInifile& ambients_config, CInifile& sound_channels_config, CInifile& effects_config, const shared_str& sect)
 {
     m_ambients_config_filename = ambients_config.fname();
     m_load_section = sect;

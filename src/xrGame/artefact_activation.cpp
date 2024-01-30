@@ -172,8 +172,7 @@ void SArtefactActivation::SpawnAnomaly()
 
     Fvector pos;
     m_af->Center(pos);
-    CSE_Abstract* object = Level().spawn_item(
-        zone_sect, pos, (GEnv.isDedicatedServer) ? u32(-1) : m_af->ai_location().level_vertex_id(), 0xffff, true);
+    CSE_Abstract* object = Level().spawn_item(zone_sect, pos, m_af->ai_location().level_vertex_id(), 0xffff, true);
     CSE_ALifeAnomalousZone* AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
     VERIFY(AlifeZone);
     CShapeData::shape_def _shape;
@@ -189,10 +188,9 @@ void SArtefactActivation::SpawnAnomaly()
     object->Spawn_Write(P, TRUE);
     Level().Send(P);
     F_entity_Destroy(object);
-    //. #ifdef DEBUG
     Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
-    //. #endif
 }
+
 shared_str clear_brackets(LPCSTR src)
 {
     if (0 == src)

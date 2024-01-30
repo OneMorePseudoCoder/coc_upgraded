@@ -37,9 +37,7 @@ void FTreeVisual::Load(const char* N, IReader* data, u32 dwFlags)
         VERIFY(NULL == p_rm_Vertices);
 
         p_rm_Vertices = RImplementation.getVB(ID);
-#ifndef USE_OGL
-        p_rm_Vertices->AddRef();
-#endif // !USE_OGL
+        p_rm_Vertices->AddRef();								
 
         // indices
         dwPrimitives = 0;
@@ -50,9 +48,7 @@ void FTreeVisual::Load(const char* N, IReader* data, u32 dwFlags)
 
         VERIFY(NULL == p_rm_Indices);
         p_rm_Indices = RImplementation.getIB(ID);
-#ifndef USE_OGL
-        p_rm_Indices->AddRef();
-#endif // !USE_OGL
+        p_rm_Indices->AddRef();							   
     }
 
     // load tree-def
@@ -142,8 +138,7 @@ void FTreeVisual::Render(float /*LOD*/)
 #else
     CEnvDescriptor& desc = *g_pGamePersistent->Environment().CurrentEnv;
     RCache.tree.set_c_scale(s * c_scale.rgb.x, s * c_scale.rgb.y, s * c_scale.rgb.z, s * c_scale.hemi); // scale
-    RCache.tree.set_c_bias(s * c_bias.rgb.x + desc.ambient.x, s * c_bias.rgb.y + desc.ambient.y,
-        s * c_bias.rgb.z + desc.ambient.z, s * c_bias.hemi); // bias
+    RCache.tree.set_c_bias(s * c_bias.rgb.x + desc.ambient.x, s * c_bias.rgb.y + desc.ambient.y, s * c_bias.rgb.z + desc.ambient.z, s * c_bias.hemi); // bias
 #endif
     RCache.tree.set_c_sun(s * c_scale.sun, s * c_bias.sun, 0, 0); // sun
 }
@@ -158,19 +153,15 @@ void FTreeVisual::Copy(dxRender_Visual* pSrc)
     PCOPY(rm_geom);
 
     PCOPY(p_rm_Vertices);
-#ifndef USE_OGL
     if (p_rm_Vertices)
-        p_rm_Vertices->AddRef();
-#endif // !USE_OGL
+        p_rm_Vertices->AddRef();			
 
     PCOPY(vBase);
     PCOPY(vCount);
 
     PCOPY(p_rm_Indices);
-#ifndef USE_OGL
     if (p_rm_Indices)
-        p_rm_Indices->AddRef();
-#endif // !USE_OGL
+        p_rm_Indices->AddRef();			   
 
     PCOPY(iBase);
     PCOPY(iCount);

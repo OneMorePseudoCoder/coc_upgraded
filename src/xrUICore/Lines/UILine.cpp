@@ -58,8 +58,6 @@ void CUILine::ProcessNewLines()
     for (u32 i = 0; i < m_subLines.size(); i++)
     {
         StrSize pos = m_subLines[i].m_text.find("\\n");
-        //		if (pos != npos)
-        //			pos = m_subLines[i].m_text.find('\r');
 
         if (pos != npos)
         {

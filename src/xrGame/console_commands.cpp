@@ -1706,19 +1706,19 @@ public:
 void CCC_RegisterCommands()
 {
     // options
-
     CMD1(CCC_MemStats, "stat_memory");
+
     // game
     CMD3(CCC_Mask, "g_crouch_toggle", &psActorFlags, AF_CROUCH_TOGGLE);
+	CMD3(CCC_Mask, "g_fp_death", &psActorFlags, AF_FP_DEATH);
     CMD1(CCC_GameDifficulty, "g_game_difficulty");
     CMD1(CCC_GameLanguage, "g_language");
 
     CMD3(CCC_Mask, "g_backrun", &psActorFlags, AF_RUN_BACKWARD);
 
-// alife
+	// alife
 #ifdef DEBUG
     CMD1(CCC_ALifePath, "al_path"); // build path
-
 #endif // DEBUG
 
     CMD1(CCC_ALifeSave, "save"); // save game

@@ -15,43 +15,35 @@
 
 void CBackend::OnFrameEnd()
 {
-    if (!GEnv.isDedicatedServer)
-    {
-#ifdef USE_OGL
-        Invalidate();
-#elif defined(USE_DX10) || defined(USE_DX11)
-        HW.pContext->ClearState();
-        Invalidate();
+#if defined(USE_DX10) || defined(USE_DX11)
+    HW.pContext->ClearState();
+    Invalidate();
 #else // USE_DX10
 
-        for (u32 stage = 0; stage < HW.Caps.raster.dwStages; stage++)
-            CHK_DX(HW.pDevice->SetTexture(0, nullptr));
-        CHK_DX(HW.pDevice->SetStreamSource(0, nullptr, 0, 0));
-        CHK_DX(HW.pDevice->SetIndices(nullptr));
-        CHK_DX(HW.pDevice->SetVertexShader(nullptr));
-        CHK_DX(HW.pDevice->SetPixelShader(nullptr));
-        Invalidate();
+    for (u32 stage = 0; stage < HW.Caps.raster.dwStages; stage++)
+        CHK_DX(HW.pDevice->SetTexture(0, nullptr));
+    CHK_DX(HW.pDevice->SetStreamSource(0, nullptr, 0, 0));
+    CHK_DX(HW.pDevice->SetIndices(nullptr));
+    CHK_DX(HW.pDevice->SetVertexShader(nullptr));
+    CHK_DX(HW.pDevice->SetPixelShader(nullptr));
+    Invalidate();
 #endif // USE_DX10
-    }
 }
 
 void CBackend::OnFrameBegin()
 {
-    if (!GEnv.isDedicatedServer)
-    {
-        PGO(Msg("PGO:*****frame[%d]*****", RDEVICE.dwFrame));
+    PGO(Msg("PGO:*****frame[%d]*****", RDEVICE.dwFrame));
 #if defined(USE_DX10) || defined(USE_DX11)
-        Invalidate();
-        // DX9 sets base rt nd base zb by default
-        RImplementation.rmNormal();
-        set_RT(HW.pBaseRT);
-        set_ZB(HW.pBaseZB);
+    Invalidate();
+    // DX9 sets base rt nd base zb by default
+    RImplementation.rmNormal();
+    set_RT(HW.pBaseRT);
+    set_ZB(HW.pBaseZB);
 #endif // USE_DX10
-        memset(&stat, 0, sizeof(stat));
-        Vertex.Flush();
-        Index.Flush();
-        set_Stencil(FALSE);
-    }
+    memset(&stat, 0, sizeof(stat));
+    Vertex.Flush();
+    Index.Flush();
+    set_Stencil(FALSE);
 }
 
 void CBackend::Invalidate()
@@ -146,11 +138,7 @@ void CBackend::Invalidate()
 
 void CBackend::set_ClipPlanes(u32 _enable, Fplane* _planes /*=NULL */, u32 count /* =0*/)
 {
-
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
-    // TODO: DX10: Implement in the corresponding vertex shaders
-    // Use this to set up location, were shader setup code will get data
-    // VERIFY(!"CBackend::set_ClipPlanes not implemented!");
+#if defined(USE_DX10) || defined(USE_DX11)
     UNUSED(_enable);
     UNUSED(_planes);
     UNUSED(count);
@@ -194,10 +182,7 @@ void CBackend::set_ClipPlanes(u32 _enable, Fmatrix* _xform /*=NULL */, u32 fmask
         return;
     if (!_enable)
     {
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
-// TODO: DX10: Implement in the corresponding vertex shaders
-// Use this to set up location, were shader setup code will get data
-// VERIFY(!"CBackend::set_ClipPlanes not implemented!");
+#if defined(USE_DX10) || defined(USE_DX11)
 #else // USE_DX10
         CHK_DX(HW.pDevice->SetRenderState(D3DRS_CLIPPLANEENABLE, FALSE));
 #endif // USE_DX10
@@ -388,11 +373,7 @@ void CBackend::set_Textures(STextureList* _T)
             continue;
 
         textures_ps[_last_ps] = nullptr;
-#if defined(USE_OGL)
-        CHK_GL(glActiveTexture(GL_TEXTURE0 + _last_ps));
-        CHK_GL(glBindTexture(GL_TEXTURE_2D, 0));
-        CHK_GL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
-#elif defined(USE_DX10) || defined(USE_DX11)
+#if defined(USE_DX10) || defined(USE_DX11)
         // TODO: DX10: Optimise: set all resources at once
         ID3DShaderResourceView* pRes = 0;
         // HW.pDevice->PSSetShaderResources(_last_ps, 1, &pRes);
@@ -408,11 +389,7 @@ void CBackend::set_Textures(STextureList* _T)
             continue;
 
         textures_vs[_last_vs] = nullptr;
-#if defined(USE_OGL)
-        CHK_GL(glActiveTexture(GL_TEXTURE0 + CTexture::rstVertex + _last_vs));
-        CHK_GL(glBindTexture(GL_TEXTURE_2D, 0));
-        CHK_GL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
-#elif defined(USE_DX10) || defined(USE_DX11)
+#if defined(USE_DX10) || defined(USE_DX11)
         // TODO: DX10: Optimise: set all resources at once
         ID3DShaderResourceView* pRes = 0;
         // HW.pDevice->VSSetShaderResources(_last_vs, 1, &pRes);

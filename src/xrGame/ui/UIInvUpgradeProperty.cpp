@@ -159,8 +159,7 @@ void UIInvUpgPropertiesWnd::init_from_xml(LPCSTR xml_name)
 
     LPCSTR properties_section = "upgrades_properties";
 
-    VERIFY2(
-        pSettings->section_exist(properties_section), make_string("Section [%s] does not exist !", properties_section));
+    VERIFY2(pSettings->section_exist(properties_section), make_string("Section [%s] does not exist !", properties_section));
     VERIFY2(pSettings->line_count(properties_section), make_string("Section [%s] is empty !", properties_section));
     shared_str property_id;
 
@@ -176,6 +175,7 @@ void UIInvUpgPropertiesWnd::init_from_xml(LPCSTR xml_name)
         if (!ui_property->init_property(property_id))
         {
             Msg("! Invalid property <%s> in inventory upgrade manager!", property_id);
+			xr_delete(ui_property);
             continue;
         }
 

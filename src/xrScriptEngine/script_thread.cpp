@@ -20,15 +20,6 @@
 
 const LPCSTR main_function = "console_command_run_string_main_thread_function";
 
-// void print_stack_(lua_State *L)
-//{
-//	Msg(" ");
-//	for (int i=0; lua_type(L, -i-1); i++)
-//		Msg("%2d : %s",-i-1,lua_typename(L, lua_type(L, -i-1)));
-//}
-
-// extern "C" XR_IMPORT lua_State *lua_newcthread(lua_State *OL, int cstacksize);
-
 CScriptThread::CScriptThread(CScriptEngine* scriptEngine, LPCSTR caNamespaceName, bool do_string, bool reload)
 #ifdef DEBUG
     : CScriptStackTracker(scriptEngine)
@@ -123,7 +114,6 @@ bool CScriptThread::update()
                 {
                     CScriptEngine::print_output(lua(), *script_name(), l_iErrorCode);
                     CScriptEngine::on_error(scriptEngine->lua());
-                    // print_stack(lua());
                 }
 #endif
                 m_active = false;

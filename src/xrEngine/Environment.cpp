@@ -298,9 +298,9 @@ bool CEnvironment::SetWeatherFX(shared_str name)
         Current[0] = C0;
         Current[1] = C1;
 #ifdef WEATHER_LOGGING
-		Msg( "Starting WFX: '%s' - %3.2f sec. GameTime: %3.2f", *name, wfx_time, fGameTime );
+		Msg("Starting WFX: '%s' - %3.2f sec. GameTime: %3.2f", *name, wfx_time, fGameTime);
 		for (EnvIt l_it=CurrentWeather->begin(); l_it!=CurrentWeather->end(); l_it++)
-			Msg( ". Env: '%s' Tm: %3.2f", (*l_it)->m_identifier.c_str(), (*l_it)->exec_time );
+			Msg(". Env: '%s' Tm: %3.2f", (*l_it)->m_identifier.c_str(), (*l_it)->exec_time);
 #endif
     }
     else
@@ -318,7 +318,7 @@ bool CEnvironment::StartWeatherFXFromTime(shared_str name, float time)
 	fGameTime = NormalizeTime( fGameTime - time );
 	bool res  = SetWeatherFX( name );
 	fGameTime = _fGameTime;
-	if ( !res )
+	if (!res)
         return false;
     wfx_time -= time;
 #ifdef WEATHER_LOGGING
@@ -592,8 +592,7 @@ SThunderboltCollection* CEnvironment::thunderbolt_collection(CInifile* pIni, CIn
     return (result);
 }
 
-SThunderboltCollection* CEnvironment::thunderbolt_collection(
-    xr_vector<SThunderboltCollection*>& collection, shared_str const& id)
+SThunderboltCollection* CEnvironment::thunderbolt_collection(xr_vector<SThunderboltCollection*>& collection, shared_str const& id)
 {
     for (auto& it : collection)
         if (it->section == id)

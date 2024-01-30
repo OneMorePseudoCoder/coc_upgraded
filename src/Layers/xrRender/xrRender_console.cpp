@@ -38,7 +38,7 @@ const xr_token qssao_token[] = {
     {"st_opt_low", 1},
     {"st_opt_medium", 2},
     {"st_opt_high", 3},
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
+#if defined(USE_DX10) || defined(USE_DX11)
     {"st_opt_ultra", 4},
 #endif
     {nullptr, 0}
@@ -49,7 +49,7 @@ const xr_token qsun_quality_token[] = {
     {"st_opt_low", 0},
     {"st_opt_medium", 1},
     {"st_opt_high", 2},
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
+#if defined(USE_DX10) || defined(USE_DX11)
     {"st_opt_ultra", 3},
     {"st_opt_extreme", 4},
 #endif // USE_DX10
@@ -322,9 +322,7 @@ public:
             return;
         int val = *value;
         clamp(val, 1, 16);
-#if defined(USE_OGL)
-        // TODO: OGL: Implement aniso filtering.
-#elif defined(USE_DX10) || defined(USE_DX11)
+#if defined(USE_DX10) || defined(USE_DX11)
         SSManager.SetMaxAnisotropy(val);
 #else
         for (u32 i = 0; i < HW.Caps.raster.dwStages; i++)
@@ -351,9 +349,8 @@ public:
         if (nullptr == HW.pDevice)
             return;
 
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
-// TODO: DX10: Implement mip bias control
-// VERIFY(!"apply not implmemented.");
+#if defined(USE_DX10) || defined(USE_DX11)
+
 #else // USE_DX10
         for (u32 i = 0; i < HW.Caps.raster.dwStages; i++)
             CHK_DX(HW.pDevice->SetSamplerState(i, D3DSAMP_MIPMAPLODBIAS, *((LPDWORD)value)));
@@ -407,9 +404,6 @@ public:
     CCC_Screenshot(LPCSTR N) : IConsole_Command(N){};
     virtual void Execute(LPCSTR args)
     {
-        if (GEnv.isDedicatedServer)
-            return;
-
         string_path name;
         name[0] = 0;
         sscanf(args, "%s", name);
@@ -520,8 +514,6 @@ public:
     CCC_memory_stats(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
     virtual void Execute(LPCSTR /*args*/)
     {
-        // TODO: OGL: Implement memory usage statistics.
-#ifndef USE_OGL
         u32 m_base = 0;
         u32 c_base = 0;
         u32 m_lmaps = 0;
@@ -553,9 +545,7 @@ public:
         float rt_system = mem_usage[D3DPOOL_SYSTEMMEM] / MiB;
         Msg("R-Targets         \t \t %f \t %f \t %f ", rt_video, rt_managed, rt_system);
 
-        Msg("\nTotal             \t \t %f \t %f \t %f ", vb_video + ib_video + rt_video,
-            textures_managed + vb_managed + ib_managed + rt_managed, vb_system + ib_system + rt_system);
-#endif // USE_OGL
+        Msg("\nTotal             \t \t %f \t %f \t %f ", vb_video + ib_video + rt_video, textures_managed + vb_managed + ib_managed + rt_managed, vb_system + ib_system + rt_system); 
     }
 };
 

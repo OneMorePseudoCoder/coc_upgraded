@@ -72,6 +72,7 @@ class CGraviZone : public CBaseGraviZone
     CTelekinesis m_telekinesis;
 
 protected:
+	virtual void exit_Zone(SZoneObjectInfo& io);
     virtual CTelekinesis& Telekinesis() { return m_telekinesis; }
 public:
     CGraviZone(void) {}

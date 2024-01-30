@@ -15,7 +15,6 @@ ParticleEffect::ParticleEffect(int mp)
     particles_allocated = max_particles;
 
     particles = xr_alloc<Particle>(max_particles);
-    //Msg("Allocated %u bytes (%u particles) with base address 0x%p", max_particles * sizeof(Particle), max_particles, particles);
 }
 
 ParticleEffect::~ParticleEffect() { xr_free(particles); }
@@ -43,8 +42,6 @@ int ParticleEffect::Resize(u32 max_count)
         return max_particles;
     }
 
-    //Msg("Re-allocated %u bytes (%u particles) with base address 0x%p", max_count * sizeof(Particle), max_count, new_particles);
-
     CopyMemory(new_particles, particles, p_count*sizeof(Particle));
     xr_free(particles);
 
@@ -65,12 +62,9 @@ void ParticleEffect::Remove(int i)
         d_cb(owner, param, m, i);
 
     m = particles[--p_count]; // не менять правило удаления !!! (dependence ParticleGroup)
-    //Msg("pDel() : %u", p_count);
 }
 
-bool ParticleEffect::Add(const pVector& pos, const pVector& posB, const pVector& size, const pVector& rot,
-                         const pVector& vel, u32 color, const float age /*= 0.0f*/, u16 frame /*= 0*/,
-                         u16 flags /*= 0*/)
+bool ParticleEffect::Add(const pVector& pos, const pVector& posB, const pVector& size, const pVector& rot, const pVector& vel, u32 color, const float age /*= 0.0f*/, u16 frame /*= 0*/, u16 flags /*= 0*/)
 {
     if (p_count >= max_particles)
         return false;
@@ -87,7 +81,6 @@ bool ParticleEffect::Add(const pVector& pos, const pVector& posB, const pVector&
     if (b_cb)
         b_cb(owner, param, P, p_count);
     p_count++;
-    //Msg("pAdd() : %u", p_count);
     return true;
 }
 } // namespace PAPI

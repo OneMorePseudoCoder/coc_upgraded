@@ -98,15 +98,13 @@ void CLevel::g_sv_Spawn(CSE_Abstract* E)
     if (!O->net_Spawn(E))
     {
         O->net_Destroy();
-        if (!GEnv.isDedicatedServer)
-            client_spawn_manager().clear(O->ID());
+        client_spawn_manager().clear(O->ID());
         Objects.Destroy(O);
         Msg("! Failed to spawn entity '%s'", *E->s_name);
         return;
     }
 
-    if (!GEnv.isDedicatedServer)
-        client_spawn_manager().callback(O);
+    client_spawn_manager().callback(O);
 
     if ((E->s_flags.is(M_SPAWN_OBJECT_LOCAL)) && (E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER)))
     {

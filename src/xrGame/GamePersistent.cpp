@@ -166,8 +166,7 @@ CGamePersistent::~CGamePersistent(void)
 
 void CGamePersistent::PreStart(LPCSTR op)
 {
-    if (!GEnv.isDedicatedServer)
-        pApp->SetLoadingScreen(new UILoadingScreen());
+    pApp->SetLoadingScreen(new UILoadingScreen());
     super::PreStart(op);
 }
 
@@ -272,7 +271,7 @@ void CGamePersistent::OnGameEnd()
 
 void CGamePersistent::WeathersUpdate()
 {
-    if (g_pGameLevel && !GEnv.isDedicatedServer)
+    if (g_pGameLevel)
     {
         CActor* actor = smart_cast<CActor*>(Level().CurrentViewEntity());
         BOOL bIndoor = TRUE;
@@ -453,7 +452,7 @@ void CGamePersistent::start_logo_intro()
     if (Device.dwPrecacheFrame == 0)
     {
         m_intro_event.bind(this, &CGamePersistent::update_logo_intro);
-        if (!GEnv.isDedicatedServer && 0 == xr_strlen(m_game_params.m_game_or_spawn) && NULL == g_pGameLevel)
+        if (0 == xr_strlen(m_game_params.m_game_or_spawn) && NULL == g_pGameLevel)
         {
             VERIFY(NULL == m_intro);
             m_intro = new CUISequencer();

@@ -4,7 +4,6 @@
 #include "xrCore/FMesh.hpp"
 #include "FVisual.h"
 #include "Layers/xrRenderDX10/dx10BufferUtils.h"
-#include "Layers/xrRenderGL/glBufferUtils.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -13,10 +12,8 @@
 Fvisual::Fvisual() : dxRender_Visual() { m_fast = nullptr; }
 Fvisual::~Fvisual()
 {
-#ifndef USE_OGL
     HW.stats_manager.decrement_stats_vb(p_rm_Vertices);
     HW.stats_manager.decrement_stats_ib(p_rm_Indices);
-#endif
     xr_delete(m_fast);
 }
 
@@ -41,9 +38,7 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
         VERIFY(NULL == p_rm_Vertices);
 
         p_rm_Vertices = RImplementation.getVB(ID);
-#ifndef USE_OGL
-        p_rm_Vertices->AddRef();
-#endif
+        p_rm_Vertices->AddRef();								
 
         vFormat = RImplementation.getVB_Format(ID);
         loaded_v = true;
@@ -56,11 +51,9 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
 
         VERIFY(NULL == p_rm_Indices);
         p_rm_Indices = RImplementation.getIB(ID);
-#ifndef USE_OGL
-        p_rm_Indices->AddRef();
+        p_rm_Indices->AddRef();							   
 #endif
-#endif
-#if (RENDER == R_R2) || (RENDER == R_R3) || (RENDER == R_R4) || (RENDER == R_GL)
+#if (RENDER == R_R2) || (RENDER == R_R3) || (RENDER == R_R4)
         // check for fast-vertices
         if (data->find_chunk(OGF_FASTPATH))
         {
@@ -78,9 +71,8 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
 
             VERIFY(NULL == m_fast->p_rm_Vertices);
             m_fast->p_rm_Vertices = RImplementation.getVB(ID, true);
-#ifndef USE_OGL
-            m_fast->p_rm_Vertices->AddRef();
-#endif
+
+            m_fast->p_rm_Vertices->AddRef();											
             fmt = RImplementation.getVB_Format(ID, true);
 
             // indices
@@ -91,13 +83,12 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
 
             VERIFY(NULL == m_fast->p_rm_Indices);
             m_fast->p_rm_Indices = RImplementation.getIB(ID, true);
-#ifndef USE_OGL
-            m_fast->p_rm_Indices->AddRef();
-#endif
+
+            m_fast->p_rm_Indices->AddRef();										   
             // geom
             m_fast->rm_geom.create(fmt, m_fast->p_rm_Vertices, m_fast->p_rm_Indices);
         }
-#endif // (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4) || (RENDER==R_GL)
+#endif // (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
     }
 
     // read vertices
@@ -112,9 +103,7 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             vCount = data->r_u32();
             VERIFY(NULL == p_rm_Vertices);
             p_rm_Vertices = RImplementation.getVB(ID);
-#ifndef USE_OGL
-            p_rm_Vertices->AddRef();
-#endif
+            p_rm_Vertices->AddRef();									
             vFormat = RImplementation.getVB_Format(ID);
 #endif
         }
@@ -124,16 +113,9 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             vBase = 0;
             fvf = data->r_u32();
             vCount = data->r_u32();
-#ifdef USE_OGL
-            u32 vStride = glBufferUtils::GetFVFVertexSize(fvf);
-#else
             u32 vStride = D3DXGetFVFVertexSize(fvf);
-#endif
 
-#if defined(USE_OGL)
-            VERIFY(NULL == p_rm_Vertices);
-            glBufferUtils::CreateVertexBuffer(&p_rm_Vertices, data->pointer(), vCount * vStride);
-#elif defined(USE_DX10) || defined(USE_DX11)
+#if defined(USE_DX10) || defined(USE_DX11)
             VERIFY(NULL == p_rm_Vertices);
             R_CHK(dx10BufferUtils::CreateVertexBuffer(&p_rm_Vertices, data->pointer(), vCount * vStride));
             HW.stats_manager.increment_stats_vb(p_rm_Vertices);
@@ -165,9 +147,7 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             dwPrimitives = iCount / 3;
             VERIFY(NULL == p_rm_Indices);
             p_rm_Indices = RImplementation.getIB(ID);
-#ifndef USE_OGL
-            p_rm_Indices->AddRef();
-#endif
+            p_rm_Indices->AddRef();								   
 #endif
         }
         else
@@ -177,33 +157,17 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             iCount = data->r_u32();
             dwPrimitives = iCount / 3;
 
-#if defined(USE_OGL)
-            VERIFY(NULL == p_rm_Indices);
-            glBufferUtils::CreateIndexBuffer(&p_rm_Indices, data->pointer(), iCount * 2);
-#elif defined(USE_DX10) || defined(USE_DX11)
-            //BOOL bSoft = HW.Caps.geometry.bSoftware || (dwFlags&VLOAD_FORCESOFTWARE);
-            // indices are read in model-wallmarks code
-            //u32 dwUsage = /*D3DUSAGE_WRITEONLY |*/ (bSoft?D3DUSAGE_SOFTWAREPROCESSING:0);            
-            //BYTE* bytes = 0;
-
-            //VERIFY(NULL==p_rm_Indices);
-            //R_CHK
-            //(HW.pDevice->CreateIndexBuffer(iCount*2, dwUsage, D3DFMT_INDEX16, D3DPOOL_MANAGED, &p_rm_Indices, 0));
-            //R_CHK(p_rm_Indices->Lock(0, 0, (void**)&bytes, 0));
-            //CopyMemory(bytes, data->pointer(), iCount*2);
-
+#if defined(USE_DX10) || defined(USE_DX11)
             VERIFY(NULL == p_rm_Indices);
             R_CHK(dx10BufferUtils::CreateIndexBuffer(&p_rm_Indices, data->pointer(), iCount * 2));
             HW.stats_manager.increment_stats_ib(p_rm_Indices);
 #else // USE_DX10
             BOOL bSoft = HW.Caps.geometry.bSoftware;
-            u32 dwUsage = /*D3DUSAGE_WRITEONLY |*/ (
-                bSoft ? D3DUSAGE_SOFTWAREPROCESSING : 0); // indices are read in model-wallmarks code
+            u32 dwUsage = (bSoft ? D3DUSAGE_SOFTWAREPROCESSING : 0); // indices are read in model-wallmarks code
             BYTE* bytes = nullptr;
 
             VERIFY(NULL == p_rm_Indices);
-            R_CHK(
-                HW.pDevice->CreateIndexBuffer(iCount * 2, dwUsage, D3DFMT_INDEX16, D3DPOOL_MANAGED, &p_rm_Indices, nullptr));
+            R_CHK(HW.pDevice->CreateIndexBuffer(iCount * 2, dwUsage, D3DFMT_INDEX16, D3DPOOL_MANAGED, &p_rm_Indices, nullptr));
             HW.stats_manager.increment_stats_ib(p_rm_Indices);
             R_CHK(p_rm_Indices->Lock(0, 0, (void**)&bytes, 0));
             CopyMemory(bytes, data->pointer(), iCount * 2);
@@ -250,23 +214,16 @@ void Fvisual::Copy(dxRender_Visual* pSrc)
     Fvisual* pFrom = dynamic_cast<Fvisual*>(pSrc);
 
     PCOPY(rm_geom);
-
     PCOPY(p_rm_Vertices);
-#ifndef USE_OGL
     if (p_rm_Vertices)
-        p_rm_Vertices->AddRef();
-#endif // !USE_OGL
+        p_rm_Vertices->AddRef();				
     PCOPY(vBase);
     PCOPY(vCount);
-
     PCOPY(p_rm_Indices);
-#ifndef USE_OGL
     if (p_rm_Indices)
-        p_rm_Indices->AddRef();
-#endif // !USE_OGL
+        p_rm_Indices->AddRef();		   
     PCOPY(iBase);
     PCOPY(iCount);
     PCOPY(dwPrimitives);
-
     PCOPY(m_fast);
 }

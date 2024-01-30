@@ -133,17 +133,11 @@ bool CLevel::net_start_client5()
 {
     if (connected_to_server)
     {
-        // HUD
-
-        // Textures
-        if (!GEnv.isDedicatedServer)
-        {
-            g_pGamePersistent->SetLoadStageTitle("st_loading_textures");
-            g_pGamePersistent->LoadTitle();
-            GEnv.Render->DeferredLoad(FALSE);
-            GEnv.Render->ResourcesDeferredUpload();
-            LL_CheckTextures();
-        }
+        g_pGamePersistent->SetLoadStageTitle("st_loading_textures");
+        g_pGamePersistent->LoadTitle();
+        GEnv.Render->DeferredLoad(FALSE);
+        GEnv.Render->ResourcesDeferredUpload();
+        LL_CheckTextures();
 
         deny_m_spawn = TRUE;
     }
@@ -163,11 +157,9 @@ bool CLevel::net_start_client6()
             pApp->LoadEnd();
             return true;
         }
-        if (!GEnv.isDedicatedServer)
-        {
-            g_hud->Load();
-            g_hud->OnConnected();
-        }
+
+        g_hud->Load();
+        g_hud->OnConnected();
 
 #ifdef DEBUG
         Msg("--- net_start_client6");

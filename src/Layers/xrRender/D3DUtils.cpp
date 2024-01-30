@@ -111,9 +111,7 @@ u32 m_ColorSafeRect = 0xffB040B0;
 void SPrimitiveBuffer::CreateFromData(
     D3DPRIMITIVETYPE _pt, u32 _p_cnt, u32 FVF, LPVOID vertices, u32 _v_cnt, u16* indices, u32 _i_cnt)
 {
-#if defined(USE_DX10) || defined(USE_DX11)  || defined(USE_OGL)
-//  TODO: DX10: Implement SPrimitiveBuffer::CreateFromData for DX10
-//  VERIFY(!"SPrimitiveBuffer::CreateFromData not implemented for dx10");
+#if defined(USE_DX10) || defined(USE_DX11)
 #else //    USE_DX10
     ID3DVertexBuffer* pVB = nullptr;
     ID3DIndexBuffer* pIB = nullptr;
@@ -148,9 +146,9 @@ void SPrimitiveBuffer::CreateFromData(
     pGeom.create(FVF, pVB, pIB);
 #endif //   USE_DX10
 }
+
 void SPrimitiveBuffer::Destroy()
 {
-#ifndef USE_OGL
     if (pGeom)
     {
         HW.stats_manager.decrement_stats_vb(pGeom->vb);
@@ -159,7 +157,6 @@ void SPrimitiveBuffer::Destroy()
         _RELEASE(pGeom->ib);
         pGeom.destroy();
     }
-#endif // !USE_OGL
 }
 
 void CDrawUtilities::UpdateGrid(int number_of_cell, float square_size, int subdiv)
@@ -173,8 +170,8 @@ void CDrawUtilities::UpdateGrid(int number_of_cell, float square_size, int subdi
     m_GridStep.set(square_size, square_size);
     m_GridSubDiv[0] = subdiv;
     m_GridSubDiv[1] = subdiv;
-    m_GridCounts[0] = number_of_cell; // iFloor(size/step)*subdiv;
-    m_GridCounts[1] = number_of_cell; // iFloor(size/step)*subdiv;
+    m_GridCounts[0] = number_of_cell;
+    m_GridCounts[1] = number_of_cell;
 
     FVF::L left, right;
     left.p.y = right.p.y = 0;

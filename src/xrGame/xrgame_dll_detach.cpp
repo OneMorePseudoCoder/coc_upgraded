@@ -40,13 +40,8 @@ void init_game_globals()
 {
     CreateUIGeom();
     InitHudSoundSettings();
-    if (!GEnv.isDedicatedServer)
-    {
-        //		CInfoPortion::InitInternal					();
-        //.		CEncyclopediaArticle::InitInternal			();
-        CPhraseDialog::InitInternal();
-        InventoryUtilities::CreateShaders();
-    };
+    CPhraseDialog::InitInternal();
+    InventoryUtilities::CreateShaders();
     CCharacterInfo::InitInternal();
     CSpecificCharacter::InitInternal();
     CHARACTER_COMMUNITY::InitInternal();
@@ -73,13 +68,10 @@ void clean_game_globals()
     story_ids.clear();
     spawn_story_ids.clear();
 
-    if (!GEnv.isDedicatedServer)
-    {
-        CPhraseDialog::DeleteSharedData();
-        CPhraseDialog::DeleteIdToIndexData();
+    CPhraseDialog::DeleteSharedData();
+    CPhraseDialog::DeleteIdToIndexData();
 
-        InventoryUtilities::DestroyShaders();
-    }
+    InventoryUtilities::DestroyShaders();
     CCharacterInfo::DeleteSharedData();
     CCharacterInfo::DeleteIdToIndexData();
 
@@ -100,11 +92,6 @@ void clean_game_globals()
     InventoryUtilities::ClearCharacterInfoStrings();
 
     xr_delete(g_sound_collection_storage);
-
-#ifdef DEBUG
-    // XXX nitrocaster PROFILER: temporarily disabled due to linkage issues
-    // xr_delete										(g_profiler);
-#endif
 
     RELATION_REGISTRY::clear_relation_registry();
 

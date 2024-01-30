@@ -33,8 +33,6 @@
 
 BONE_P_MAP CCar::bone_map = BONE_P_MAP();
 
-// extern CPHWorld*	ph_world;
-
 CCar::CCar()
 {
     m_memory = NULL;
@@ -107,7 +105,6 @@ CCar::~CCar(void)
     xr_delete(inventory);
     xr_delete(m_car_weapon);
     xr_delete(m_memory);
-    //	xr_delete			(l_tpEntityAction);
 }
 
 void CCar::reinit()
@@ -149,7 +146,6 @@ void CCar::cb_Steer(CBoneInstance* B)
 void CCar::Load(LPCSTR section)
 {
     inherited::Load(section);
-    // CPHSkeleton::Load(section);
     ISpatial* self = smart_cast<ISpatial*>(this);
     if (self)
         self->GetSpatialData().type |= STYPE_VISIBLEFORAI;
@@ -225,13 +221,9 @@ void CCar::SpawnInitPhysics(CSE_Abstract* D)
     IKinematics* K = smart_cast<IKinematics*>(Visual());
     K->CalculateBones_Invalidate(); // this need to call callbacks
     K->CalculateBones(TRUE);
-    Init(); // inits m_driving_wheels,m_steering_wheels,m_breaking_wheels values using recieved in ParceDefinitions &
-    // from bone_map
-    // PPhysicsShell()->add_ObjectContactCallback(ActorObstacleCallback);
+    Init();
     SetDefaultNetState(so);
     CPHUpdateObject::Activate();
-
-	//m_pPhysicsShell->applyImpulse(Fvector().set(0.f, -1.f, 0.f), 0.1f);
 }
 
 void CCar::net_Destroy()

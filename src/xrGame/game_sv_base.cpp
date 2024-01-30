@@ -164,20 +164,16 @@ void game_sv_GameState::u_EventGen(NET_Packet& P, u16 type, u16 dest)
 void game_sv_GameState::u_EventSend(NET_Packet& P) { m_server->SendBroadcast(BroadcastCID, P); }
 void game_sv_GameState::Update()
 {
-    if (!GEnv.isDedicatedServer)
+    if (Level().game)
     {
-        if (Level().game)
-        {
-            CScriptProcess* script_process = GEnv.ScriptEngine->script_process(ScriptProcessor::Game);
-            if (script_process)
-                script_process->update();
-        }
+        CScriptProcess* script_process = GEnv.ScriptEngine->script_process(ScriptProcessor::Game);
+        if (script_process)
+            script_process->update();
     }
 }
 
 void game_sv_GameState::OnDestroyObject(u16 eid_who)
-{
-}
+{}
 
 game_sv_GameState::game_sv_GameState()
 {

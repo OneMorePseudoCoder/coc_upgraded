@@ -82,28 +82,56 @@ IC int CObjectSpace::GetNearest(xr_vector<IGameObject*>& q_nearest, ICollisionFo
 
 //----------------------------------------------------------------------
 
-void CObjectSpace::Load(CDB::build_callback build_callback) { Load("$level$", "level.cform", build_callback); }
-void CObjectSpace::Load(LPCSTR path, LPCSTR fname, CDB::build_callback build_callback)
+void CObjectSpace::Load(CDB::build_callback build_callback, CDB::serialize_callback serialize_callback, CDB::deserialize_callback deserialize_callback)
+{ 
+	Load("$level$", "level.cform", build_callback, serialize_callback, deserialize_callback);
+}
+
+void CObjectSpace::Load(LPCSTR path, LPCSTR fname, CDB::build_callback build_callback, CDB::serialize_callback serialize_callback, CDB::deserialize_callback deserialize_callback)
 {
     IReader* F = FS.r_open(path, fname);
     R_ASSERT(F);
-    Load(F, build_callback);
+    Load(F, build_callback, serialize_callback, deserialize_callback);
 }
 
-void CObjectSpace::Load(IReader* F, CDB::build_callback build_callback)
+void CObjectSpace::Load(IReader* F, CDB::build_callback build_callback, CDB::serialize_callback serialize_callback, CDB::deserialize_callback deserialize_callback)
 {
     hdrCFORM H;
     F->r(&H, sizeof(hdrCFORM));
     Fvector* verts = (Fvector*)F->pointer();
     CDB::TRI* tris = (CDB::TRI*)(verts + H.vertcount);
-    Create(verts, tris, H, build_callback);
+	Static.set_version(F->get_age());
+	Create(verts, tris, H, build_callback, serialize_callback, deserialize_callback);
     FS.r_close(F);
 }
 
-void CObjectSpace::Create(Fvector* verts, CDB::TRI* tris, const hdrCFORM& H, CDB::build_callback build_callback)
+void CObjectSpace::Create(Fvector* verts, CDB::TRI* tris, const hdrCFORM& H, CDB::build_callback build_callback, CDB::serialize_callback serialize_callback, CDB::deserialize_callback deserialize_callback)
 {
     R_ASSERT(CFORM_CURRENT_VERSION == H.version);
-    Static.build(verts, H.vertcount, tris, H.facecount, build_callback);
+	string_path fName;
+
+	const bool bUseCache = !strstr(Core.Params, "-no_cdb_cache");
+	const bool checkCrc32 = !strstr(Core.Params, "-skip_cdb_cache_crc32_check");
+
+	strconcat(fName, "cdb_cache" "\\", FS.get_path("$level$")->m_Add, "objspace.bin");
+	FS.update_path(fName, "$app_data_root$", fName);
+
+	if (bUseCache && FS.exist(fName) && Static.deserialize(fName, checkCrc32, deserialize_callback))
+	{
+#ifndef MASTER_GOLD
+		Msg("* Loaded ObjectSpace cache (%s)...", fName);
+#endif
+	}
+	else
+	{
+#ifndef MASTER_GOLD
+		Msg("* ObjectSpace cache for '%s' was not loaded. Building the model from scratch..", fName);
+#endif
+		Static.build(verts, H.vertcount, tris, H.facecount, build_callback);
+
+		if (bUseCache)
+			Static.serialize(fName, serialize_callback);
+	}
     m_BoundingVolume.set(H.aabb);
     g_SpatialSpace->initialize(m_BoundingVolume);
     g_SpatialSpacePhysic->initialize(m_BoundingVolume);

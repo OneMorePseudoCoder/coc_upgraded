@@ -43,7 +43,9 @@ public:
 };
 
 // Build callback
-typedef void __stdcall build_callback(Fvector* V, int Vcnt, TRI* T, int Tcnt, void* params);
+using build_callback = void(Fvector* V, int Vcnt, TRI* T, int Tcnt, void* params);
+using serialize_callback = void(IWriter& writer);
+using deserialize_callback = bool(IReader& reader);
 
 // Model definition
 class XRCDB_API MODEL : Noncopyable
@@ -61,6 +63,7 @@ private:
     Lock* pcs;
     Opcode::OPCODE_Model* tree;
     volatile u32 status; // 0=ready, 1=init, 2=building
+	volatile u32 version;
 
     // tris
     TRI* tris;
@@ -88,6 +91,9 @@ public:
     void build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc = NULL, void* bcp = NULL);
     void build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc = NULL, void* bcp = NULL);
     u32 memory();
+	void set_version(u32 value) { version = value; }
+	bool serialize(pcstr fileName, serialize_callback callback = nullptr) const;
+	bool deserialize(pcstr fileName, bool checkCrc32 = true, deserialize_callback callback = nullptr);
 
 private:
     void syncronize_impl() const;

@@ -52,7 +52,7 @@ u32 __stdcall ThreadEntry(void* params)
 
 bool CreateThread(EntryFuncType entry, pcstr name, u32 stack, void* arglist)
 {
-    xrDebug::Initialize(Core.Params);
+    xrDebug::Initialize();
 
     SThreadStartupInfo* info = new SThreadStartupInfo();
     info->threadName = name;

@@ -71,8 +71,7 @@ void CLevel::remove_objects()
     ph_commander().clear();
     ph_commander_scripts().clear();
 
-    if (!GEnv.isDedicatedServer)
-        space_restriction_manager().clear();
+    space_restriction_manager().clear();
 
     psDeviceFlags.set(rsDisableObjectsAsCrows, b_stored);
     g_b_ClearGameCaptions = true;
@@ -87,17 +86,14 @@ void CLevel::remove_objects()
     GEnv.Render->clear_static_wallmarks();
 
 #ifdef DEBUG
-    if (!GEnv.isDedicatedServer)
-        if (!client_spawn_manager().registry().empty())
-            client_spawn_manager().dump();
+    if (!client_spawn_manager().registry().empty())
+        client_spawn_manager().dump();
 #endif // DEBUG
-    if (!GEnv.isDedicatedServer)
-    {
+
 #ifdef DEBUG
-        VERIFY(client_spawn_manager().registry().empty());
+    VERIFY(client_spawn_manager().registry().empty());
 #endif
-        client_spawn_manager().clear();
-    }
+    client_spawn_manager().clear();
 
     g_pGamePersistent->destroy_particles(false);
 	GEnv.Sound->stop_emitters();

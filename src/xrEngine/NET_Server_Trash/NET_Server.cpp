@@ -16,7 +16,7 @@ IClient* IPureServer::ID_to_client(ClientID ID, bool ScanAll)
 }
 
 //==============================================================================
-IPureServer::IPureServer(CTimer* timer, bool Dedicated)
+IPureServer::IPureServer(CTimer* timer)
 {
     device_timer = timer;
     SV_Client = nullptr;

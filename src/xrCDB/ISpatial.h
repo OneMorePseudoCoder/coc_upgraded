@@ -2,7 +2,6 @@
 
 #include "Common/Noncopyable.hpp"
 #include "xrCore/xrPool.h"
-//#include "xr_collide_defs.h"
 #include "xrCore/xrCore_benchmark_macros.h"
 #include "xrCore/_types.h"
 #include "xrCore/_vector3d.h"

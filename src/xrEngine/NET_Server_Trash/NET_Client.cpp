@@ -36,10 +36,7 @@ static u32 LastTimeCreate = 0;
 NET_Packet* INetQueue::Create()
 {
     NET_Packet* P = nullptr;
-    // pcs->Enter();
-    //#ifdef _DEBUG
-    // Msg("- INetQueue::Create - ready %d, unused %d", ready.size(), unused.size());
-    //#endif
+
     if (unused.empty())
     {
         ready.push_back(new NET_Packet());
@@ -54,7 +51,7 @@ NET_Packet* INetQueue::Create()
         unused.pop_back();
         P = ready.back();
     }
-    // pcs->Leave();
+
     return P;
 }
 
@@ -62,9 +59,7 @@ NET_Packet* INetQueue::Create(const NET_Packet& _other)
 {
     NET_Packet* P = nullptr;
     pcs->Enter();
-    //#ifdef _DEBUG
-    // Msg("- INetQueue::Create - ready %d, unused %d", ready.size(), unused.size());
-    //#endif
+
     if (unused.empty())
     {
         ready.push_back(new NET_Packet());
@@ -87,10 +82,7 @@ NET_Packet* INetQueue::Create(const NET_Packet& _other)
 NET_Packet* INetQueue::Retreive()
 {
     NET_Packet* P = nullptr;
-    // pcs->Enter();
-    //#ifdef _DEBUG
-    // Msg("INetQueue::Retreive - ready %d, unused %d", ready.size(), unused.size());
-    //#endif
+
     if (!ready.empty())
         P = ready.front();
     //---------------------------------------------
@@ -105,16 +97,12 @@ NET_Packet* INetQueue::Retreive()
         }
     }
     //---------------------------------------------
-    // pcs->Leave();
+
     return P;
 }
 
 void INetQueue::Release()
 {
-    // pcs->Enter();
-    //#ifdef _DEBUG
-    // Msg("INetQueue::Release - ready %d, unused %d", ready.size(), unused.size());
-    //#endif
     VERIFY(!ready.empty());
     //---------------------------------------------
     u32 tmp_time = GetTickCount() - 60000;
@@ -128,7 +116,6 @@ void INetQueue::Release()
         unused.push_back(ready.front());
     //---------------------------------------------
     ready.pop_front();
-    // pcs->Leave();
 }
 
 void INetQueue::LockQ() { pcs->Enter(); }

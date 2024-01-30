@@ -20,10 +20,7 @@
 
 extern bool shared_str_initialized;
 
-
 static BOOL bException = FALSE;
-
-
 
 #include <exception>
 
@@ -264,8 +261,7 @@ void xrDebug::LogStackTrace(const char* header)
 }
 #endif // defined(WINDOWS)
 
-void xrDebug::GatherInfo(char* assertionInfo, const ErrorLocation& loc, const char* expr, const char* desc,
-    const char* arg1, const char* arg2)
+void xrDebug::GatherInfo(char* assertionInfo, const ErrorLocation& loc, const char* expr, const char* desc, const char* arg1, const char* arg2)
 {
     char* buffer = assertionInfo;
     if (!expr)
@@ -339,8 +335,7 @@ void xrDebug::Fatal(const ErrorLocation& loc, const char* format, ...)
     Fail(ignoreAlways, loc, nullptr, "fatal error", desc);
 }
 
-void xrDebug::Fail(
-    bool& ignoreAlways, const ErrorLocation& loc, const char* expr, long hresult, const char* arg1, const char* arg2)
+void xrDebug::Fail(bool& ignoreAlways, const ErrorLocation& loc, const char* expr, long hresult, const char* arg1, const char* arg2)
 {
     Fail(ignoreAlways, loc, expr, xrDebug::ErrorToString(hresult), arg1, arg2);
 }
@@ -386,8 +381,7 @@ void xrDebug::Fail(bool& ignoreAlways, const ErrorLocation& loc, const char* exp
     TerminateProcess(GetCurrentProcess(), 1);
 }
 
-void xrDebug::Fail(bool& ignoreAlways, const ErrorLocation& loc, const char* expr, const std::string& desc,
-    const char* arg1, const char* arg2)
+void xrDebug::Fail(bool& ignoreAlways, const ErrorLocation& loc, const char* expr, const std::string& desc, const char* arg1, const char* arg2)
 {
     Fail(ignoreAlways, loc, expr, desc.c_str(), arg1, arg2);
 }
@@ -397,7 +391,6 @@ void xrDebug::SoftFail(const ErrorLocation& loc, const char* expr, const char* d
 {
     if (desc == nullptr)
     {
-        // Msg("! VERIFY_FAILED: %s[%d] {%s}  %s", loc.File, loc.Line, loc.Function, expr);
         Msg("! VERIFY_FAILED: %s[%d] %s", loc.File, loc.Line, expr);
         return;
     }
@@ -410,12 +403,10 @@ void xrDebug::SoftFail(const ErrorLocation& loc, const char* expr, const char* d
             buffer = buffer + std::string(" ") + arg2;
     }
 
-    // Msg("! VERIFY_FAILED: %s[%d] {%s}  %s %s", loc.File, loc.Line, loc.Function, expr, buffer.c_str());
     Msg("! VERIFY_FAILED: %s[%d] %s %s", loc.File, loc.Line, expr, buffer.c_str());
 }
 
-void xrDebug::SoftFail(
-    const ErrorLocation& loc, const char* expr, const std::string& desc, const char* arg1, const char* arg2)
+void xrDebug::SoftFail(const ErrorLocation& loc, const char* expr, const std::string& desc, const char* arg1, const char* arg2)
 {
     std::string buffer = desc;
     if (arg1 != nullptr)
@@ -483,8 +474,7 @@ void xrDebug::FormatLastError(char* buffer, const size_t& bufferSize)
         return;
     }
     void* msg = nullptr;
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, lastErr,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, nullptr);
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, lastErr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, nullptr);
     // XXX nitrocaster: check buffer overflow
     sprintf(buffer, "[error][%8d]: %s", lastErr, (char*)msg);
     LocalFree(msg);
@@ -555,8 +545,7 @@ static void handler_base(const char* reason)
     xrDebug::Fail(ignoreAlways, DEBUG_INFO, nullptr, reason, nullptr, nullptr);
 }
 
-static void invalid_parameter_handler(
-    const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t reserved)
+static void invalid_parameter_handler(const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t reserved)
 {
 #if defined(WINDOWS)
     bool ignoreAlways = false;
@@ -612,13 +601,10 @@ void xrDebug::OnThreadSpawn()
     _set_new_mode(1);
     _set_new_handler(&out_of_memory_handler);
     _set_purecall_handler(&pure_call_handler);
-#if 0 // should be if we use exceptions
-    std::set_unexpected(_terminate);
-#endif
 #endif
 }
 
-void xrDebug::Initialize(const bool& dedicated)
+void xrDebug::Initialize()
 {
     *BugReportFile = 0;
     OnThreadSpawn();

@@ -131,7 +131,6 @@ void NET_Packet::w_seek(u32 pos, const void* p, u32 count)
 {
     VERIFY(p && count && (pos + count <= B.count));
     CopyMemory(&B.data[pos], p, count);
-    //. INI_ASSERT (w_seek)
 }
 
 void NET_Packet::r_seek(u32 pos)
@@ -153,13 +152,6 @@ void NET_Packet::r(void* p, u32 count)
     VERIFY(p && count);
     CopyMemory(p, &B.data[r_pos], count);
     r_pos += count;
-    //Alun: To find the cause
-    //if (r_pos > B.count)
-    //{
-    //    xrDebug::LogStackTrace("---------r_pos > B.count-------");
-    //    Msg("count=%d r_pos=%d B.count=%d", count, r_pos, B.count);
-    //}
-    //VERIFY(r_pos <= B.count); // Надоел
 }
 
 bool NET_Packet::r_eof()

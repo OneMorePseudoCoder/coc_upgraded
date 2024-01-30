@@ -77,6 +77,16 @@ static void __stdcall build_callback(Fvector* V, int Vcnt, CDB::TRI* T, int Tcnt
     g_pGameLevel->Load_GameSpecific_CFORM(T, Tcnt);
 }
 
+static void serialize_callback(IWriter& writer)
+{
+	g_pGameLevel->Load_GameSpecific_CFORM_Serialize(writer);
+}
+
+static bool deserialize_callback(IReader& reader)
+{
+	return g_pGameLevel->Load_GameSpecific_CFORM_Deserialize(reader);
+}
+
 bool IGame_Level::Load(u32 dwNum)
 {
     // Initialize level data
@@ -100,7 +110,7 @@ bool IGame_Level::Load(u32 dwNum)
     // CForms
     g_pGamePersistent->SetLoadStageTitle("st_loading_cform");
     g_pGamePersistent->LoadTitle();
-    ObjectSpace.Load(build_callback);
+    ObjectSpace.Load(build_callback, serialize_callback, deserialize_callback);
     GEnv.Sound->set_geometry_occ(ObjectSpace.GetStaticModel());
     GEnv.Sound->set_handler(_sound_event);
 
@@ -130,11 +140,8 @@ bool IGame_Level::Load(u32 dwNum)
     FS.r_close(LL_Stream);
     bReady = true;
 
-    if (!GEnv.isDedicatedServer)
-    {
-        IR_Capture();
-        Device.seqRender.Add(this);
-    }
+    IR_Capture();
+    Device.seqRender.Add(this);
 
     Device.seqFrame.Add(this);
     return true;

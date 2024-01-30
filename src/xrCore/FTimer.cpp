@@ -9,8 +9,8 @@ void CStatTimer::FrameStart()
     count = 0;
 }
 
-void CStatTimer::FrameEnd() {
-    
+void CStatTimer::FrameEnd() 
+{
     const float time = GetElapsed_sec();
     if (time > result)
         result = time;

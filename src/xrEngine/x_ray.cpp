@@ -222,8 +222,7 @@ void CApplication::LoadBegin()
     {
         loaded = false;
 
-        if (!GEnv.isDedicatedServer)
-            _InitializeFont(pFontSystem, "ui_font_letterica18_russian", 0);
+        _InitializeFont(pFontSystem, "ui_font_letterica18_russian", 0);
 
         phase_timer.Start();
         load_stage = 0;
@@ -267,10 +266,7 @@ void CApplication::LoadDraw()
     if (!Device.Begin())
         return;
 
-    if (GEnv.isDedicatedServer)
-        Console->OnRender();
-    else
-        load_draw_internal();
+    load_draw_internal();
 
     Device.End();
 }

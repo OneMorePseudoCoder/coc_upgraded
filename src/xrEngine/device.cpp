@@ -39,9 +39,6 @@ u32 g_dwFPSlimit = 60;
 
 BOOL CRenderDevice::Begin()
 {
-    if (GEnv.isDedicatedServer)
-        return TRUE;
-
     switch (GEnv.Render->GetDeviceState())
     {
     case DeviceState::Normal: break;
@@ -67,9 +64,6 @@ void CRenderDevice::Clear() { GEnv.Render->Clear(); }
 
 void CRenderDevice::End(void)
 {
-    if (GEnv.isDedicatedServer)
-        return;
-
     bool load_finished = false;
     if (dwPrecacheFrame)
     {
@@ -126,23 +120,20 @@ void CRenderDevice::RenderThreadProc(void* context)
             return;
         }
 
-        if (!GEnv.isDedicatedServer)
+        // all rendering is done here
+        CStatTimer renderTotalReal;
+        renderTotalReal.FrameStart();
+        renderTotalReal.Begin();
+        if (device.b_is_Active && device.Begin())
         {
-            // all rendering is done here
-            CStatTimer renderTotalReal;
-            renderTotalReal.FrameStart();
-            renderTotalReal.Begin();
-            if (device.b_is_Active && device.Begin())
-            {
-                device.seqRender.Process();
-                device.CalcFrameStats();
-                device.Statistic->Show();
-                device.End(); // Present goes here
-            }
-            renderTotalReal.End();
-            renderTotalReal.FrameEnd();
-            device.stats.RenderTotal.accum = renderTotalReal.accum;
+            device.seqRender.Process();
+            device.CalcFrameStats();
+            device.Statistic->Show();
+            device.End(); // Present goes here
         }
+        renderTotalReal.End();
+        renderTotalReal.FrameEnd();
+        device.stats.RenderTotal.accum = renderTotalReal.accum;
         device.renderFrameDone.Set();
     }
 }
@@ -170,9 +161,7 @@ void CRenderDevice::SecondaryThreadProc(void* context)
 #include "IGame_Level.h"
 void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_user_input)
 {
-    if (GEnv.isDedicatedServer)
-        amount = 0;
-    else if (GEnv.Render->GetForceGPU_REF())
+    if (GEnv.Render->GetForceGPU_REF())
         amount = 0;
 
     dwPrecacheFrame = dwPrecacheTotal = amount;
@@ -426,7 +415,7 @@ ENGINE_API BOOL bShowPauseString = TRUE;
 void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 {
     static int snd_emitters_ = -1;
-    if (g_bBenchmark || GEnv.isDedicatedServer)
+    if (g_bBenchmark)
         return;
 
     if (bOn)
@@ -477,7 +466,7 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM /*lParam*/)
     const BOOL fMinimized = (BOOL)HIWORD(wParam);
 
     const BOOL isWndActive = (fActive != WA_INACTIVE && !fMinimized) ? TRUE : FALSE;
-    if (!editor() && !GEnv.isDedicatedServer && isWndActive)
+    if (!editor() && isWndActive)
         pInput->ClipCursor(true);
     else
         pInput->ClipCursor(false);

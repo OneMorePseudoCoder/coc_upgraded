@@ -21,8 +21,8 @@ static Fvector3 hbox_verts[24] = {
     {1.f, 0.f, 1.f}, {1.f, -1.f, 1.f},      // half
     {-1.f, 0.f, 1.f}, {-1.f, -1.f, 1.f}     // half
 };
-static u16 hbox_faces[20 * 3] = {0, 2, 3, 3, 1, 0, 4, 5, 7, 7, 6, 4, 0, 1, 9, 9, 8, 0, 8, 9, 5, 5, 4, 8, 1, 3, 10, 10,
-    9, 1, 9, 10, 7, 7, 5, 9, 3, 2, 11, 11, 10, 3, 10, 11, 6, 6, 7, 10, 2, 0, 8, 8, 11, 2, 11, 8, 4, 4, 6, 11};
+
+static u16 hbox_faces[20 * 3] = {0, 2, 3, 3, 1, 0, 4, 5, 7, 7, 6, 4, 0, 1, 9, 9, 8, 0, 8, 9, 5, 5, 4, 8, 1, 3, 10, 10, 9, 1, 9, 10, 7, 7, 5, 9, 3, 2, 11, 11, 10, 3, 10, 11, 6, 6, 7, 10, 2, 0, 8, 8, 11, 2, 11, 8, 4, 4, 6, 11};
 
 #pragma pack(push, 1)
 struct v_skybox
@@ -157,13 +157,6 @@ void dxEnvironmentRender::OnFrame(CEnvironment& env)
     }
 
     //. Setup skybox textures, somewhat ugly
-#ifdef USE_OGL
-    GLuint e0 = mixRen.sky_r_textures[0].second->surface_get();
-    GLuint e1 = mixRen.sky_r_textures[1].second->surface_get();
-
-    tsky0->surface_set(GL_TEXTURE_CUBE_MAP, e0);
-    tsky1->surface_set(GL_TEXTURE_CUBE_MAP, e1);
-#else
     ID3DBaseTexture* e0 = mixRen.sky_r_textures[0].second->surface_get();
     ID3DBaseTexture* e1 = mixRen.sky_r_textures[1].second->surface_get();
 
@@ -171,10 +164,9 @@ void dxEnvironmentRender::OnFrame(CEnvironment& env)
     _RELEASE(e0);
     tsky1->surface_set(e1);
     _RELEASE(e1);
-#endif // USE_OGL
 
 // ******************** Environment params (setting)
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
+#if defined(USE_DX10) || defined(USE_DX11)
 //	TODO: DX10: Implement environment parameters setting for DX10 (if necessary)
 #else //	USE_DX10
 
@@ -315,13 +307,8 @@ void dxEnvironmentRender::OnDeviceCreate()
 
 void dxEnvironmentRender::OnDeviceDestroy()
 {
-#ifdef USE_OGL
-    tsky0->surface_set(GL_TEXTURE_CUBE_MAP, 0);
-    tsky1->surface_set(GL_TEXTURE_CUBE_MAP, 0);
-#else
     tsky0->surface_set(nullptr);
     tsky1->surface_set(nullptr);
-#endif // USE_OGL
 
     sh_2sky.destroy();
     sh_2geom.destroy();

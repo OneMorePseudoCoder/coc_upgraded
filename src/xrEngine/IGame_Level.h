@@ -105,6 +105,8 @@ public:
     virtual bool Load(u32 dwNum);
     virtual bool Load_GameSpecific_Before() { return TRUE; }; // before object loading
     virtual bool Load_GameSpecific_After() { return TRUE; }; // after object loading
+	virtual void Load_GameSpecific_CFORM_Serialize(IWriter& writer)	= 0;
+	virtual bool Load_GameSpecific_CFORM_Deserialize(IReader& reader) = 0;
     virtual void Load_GameSpecific_CFORM(CDB::TRI* T, u32 count) = 0;
 
     virtual void OnFrame(void);

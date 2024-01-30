@@ -194,13 +194,10 @@ CBinocularsVision::~CBinocularsVision() { delete_data(m_active_objects); }
 
 void CBinocularsVision::Update()
 {
-    if (GEnv.isDedicatedServer)
-        return;
-    //-----------------------------------------------------
     const CActor* pActor = Actor();
     if (!pActor)
         return;
-    //-----------------------------------------------------
+
     const CVisualMemoryManager::VISIBLES& vVisibles = pActor->memory().visual().objects();
 
     VIS_OBJECTS_IT it = m_active_objects.begin();
@@ -290,8 +287,7 @@ void CBinocularsVision::Load(const shared_str& section)
 
 void CBinocularsVision::remove_links(IGameObject* object)
 {
-    VIS_OBJECTS::iterator I =
-        std::find_if(m_active_objects.begin(), m_active_objects.end(), FindVisObjByObject(object));
+    VIS_OBJECTS::iterator I = std::find_if(m_active_objects.begin(), m_active_objects.end(), FindVisObjByObject(object));
     if (I == m_active_objects.end())
         return;
 

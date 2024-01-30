@@ -92,7 +92,6 @@ unsigned int query_processor_info(processor_info* pinfo)
     *reinterpret_cast<int*>(pinfo->vendor + 4) = data[0][3];
     *reinterpret_cast<int*>(pinfo->vendor + 8) = data[0][2];
 
-    //const bool isIntel = std::strncmp(pinfo->vendor, "GenuineIntel", 12);
     const bool isAmd = strncmp(pinfo->vendor, "AuthenticAMD", 12) != 0;
 
     // load bitset with flags for function 0x00000001
@@ -101,13 +100,6 @@ unsigned int query_processor_info(processor_info* pinfo)
         f_1_ECX = data[1][2];
         f_1_EDX = data[1][3];
     }
-
-    // load bitset with flags for function 0x00000007
-    /*if (nIds >= 7)
-    {
-    f_7_EBX = data[7][1];
-    f_7_ECX = data[7][2];
-    }*/
 
     nativeCpuId(cpui.data(), 0x80000000);
     const int nExIds_ = cpui[0];
@@ -226,7 +218,6 @@ unsigned int query_processor_info(processor_info* pinfo)
     //https://stackoverflow.com/questions/2901694/programmatically-detect-number-of-physical-processors-cores-or-if-hyper-threadin
 
 #endif
-
 
     if (logicalProcessorCount != processorCoreCount) pinfo->features |= static_cast<u32>(CpuFeature::HT);
 

@@ -109,9 +109,7 @@ CStalkerPropertyEvaluatorSeeEnemy::CStalkerPropertyEvaluatorSeeEnemy(CAI_Stalker
 
 _value_type CStalkerPropertyEvaluatorSeeEnemy::evaluate()
 {
-    return (m_object->memory().enemy().selected() ?
-            m_object->memory().visual().visible_now(m_object->memory().enemy().selected()) :
-            false);
+    return (m_object->memory().enemy().selected() ? m_object->memory().visual().visible_now(m_object->memory().enemy().selected()) : false);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -411,10 +409,6 @@ CStalkerPropertyEvaluatorShouldThrowGrenade::CStalkerPropertyEvaluatorShouldThro
 
 _value_type CStalkerPropertyEvaluatorShouldThrowGrenade::evaluate()
 {
-#if 0
-	return						(false);
-#else // #if 1
-
     if (m_storage->property(eWorldPropertyStartedToThrowGrenade))
         return (true);
 
@@ -434,9 +428,6 @@ _value_type CStalkerPropertyEvaluatorShouldThrowGrenade::evaluate()
     const CEntityAlive* enemy = object().memory().enemy().selected();
     if (!enemy)
         return (false);
-
-    //if (!enemy->human_being())
-    //    return (false);
 
     if (object().memory().visual().visible_now(enemy))
         return (false);
@@ -468,7 +459,6 @@ _value_type CStalkerPropertyEvaluatorShouldThrowGrenade::evaluate()
 
     // do throw grenade
     return (true);
-#endif // #if 1
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -58,10 +58,7 @@ ENGINE_API void InitSettings()
 
 ENGINE_API void InitConsole()
 {
-    if (GEnv.isDedicatedServer)
-        Console = new CTextConsole();
-    else
-        Console = new CConsole();
+    Console = new CConsole();
 
     Console->Initialize();
     xr_strcpy(Console->ConfigFile, "user.ltx");
@@ -168,17 +165,13 @@ ENGINE_API int RunApplication()
     R_ASSERT2(Core.Params, "Core must be initialized");
 
 #ifdef NO_MULTI_INSTANCES
-    if (!GEnv.isDedicatedServer)
+    CreateMutex(nullptr, TRUE, "Local\\STALKER-COP");
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
-        CreateMutex(nullptr, TRUE, "Local\\STALKER-COP");
-        if (GetLastError() == ERROR_ALREADY_EXISTS)
-        {
-            splash::hide();
-            MessageBox(nullptr, "The game has already been launched!", nullptr, MB_ICONERROR | MB_OK);
-            return 2;
-        }
-        
-    }
+        splash::hide();
+        MessageBox(nullptr, "The game has already been launched!", nullptr, MB_ICONERROR | MB_OK);
+        return 2;
+    }  
 #endif
     *g_sLaunchOnExit_app = 0;
     *g_sLaunchOnExit_params = 0;

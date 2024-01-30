@@ -162,8 +162,7 @@ void CBulletManager::FireShotmark(SBullet* bullet, const Fvector& vDir, const Fv
             //добавить отметку на материале
             Fvector p;
             p.mad(bullet->bullet_pos, bullet->dir, R.range - 0.01f);
-            if (!GEnv.isDedicatedServer)
-                GEnv.Render->add_SkeletonWallmark(&R.O->XFORM(), PKinematics(R.O->Visual()), &*mtl_pair->CollideMarks, p, bullet->dir, bullet->wallmark_size);
+            GEnv.Render->add_SkeletonWallmark(&R.O->XFORM(), PKinematics(R.O->Visual()), &*mtl_pair->CollideMarks, p, bullet->dir, bullet->wallmark_size);
         }
     }
     else
@@ -254,11 +253,9 @@ void CBulletManager::DynamicObjectHit(CBulletManager::_event& E)
     }
 
     //визуальное обозначение попадание на объекте
-    //	Fvector			hit_normal;
     FireShotmark(&E.bullet, E.bullet.dir, E.point, E.R, E.tgt_material, E.normal, NeedShootmark);
 
     Fvector original_dir = E.bullet.dir;
-    // ObjectHit(&E.bullet, E.end_point, E.R, E.tgt_material, hit_normal);
 
     SBullet_Hit hit_param = E.hit_result;
 

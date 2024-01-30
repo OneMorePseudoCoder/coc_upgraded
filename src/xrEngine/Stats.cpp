@@ -106,8 +106,6 @@ void CStats::Show()
     else
         fMem_calls = 0.9f * fMem_calls + 0.1f * memCalls;
     Memory.stat_calls = 0;
-    if (GEnv.isDedicatedServer)
-        return;
     auto& font = *statsFont;
     auto engineTotal = Device.GetStats().EngineTotal.result;
     PerformanceAlert alertInstance(font.GetHeight(), {300, 300});

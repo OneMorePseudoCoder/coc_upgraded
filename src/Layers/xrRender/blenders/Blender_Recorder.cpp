@@ -116,16 +116,8 @@ void CBlender_Compile::_cpp_Compile(ShaderElement* _SH)
 #endif
     }
 
-    bUseSteepParallax =
-        RImplementation.Resources->m_textures_description.UseSteepParallax(base) && BT->canUseSteepParallax();
-/*
-    if (DEV->m_textures_description.UseSteepParallax(base))
-    {
-        bool bSteep = BT->canUseSteepParallax();
-        DEV->m_textures_description.UseSteepParallax(base);
-        bUseSteepParallax = true;
-    }
-*/
+    bUseSteepParallax = RImplementation.Resources->m_textures_description.UseSteepParallax(base) && BT->canUseSteepParallax();
+
 #ifdef USE_DX11
     TessMethod = 0;
 #endif
@@ -178,7 +170,7 @@ void CBlender_Compile::PassEnd()
     proto.vs = RImplementation.Resources->_CreateVS(pass_vs);
     ctable.merge(&proto.ps->constants);
     ctable.merge(&proto.vs->constants);
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
+#if defined(USE_DX10) || defined(USE_DX11)
     proto.gs = RImplementation.Resources->_CreateGS(pass_gs);
     ctable.merge(&proto.gs->constants);
 #ifdef USE_DX11
@@ -220,10 +212,6 @@ void CBlender_Compile::PassSET_ZB(BOOL bZTest, BOOL bZWrite, BOOL bInvertZTest)
         bZWrite = FALSE;
     RS.SetRS(D3DRS_ZFUNC, bZTest ? (bInvertZTest ? D3DCMP_GREATER : D3DCMP_LESSEQUAL) : D3DCMP_ALWAYS);
     RS.SetRS(D3DRS_ZWRITEENABLE, BC(bZWrite));
-    /*
-    if (bZWrite || bZTest)				RS.SetRS	(D3DRS_ZENABLE,	D3DZB_TRUE);
-    else								RS.SetRS	(D3DRS_ZENABLE,	D3DZB_FALSE);
-    */
 }
 
 void CBlender_Compile::PassSET_ablend_mode(BOOL bABlend, u32 abSRC, u32 abDST)
@@ -268,10 +256,8 @@ void CBlender_Compile::PassSET_LightFog(BOOL bLight, BOOL bFog)
 {
     RS.SetRS(D3DRS_LIGHTING, BC(bLight));
     RS.SetRS(D3DRS_FOGENABLE, BC(bFog));
-    // SH->Flags.bLighting				|= !!bLight;
 }
 
-//
 void CBlender_Compile::StageBegin()
 {
     StageSET_Address(D3DTADDRESS_WRAP); // Wrapping enabled by default

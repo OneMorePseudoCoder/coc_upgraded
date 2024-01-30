@@ -283,7 +283,6 @@ bool pDomain::Within(const pVector& pos) const
     case PDBlob:
     {
         pVector x(pos - p1);
-        // return exp(-0.5 * xSq * Sqr(oneOverSigma)) * ONEOVERSQRT2PI * oneOverSigma;
         float Gx = expf(x.length2() * radius2Sqr) * radius2;
         return drand48() < Gx;
     }

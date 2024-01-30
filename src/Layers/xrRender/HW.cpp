@@ -53,8 +53,6 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
         psDeviceFlags.set(rsFullscreen, false);
 
     bool bWindowed = !psDeviceFlags.is(rsFullscreen);
-    if (GEnv.isDedicatedServer)
-        bWindowed = true;
 
     m_DriverType = Caps.bForceGPU_REF ? D3DDEVTYPE_REF : D3DDEVTYPE_HAL;
 
@@ -249,8 +247,7 @@ void CHW::Reset(HWND hwnd)
     if (IsDebuggerPresent())
         psDeviceFlags.set(rsFullscreen, false);
 
-    if (!GEnv.isDedicatedServer)
-        bWindowed = !psDeviceFlags.is(rsFullscreen);
+    bWindowed = !psDeviceFlags.is(rsFullscreen);
 
     selectResolution(DevPP.BackBufferWidth, DevPP.BackBufferHeight, bWindowed);
     // Windoze
@@ -317,13 +314,6 @@ D3DFORMAT CHW::selectDepthStencil(D3DFORMAT fTarget)
 void CHW::selectResolution(u32& dwWidth, u32& dwHeight, BOOL bWindowed)
 {
     fill_vid_mode_list(this);
-
-    if (GEnv.isDedicatedServer)
-    {
-        dwWidth = 640;
-        dwHeight = 480;
-        return;
-    }
 
     if (bWindowed)
     {
@@ -471,9 +461,6 @@ void CHW::updateWindowProps(HWND m_hWnd)
 
     bool bWindowed = !psDeviceFlags.is(rsFullscreen);
 
-    if (GEnv.isDedicatedServer)
-        bWindowed = true;
-
     u32 dwWindowStyle = 0;
     // Set window properties depending on what mode were in.
     if (bWindowed)
@@ -497,7 +484,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
             RECT m_rcWindowBounds;
             float fYOffset = 0.f;
             bool centerScreen = false;
-            if (GEnv.isDedicatedServer || strstr(Core.Params, "-center_screen"))
+            if (strstr(Core.Params, "-center_screen"))
                 centerScreen = true;
 
             if (centerScreen)
@@ -506,11 +493,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
 
                 GetClientRect(GetDesktopWindow(), &DesktopRect);
 
-                SetRect(&m_rcWindowBounds,
-                    (DesktopRect.right - DevPP.BackBufferWidth) / 2,
-                    (DesktopRect.bottom - DevPP.BackBufferHeight) / 2,
-                    (DesktopRect.right + DevPP.BackBufferWidth) / 2,
-                    (DesktopRect.bottom + DevPP.BackBufferHeight) / 2);
+                SetRect(&m_rcWindowBounds, (DesktopRect.right - DevPP.BackBufferWidth) / 2, (DesktopRect.bottom - DevPP.BackBufferHeight) / 2, (DesktopRect.right + DevPP.BackBufferWidth) / 2, (DesktopRect.bottom + DevPP.BackBufferHeight) / 2);
             }
             else
             {
@@ -521,11 +504,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
 
             AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
 
-            SetWindowPos(m_hWnd, HWND_NOTOPMOST,
-                m_rcWindowBounds.left, m_rcWindowBounds.top + fYOffset,
-                m_rcWindowBounds.right - m_rcWindowBounds.left,
-                m_rcWindowBounds.bottom - m_rcWindowBounds.top,
-                SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
+            SetWindowPos(m_hWnd, HWND_NOTOPMOST, m_rcWindowBounds.left, m_rcWindowBounds.top + fYOffset, m_rcWindowBounds.right - m_rcWindowBounds.left, m_rcWindowBounds.bottom - m_rcWindowBounds.top, SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
         }
     }
     else
@@ -533,8 +512,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
         SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle = WS_POPUP | WS_VISIBLE);
     }
 
-    if (!GEnv.isDedicatedServer)
-        SetForegroundWindow(m_hWnd);
+    SetForegroundWindow(m_hWnd);
 }
 
 struct uniqueRenderingMode

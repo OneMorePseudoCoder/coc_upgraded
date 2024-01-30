@@ -11,7 +11,6 @@
 #include "DetailModel.h"
 
 #ifdef _EDITOR
-//.	#include	"ESceneClassList.h"
 const int dm_max_decompress = 14;
 class CCustomObject;
 typedef u32 ObjClassID;
@@ -20,38 +19,32 @@ typedef xr_list<CCustomObject*> ObjectList;
 typedef ObjectList::iterator ObjectIt;
 typedef xr_map<ObjClassID, ObjectList> ObjectMap;
 typedef ObjectMap::iterator ObjectPairIt;
-
 #else
 const int dm_max_decompress = 7;
 #endif
-//const int dm_size = 24;
+
 const int dm_cache1_count = 4;
-//const int dm_cache1_line = dm_size * 2 / dm_cache1_count; //! dm_size*2 must be div dm_cache1_count
 const int dm_max_objects = 64;
 const int dm_obj_in_slot = 4;
-//const int dm_cache_line = dm_size + 1 + dm_size;
-//const int dm_cache_size = dm_cache_line * dm_cache_line;
-//const float dm_fade = float(2 * dm_size) - .5f;
 const float dm_slot_size = DETAIL_SLOT_SIZE;
 
 //AVO: detail radius
 #ifdef DETAIL_RADIUS
-//const u32 dm_max_cache_size = 62001; // assuming max dm_size = 124
 constexpr auto dm_max_cache_size = 62001 * 2; // assuming max dm_size = 248
 extern u32 dm_size;
 extern u32 dm_cache1_line;
 extern u32 dm_cache_line;
 extern u32 dm_cache_size;
 extern float dm_fade;
-extern u32 dm_current_size;// = iFloor((float)ps_r__detail_radius/4)*2; //!
-extern u32 dm_current_cache1_line;// = dm_current_size*2/dm_cache1_count; //! dm_current_size*2 must be div dm_cache1_count
-extern u32 dm_current_cache_line;// = dm_current_size+1+dm_current_size;
-extern u32 dm_current_cache_size;// = dm_current_cache_line*dm_current_cache_line;
-extern float dm_current_fade;// = float(2*dm_current_size)-.5f;
+extern u32 dm_current_size;
+extern u32 dm_current_cache1_line;
+extern u32 dm_current_cache_line;
+extern u32 dm_current_cache_size;
+extern float dm_current_fade;
 extern float ps_current_detail_density;
 #else
 const int dm_size = 24;
-const int dm_cache1_line = dm_size * 2 / dm_cache1_count; //! dm_size*2 must be div dm_cache1_count
+const int dm_cache1_line = dm_size * 2 / dm_cache1_count;
 const int dm_cache_line = dm_size + 1 + dm_size;
 const int dm_cache_size = dm_cache_line * dm_cache_line;
 const float dm_fade = float(2 * dm_size) - .5f;
@@ -188,13 +181,8 @@ public:
     // Hardware processor
     ref_geom hw_Geom;
     u32 hw_BatchSize;
-#ifdef USE_OGL
-    GLuint hw_VB;
-    GLuint hw_IB;
-#else
     ID3DVertexBuffer* hw_VB;
     ID3DIndexBuffer* hw_IB;
-#endif // USE_OGL
     ref_constant hwc_consts;
     ref_constant hwc_wave;
     ref_constant hwc_wind;
@@ -207,7 +195,7 @@ public:
     void hw_Load_Shaders();
     void hw_Unload();
     void hw_Render();
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
+#if defined(USE_DX10) || defined(USE_DX11)
     void hw_Render_dump(const Fvector4& consts, const Fvector4& wave, const Fvector4& wind, u32 var_id, u32 lod_id);
 #else //	USE_DX10
     void hw_Render_dump(ref_constant array, u32 var_id, u32 lod_id, u32 c_base);

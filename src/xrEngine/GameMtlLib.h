@@ -245,6 +245,7 @@ private:
     GameMtlVec materials;
     GameMtlPairVec material_pairs;
     GameMtlPairVec material_pairs_rt;
+    u32 m_file_age{};
 
 public:
     CGameMtlLibrary();
@@ -344,6 +345,8 @@ public:
     // IO routines
     void Load();
     bool Save();
+    [[nodiscard]]
+    auto GetFileAge() const { return m_file_age; }
 };
 
 extern MTL_EXPORT_API CGameMtlLibrary GMLib;

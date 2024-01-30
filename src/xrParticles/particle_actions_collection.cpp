@@ -29,7 +29,6 @@ void PAPI::PAAvoid::Execute(ParticleEffect* effect, const float dt, float& tm_ma
                 {
                     float vm = m.vel.length();
                     pVector Vn = m.vel / vm;
-                    // float dot = Vn * position.p2;
 
                     pVector tmp = (position.p2 * (magdt / (dist * dist + epsilon))) + Vn;
                     m.vel = tmp * (vm / tmp.length());

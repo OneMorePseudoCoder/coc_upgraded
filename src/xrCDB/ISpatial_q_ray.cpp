@@ -11,19 +11,20 @@ struct alignas(16) vec_t : public Fvector3
 {
     float pad;
 };
-// static vec_t	vec_c	( float _x, float _y, float _z)	{ vec_t v; v.x=_x;v.y=_y;v.z=_z;v.pad=0; return v; }
 
 struct alignas(16) aabb_t
 {
     vec_t min;
     vec_t max;
 };
+
 struct alignas(16) ray_t
 {
     vec_t pos;
     vec_t inv_dir;
     vec_t fwd_dir;
 };
+
 struct ray_segment_t
 {
     float t_near, t_far;
@@ -144,8 +145,7 @@ ICF BOOL isect_fpu(const Fvector& min, const Fvector& max, const ray_t& ray, Fve
 #define muxhps(low, high) _mm_movehl_ps((low), (high)) // low{a,b,c,d}|high{e,f,g,h} = {c,d,g,h}
 
 static constexpr auto flt_plus_inf = std::numeric_limits<float>::infinity();
-alignas(16) static constexpr float ps_cst_plus_inf[4] = { flt_plus_inf, flt_plus_inf, flt_plus_inf, flt_plus_inf },
-                                   ps_cst_minus_inf[4] = { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
+alignas(16) static constexpr float ps_cst_plus_inf[4] = { flt_plus_inf, flt_plus_inf, flt_plus_inf, flt_plus_inf }, ps_cst_minus_inf[4] = { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
 
 ICF BOOL isect_sse(const aabb_t& box, const ray_t& ray, float& dist)
 {
@@ -247,11 +247,6 @@ public:
     ICF BOOL _box_sse(const Fvector& n_C, const float n_R, float& dist)
     {
         aabb_t box;
-        /*
-            float		n_vR	=		2*n_R;
-            box.min.set	(n_C.x-n_vR, n_C.y-n_vR, n_C.z-n_vR);	box.min.pad = 0;
-            box.max.set	(n_C.x+n_vR, n_C.y+n_vR, n_C.z+n_vR);	box.max.pad = 0;
-        */
         __m128 NR = _mm_load_ss((float*)&n_R);
         __m128 NC = _mm_unpacklo_ps(_mm_load_ss((float*)&n_C.x), _mm_load_ss((float*)&n_C.y));
         NR = _mm_add_ss(NR, NR);

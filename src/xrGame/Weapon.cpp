@@ -421,16 +421,13 @@ void CWeapon::Load(LPCSTR section)
 		float delta, min_zoom_factor;
 		GetZoomData(m_zoom_params.m_fScopeZoomFactor, delta, min_zoom_factor);
         m_fRTZoomFactor = min_zoom_factor;
-        if (!GEnv.isDedicatedServer)
+        m_UIScope = new CUIWindow();
+        if (!pWpnScopeXml)
         {
-            m_UIScope = new CUIWindow();
-            if (!pWpnScopeXml)
-            {
-                pWpnScopeXml = new CUIXml();
-                pWpnScopeXml->Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, "scopes.xml");
-            }
-            CUIXmlInit::InitWindow(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+            pWpnScopeXml = new CUIXml();
+            pWpnScopeXml->Load(CONFIG_PATH, UI_PATH, UI_PATH_DEFAULT, "scopes.xml");
         }
+        CUIXmlInit::InitWindow(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
     }
 
     if (m_eSilencerStatus == ALife::eAddonAttachable)
@@ -1086,7 +1083,7 @@ void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
         D->ID_Phantom = 0xffff;
         D->s_flags.assign(M_SPAWN_OBJECT_LOCAL);
         D->RespawnTime = 0;
-        l_pA->m_tNodeID = GEnv.isDedicatedServer ? u32(-1) : ai_location().level_vertex_id();
+        l_pA->m_tNodeID = ai_location().level_vertex_id();
 
         if (boxCurr == 0xffffffff)
             boxCurr = l_pA->m_boxSize;

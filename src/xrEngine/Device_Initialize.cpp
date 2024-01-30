@@ -9,19 +9,11 @@
 
 extern LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-void CRenderDevice::initialize_weather_editor()
-{
-    GEnv.isEditor = true;
-}
-
 void CRenderDevice::Initialize()
 {
     Log("Initializing Engine...");
     TimerGlobal.Start();
     TimerMM.Start();
-
-    if (strstr(Core.Params, "-weather"))
-        initialize_weather_editor();
 
     // Unless a substitute hWnd has been specified, create a window to render into
     if (m_hWnd == NULL)

@@ -35,8 +35,6 @@ CAI_Space::CAI_Space()
 
 void CAI_Space::init()
 {
-    if (GEnv.isDedicatedServer)
-        return;
     AISpaceBase::Initialize();
     VERIFY(!m_ef_storage);
     m_ef_storage = new CEF_Storage();
@@ -161,8 +159,6 @@ void CAI_Space::load(LPCSTR level_name)
 
 void CAI_Space::unload(bool reload)
 {
-    if (GEnv.isDedicatedServer)
-        return;
     GEnv.ScriptEngine->unload();
     xr_delete(m_doors_manager);
     AISpaceBase::Unload(reload);

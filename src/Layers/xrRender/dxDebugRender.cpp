@@ -62,8 +62,7 @@ void _add_lines(xr_vector<FVF::L>& vertices, xr_vector<u16>& indices, Fvector co
         (*i).p = *j;
     }
 }
-void dxDebugRender::add_lines(
-    Fvector const* vertices, u32 const& vertex_count, u16 const* pairs, u32 const& pair_count, u32 const& color)
+void dxDebugRender::add_lines(Fvector const* vertices, u32 const& vertex_count, u16 const* pairs, u32 const& pair_count, u32 const& color)
 {
     try_render(vertex_count, pair_count);
     _add_lines(m_line_vertices, m_line_indices, vertices, vertex_count, pairs, pair_count, color);
@@ -79,7 +78,6 @@ void dxDebugRender::NextSceneMode()
 
 void dxDebugRender::ZEnable(bool bEnable)
 {
-    // CHK_DX(HW.pDevice->SetRenderState(D3DRS_ZENABLE,bEnable));
     RCache.set_Z(bEnable);
 }
 
@@ -89,7 +87,7 @@ void dxDebugRender::CacheSetXformWorld(const Fmatrix& M) { RCache.set_xform_worl
 void dxDebugRender::CacheSetCullMode(CullMode m) { RCache.set_CullMode(CULL_NONE + m); }
 void dxDebugRender::SetAmbient(u32 colour)
 {
-#if defined(USE_DX10) || defined(USE_DX11) || defined(USE_OGL)
+#if defined(USE_DX10) || defined(USE_DX11)
     //	TODO: DX10: Check if need this for DX10
     VERIFY(!"Not implemented for DX10");
     UNUSED(colour);
@@ -102,9 +100,7 @@ void dxDebugRender::SetDebugShader(dbgShaderHandle shdHandle)
 {
     R_ASSERT(shdHandle < dbgShaderCount);
 
-    static const LPCSTR dbgShaderParams[][2] = {
-        {"hud\\default", "ui\\ui_pop_up_active_back"}, // dbgShaderWindow
-    };
+    static const LPCSTR dbgShaderParams[][2] = { {"hud\\default", "ui\\ui_pop_up_active_back"}, };
 
     if (!m_dbgShaders[shdHandle])
         m_dbgShaders[shdHandle].create(dbgShaderParams[shdHandle][0], dbgShaderParams[shdHandle][1]);

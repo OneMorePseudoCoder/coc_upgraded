@@ -70,8 +70,7 @@ void Touch::feel_touch_update(Fvector& C, float R)
     for (int d = 0; d < int(feel_touch.size()); d++)
     {
         IGameObject* O = feel_touch[d];
-        if (O->getDestroy() || !feel_touch_contact(O) ||
-            (std::find(n_begin, n_end, O) == n_end)) // Don't touch candidates for destroy
+        if (O->getDestroy() || !feel_touch_contact(O) || (std::find(n_begin, n_end, O) == n_end)) // Don't touch candidates for destroy
         {
             // _delete_
             feel_touch.erase(feel_touch.begin() + d);
@@ -79,8 +78,6 @@ void Touch::feel_touch_update(Fvector& C, float R)
             d--;
         }
     }
-
-    //. Engine.Sheduler.Slice ();
 }
 
 void Touch::feel_touch_relcase(IGameObject* O)

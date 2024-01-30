@@ -27,6 +27,7 @@
 #include "client_spawn_manager.h"
 #include "memory_manager.h"
 #include "ai/monsters/basemonster/base_monster.h"
+#include "ai/monsters/zombie/zombie.h"
 #include "holder_custom.h"
 
 #ifndef MASTER_GOLD
@@ -436,25 +437,26 @@ bool CVisualMemoryManager::visible(const CGameObject* game_object, float time_de
 bool CVisualMemoryManager::should_ignore_object(IGameObject const* object) const
 {
     if (!object)
-    {
         return true;
-    }
 
 #ifndef MASTER_GOLD
     if (smart_cast<CActor const*>(object) && psAI_Flags.test(aiIgnoreActor))
-    {
         return true;
-    }
     else
 #endif // MASTER_GOLD
 
-	if (CBaseMonster const* const monster = smart_cast<CBaseMonster const*>(object))
-    {
-        if (!monster->can_be_seen())
-        {
-            return true;
-        }
-    }
+	CBaseMonster const* monster = smart_cast<CBaseMonster const*>(object);
+
+	if (monster)
+	{
+		if (!monster->can_be_seen())
+			return true;
+
+		CZombie const* zombie = smart_cast<CZombie const*>(object);
+
+		if (zombie && zombie->fake_death_is_active())
+			return true;
+	}
 
     return false;
 }
@@ -891,8 +893,7 @@ void CVisualMemoryManager::load(IReader& packet)
 
         const CClientSpawnManager::CSpawnCallback* spawn_callback = Level().client_spawn_manager().callback(delayed_object.m_object_id, m_object->ID());
         if (!spawn_callback || !spawn_callback->m_object_callback)
-            if (!GEnv.isDedicatedServer)
-                Level().client_spawn_manager().add(delayed_object.m_object_id, m_object->ID(), callback);
+            Level().client_spawn_manager().add(delayed_object.m_object_id, m_object->ID(), callback);
 #ifdef DEBUG
             else
             {

@@ -41,7 +41,7 @@ protected:
     IClient* ID_to_client(ClientID ID, bool ScanAll = false);
 
 public:
-    IPureServer(CTimer* timer, bool Dedicated = false);
+    IPureServer(CTimer* timer);
     virtual ~IPureServer();
 
     virtual EConnect Connect(pcstr session_name);
@@ -59,8 +59,7 @@ public:
     virtual CSE_Abstract* entity_Create(pcstr name) = 0;
     virtual void entity_Destroy(CSE_Abstract*& entity) = 0;
 
-    virtual CSE_Abstract* Process_spawn(NET_Packet& packet, ClientID sender, bool mainEntityAsParent = false,
-        CSE_Abstract* currentEntity = nullptr) = 0;
+    virtual CSE_Abstract* Process_spawn(NET_Packet& packet, ClientID sender, bool mainEntityAsParent = false, CSE_Abstract* currentEntity = nullptr) = 0;
 
 private:
 #ifdef DEBUG

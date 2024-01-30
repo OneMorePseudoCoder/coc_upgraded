@@ -42,9 +42,9 @@ CCarWeapon::CCarWeapon(CPhysicsShellHolder* obj)
     m_fire_bone = K->LL_BoneID(pUserData->r_string("mounted_weapon_definition", "fire_bone"));
     m_min_gun_speed = pUserData->r_float("mounted_weapon_definition", "min_gun_speed");
     m_max_gun_speed = pUserData->r_float("mounted_weapon_definition", "max_gun_speed");
-    CBoneData& bdX = K->LL_GetData(m_rotate_x_bone); // VERIFY(bdX.IK_data.type==jtJoint);
+    CBoneData& bdX = K->LL_GetData(m_rotate_x_bone);
     m_lim_x_rot.set(bdX.IK_data.limits[0].limit.x, bdX.IK_data.limits[0].limit.y);
-    CBoneData& bdY = K->LL_GetData(m_rotate_y_bone); // VERIFY(bdY.IK_data.type==jtJoint);
+    CBoneData& bdY = K->LL_GetData(m_rotate_y_bone);
     m_lim_y_rot.set(bdY.IK_data.limits[1].limit.x, bdY.IK_data.limits[1].limit.y);
 
     xr_vector<Fmatrix> matrices;
@@ -75,7 +75,6 @@ CCarWeapon::CCarWeapon(CPhysicsShellHolder* obj)
 CCarWeapon::~CCarWeapon()
 {
     delete_data(m_Ammo);
-    //.	m_object->processing_deactivate		();
 }
 
 void CCarWeapon::Load(LPCSTR section)
@@ -129,8 +128,6 @@ void CCarWeapon::UpdateFire()
 void CCarWeapon::Render_internal() { RenderLight(); }
 void CCarWeapon::SetBoneCallbacks()
 {
-    //	m_object->PPhysicsShell()->EnabledCallbacks(FALSE);
-
     CBoneInstance& biX = smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_x_bone);
     biX.set_callback(bctCustom, BoneCallbackX, this);
     CBoneInstance& biY = smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_y_bone);
@@ -143,8 +140,6 @@ void CCarWeapon::ResetBoneCallbacks()
     biX.reset_callback();
     CBoneInstance& biY = smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_y_bone);
     biY.reset_callback();
-
-    //	m_object->PPhysicsShell()->EnabledCallbacks(TRUE);
 }
 
 void CCarWeapon::UpdateBarrelDir()
@@ -213,8 +208,7 @@ void CCarWeapon::FireEnd()
 void CCarWeapon::OnShot()
 {
     CHolderCustom* holder = smart_cast<CHolderCustom*>(m_object);
-    FireBullet(m_fire_pos, m_fire_dir, fireDispersionBase, *m_Ammo, holder->Engaged() ? 0 : m_object->ID(), m_object->ID(),
-        SendHitAllowed(m_object), ::Random.randI(0, 30));
+    FireBullet(m_fire_pos, m_fire_dir, fireDispersionBase, *m_Ammo, holder->Engaged() ? 0 : m_object->ID(), m_object->ID(), SendHitAllowed(m_object), ::Random.randI(0, 30));
 
     StartShotParticles();
 
@@ -223,7 +217,6 @@ void CCarWeapon::OnShot()
 
     StartFlameParticles();
     StartSmokeParticles(m_fire_pos, zero_vel);
-    //	OnShellDrop				(m_fire_pos, zero_vel);
 
     HUD_SOUND_ITEM::PlaySound(m_sndShot, m_fire_pos, m_object, false);
 }

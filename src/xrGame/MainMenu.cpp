@@ -47,19 +47,13 @@ CMainMenu::CMainMenu()
         OnDeviceCreate();
     ReadTextureInfo();
     CUIXmlInit::InitColorDefs();
-    g_btnHint = NULL;
-    g_statHint = NULL;
+    g_btnHint = new CUIButtonHint();
+    g_statHint = new CUIButtonHint();
     m_deactivated_frame = 0;
 
     m_NeedErrDialog = ErrNoError;
     m_start_time = 0;
 
-	if (!GEnv.isDedicatedServer)
-	{
-		g_btnHint = new CUIButtonHint();
-		g_statHint = new CUIButtonHint();
-	}
-	
 	Device.seqFrame.Add(this,REG_PRIORITY_LOW-1000);
 	mLanguageChanged = false;
 }
@@ -115,9 +109,6 @@ void CMainMenu::Activate(bool bActivate)
         return;
 
     if ((m_screenshotFrame == Device.dwFrame) || (m_screenshotFrame == Device.dwFrame - 1) || (m_screenshotFrame == Device.dwFrame + 1))
-        return;
-
-    if (GEnv.isDedicatedServer && bActivate)
         return;
 
     if (bActivate)

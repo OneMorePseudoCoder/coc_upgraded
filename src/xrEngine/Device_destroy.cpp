@@ -65,6 +65,5 @@ void CRenderDevice::Reset(bool precache)
     if (dwWidth_before != dwWidth || dwHeight_before != dwHeight)
         seqResolutionChanged.Process();
 
-    if (!GEnv.isDedicatedServer)
-        pInput->ClipCursor(true);
+    pInput->ClipCursor(true);
 }

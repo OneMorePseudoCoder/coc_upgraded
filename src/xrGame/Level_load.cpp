@@ -76,79 +76,72 @@ bool CLevel::Load_GameSpecific_After()
         FS.r_close(F);
     }
 
-    if (!GEnv.isDedicatedServer)
+    // loading static sounds
+    VERIFY(m_level_sound_manager);
+    m_level_sound_manager->Load();
+
+    // loading sound environment
+    if (FS.exist(fn_game, "$level$", "level.snd_env"))
     {
-        // loading static sounds
-        VERIFY(m_level_sound_manager);
-        m_level_sound_manager->Load();
-
-        // loading sound environment
-        if (FS.exist(fn_game, "$level$", "level.snd_env"))
+        IReader* F = FS.r_open(fn_game);
+        GEnv.Sound->set_geometry_env(F);
+        FS.r_close(F);
+    }
+    // loading SOM
+    if (FS.exist(fn_game, "$level$", "level.som"))
+    {
+        IReader* F = FS.r_open(fn_game);
+        GEnv.Sound->set_geometry_som(F);
+        FS.r_close(F);
+    }
+    // loading random (around player) sounds
+    if (pSettings->section_exist("sounds_random"))
+    {
+        CInifile::Sect& S = pSettings->r_section("sounds_random");
+        Sounds_Random.reserve(S.Data.size());
+        for (auto I = S.Data.cbegin(); S.Data.cend() != I; ++I)
         {
-            IReader* F = FS.r_open(fn_game);
-            GEnv.Sound->set_geometry_env(F);
-            FS.r_close(F);
+            Sounds_Random.push_back(ref_sound());
+            GEnv.Sound->create(Sounds_Random.back(), *I->first, st_Effect, sg_SourceType);
         }
-        // loading SOM
-        if (FS.exist(fn_game, "$level$", "level.som"))
-        {
-            IReader* F = FS.r_open(fn_game);
-            GEnv.Sound->set_geometry_som(F);
-            FS.r_close(F);
-        }
+        Sounds_Random_dwNextTime = Device.TimerAsync() + 50000;
+        Sounds_Random_Enabled = FALSE;
+    }
 
-        // loading random (around player) sounds
-        if (pSettings->section_exist("sounds_random"))
-        {
-            CInifile::Sect& S = pSettings->r_section("sounds_random");
-            Sounds_Random.reserve(S.Data.size());
-            for (auto I = S.Data.cbegin(); S.Data.cend() != I; ++I)
-            {
-                Sounds_Random.push_back(ref_sound());
-                GEnv.Sound->create(Sounds_Random.back(), *I->first, st_Effect, sg_SourceType);
-            }
-            Sounds_Random_dwNextTime = Device.TimerAsync() + 50000;
-            Sounds_Random_Enabled = FALSE;
-        }
-
-        if (g_pGamePersistent->pEnvironment)
-			g_pGamePersistent->pEnvironment->Invalidate();
+    if (g_pGamePersistent->pEnvironment)
+        g_pGamePersistent->pEnvironment->Invalidate();
 		
-        if (FS.exist(fn_game, "$level$", "level.fog_vol"))
+    if (FS.exist(fn_game, "$level$", "level.fog_vol"))
+    {
+        IReader* F = FS.r_open(fn_game);
+        u16 version = F->r_u16();
+        if (version == 2)
         {
-            IReader* F = FS.r_open(fn_game);
-            u16 version = F->r_u16();
-            if (version == 2)
-            {
-                u32 cnt = F->r_u32();
+            u32 cnt = F->r_u32();
 
-                Fmatrix volume_matrix;
-                for (u32 i = 0; i < cnt; ++i)
+            Fmatrix volume_matrix;
+            for (u32 i = 0; i < cnt; ++i)
+            {
+                F->r(&volume_matrix, sizeof(volume_matrix));
+                u32 sub_cnt = F->r_u32();
+                for (u32 is = 0; is < sub_cnt; ++is)
                 {
                     F->r(&volume_matrix, sizeof(volume_matrix));
-                    u32 sub_cnt = F->r_u32();
-                    for (u32 is = 0; is < sub_cnt; ++is)
-                    {
-                        F->r(&volume_matrix, sizeof(volume_matrix));
-                    }
                 }
             }
-            FS.r_close(F);
         }
+        FS.r_close(F);
     }
 
-    if (!GEnv.isDedicatedServer)
-    {
-        // loading scripts
-        auto& scriptEngine = *GEnv.ScriptEngine;
-        scriptEngine.remove_script_process(ScriptProcessor::Level);
-        shared_str scripts;
-        if (pLevel->section_exist("level_scripts") && pLevel->line_exist("level_scripts", "script"))
-            scripts = pLevel->r_string("level_scripts", "script");
-        else
-            scripts = "";
-        scriptEngine.add_script_process(ScriptProcessor::Level, scriptEngine.CreateScriptProcess("level", scripts));
-    }
+    // loading scripts
+    auto& scriptEngine = *GEnv.ScriptEngine;
+    scriptEngine.remove_script_process(ScriptProcessor::Level);
+    shared_str scripts;
+    if (pLevel->section_exist("level_scripts") && pLevel->line_exist("level_scripts", "script"))
+        scripts = pLevel->r_string("level_scripts", "script");
+    else
+        scripts = "";
+    scriptEngine.add_script_process(ScriptProcessor::Level, scriptEngine.CreateScriptProcess("level", scripts));
 
     g_pGamePersistent->Environment().SetGameTime(GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
 
@@ -170,6 +163,18 @@ struct translation_pair
     IC bool operator<(const translation_pair& pair) const { return (m_id < pair.m_id); }
     IC bool operator<(const u16& id) const { return (m_id < id); }
 };
+
+void CLevel::Load_GameSpecific_CFORM_Serialize(IWriter& writer)
+{
+	writer.w_u32(GMLib.GetFileAge());
+}
+
+bool CLevel::Load_GameSpecific_CFORM_Deserialize(IReader& reader)
+{
+	const auto materials_file_age = GMLib.GetFileAge();
+	const auto cached_materials_file_age = reader.r_u32();
+	return materials_file_age == cached_materials_file_age;
+}
 
 void CLevel::Load_GameSpecific_CFORM(CDB::TRI* tris, u32 count)
 {

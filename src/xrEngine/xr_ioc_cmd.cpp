@@ -77,7 +77,6 @@ public:
     CCC_Quit(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
     virtual void Execute(LPCSTR args)
     {
-        // TerminateProcess(GetCurrentProcess(),0);
         Console->Hide();
         Engine.Event.Defer("KERNEL:disconnect");
         Engine.Event.Defer("KERNEL:quit");
@@ -104,8 +103,6 @@ public:
     CCC_MotionsStat(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
     virtual void Execute(LPCSTR args)
     {
-        // g_pMotionsContainer->dump();
-        // TODO: move this console commant into renderer
         VERIFY(0);
     }
 };
@@ -116,9 +113,6 @@ public:
     virtual void Execute(LPCSTR args)
     {
         Device.DumpResourcesMemoryUsage();
-        // Device.Resources->_DumpMemoryUsage();
-        // TODO: move this console commant into renderer
-        // VERIFY(0);
     }
 };
 //-----------------------------------------------------------------------
@@ -319,11 +313,6 @@ public:
     CCC_Start(LPCSTR N) : IConsole_Command(N) { bLowerCaseArgs = false; };
     virtual void Execute(LPCSTR args)
     {
-        /* if (g_pGameLevel) {
-         Log ("! Please disconnect/unload first");
-         return;
-         }
-         */
         string4096 op_server, op_client, op_demo;
         op_server[0] = 0;
         op_client[0] = 0;
@@ -459,53 +448,6 @@ public:
 };
 
 //-----------------------------------------------------------------------
-/*
-#ifdef DEBUG
-extern INT g_bDR_LM_UsePointsBBox;
-extern INT g_bDR_LM_4Steps;
-extern INT g_iDR_LM_Step;
-extern Fvector g_DR_LM_Min, g_DR_LM_Max;
-
-class CCC_DR_ClearPoint : public IConsole_Command
-{
-public:
-CCC_DR_ClearPoint(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
-virtual void Execute(LPCSTR args) {
-g_DR_LM_Min.x = 1000000.0f;
-g_DR_LM_Min.z = 1000000.0f;
-
-g_DR_LM_Max.x = -1000000.0f;
-g_DR_LM_Max.z = -1000000.0f;
-
-Msg("Local BBox (%f, %f) - (%f, %f)", g_DR_LM_Min.x, g_DR_LM_Min.z, g_DR_LM_Max.x, g_DR_LM_Max.z);
-}
-};
-
-class CCC_DR_TakePoint : public IConsole_Command
-{
-public:
-CCC_DR_TakePoint(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
-virtual void Execute(LPCSTR args) {
-Fvector CamPos = Device.vCameraPosition;
-
-if (g_DR_LM_Min.x > CamPos.x) g_DR_LM_Min.x = CamPos.x;
-if (g_DR_LM_Min.z > CamPos.z) g_DR_LM_Min.z = CamPos.z;
-
-if (g_DR_LM_Max.x < CamPos.x) g_DR_LM_Max.x = CamPos.x;
-if (g_DR_LM_Max.z < CamPos.z) g_DR_LM_Max.z = CamPos.z;
-
-Msg("Local BBox (%f, %f) - (%f, %f)", g_DR_LM_Min.x, g_DR_LM_Min.z, g_DR_LM_Max.x, g_DR_LM_Max.z);
-}
-};
-
-class CCC_DR_UsePoints : public CCC_Integer
-{
-public:
-CCC_DR_UsePoints(LPCSTR N, int* V, int _min=0, int _max=999) : CCC_Integer(N, V, _min, _max) {};
-virtual void Save (IWriter *F) {};
-};
-#endif
-*/
 
 ENGINE_API BOOL r2_sun_static = TRUE;
 ENGINE_API BOOL r2_advanced_pp = FALSE; // advanced post process and effects
@@ -541,7 +483,6 @@ public:
 
     virtual void Save(IWriter* F)
     {
-        // fill_render_mode_list ();
         tokens = vid_quality_token.data();
         inherited::Save(F);
     }
@@ -635,11 +576,9 @@ public:
 
 ENGINE_API float psHUD_FOV = 0.45f;
 
-// extern int psSkeletonUpdate;
 extern int rsDVB_Size;
 extern int rsDIB_Size;
 extern Flags32 psEnvFlags;
-// extern float r__dtex_range;
 
 extern int g_ErrorLineCount;
 extern int ps_rs_loading_stages;
@@ -679,9 +618,7 @@ void CCC_Register()
     CMD3(CCC_Mask, "rs_occlusion", &psDeviceFlags, rsOcclusion);
 
     CMD3(CCC_Mask, "rs_detail", &psDeviceFlags, rsDetails);
-    // CMD4(CCC_Float, "r__dtex_range", &r__dtex_range, 5, 175 );
 
-    // CMD3(CCC_Mask, "rs_constant_fps", &psDeviceFlags, rsConstantFPS );
     CMD3(CCC_Mask, "rs_render_statics", &psDeviceFlags, rsDrawStatic);
     CMD3(CCC_Mask, "rs_render_dynamics", &psDeviceFlags, rsDrawDynamic);
 #endif
@@ -755,17 +692,15 @@ void CCC_Register()
     CMD4(CCC_Float, "mouse_sens", &psMouseSens, 0.001f, 0.6f);
 
     // Camera
-    CMD2(CCC_Float, "cam_inert", &psCamInert);
+    CMD4(CCC_Float, "cam_inert", &psCamInert, 0.0f, 0.9f);
     CMD2(CCC_Float, "cam_slide_inert", &psCamSlideInert);
 
     CMD4(CCC_Integer, "always_active", &ps_always_active, 0, 1);
 
     CMD1(CCC_r2, "renderer");
 
-    if (!GEnv.isDedicatedServer)
-        CMD1(CCC_soundDevice, "snd_device");
+    CMD1(CCC_soundDevice, "snd_device");
 
-    // psSoundRolloff = pSettings->r_float ("sound","rolloff"); clamp(psSoundRolloff, EPS_S, 2.f);
     psSoundOcclusionScale = pSettings->r_float("sound", "occlusion_scale");
     clamp(psSoundOcclusionScale, 0.1f, .5f);
 

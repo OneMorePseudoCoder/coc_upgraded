@@ -378,9 +378,6 @@ static void insert_item(CInifile::Sect* tgt, const CInifile::Item& I)
     if (sect_it != tgt->Data.end() && sect_it->first.equal(I.first))
     {
         sect_it->second = I.second;
-        //#ifdef DEBUG
-        // sect_it->comment= I.comment;
-        //#endif
     }
     else
         tgt->Data.insert(sect_it, I);
@@ -551,9 +548,6 @@ void CInifile::Load(IReader* F, pcstr path, allow_include_func_t allow_include_f
                 Item I;
                 I.first = name[0] ? name : NULL;
                 I.second = str2[0] ? str2 : NULL;
-                //#ifdef DEBUG
-                // I.comment = m_flags.test(eReadOnly)?0:comment;
-                //#endif
 
                 if (m_flags.test(eReadOnly))
                 {
@@ -562,11 +556,7 @@ void CInifile::Load(IReader* F, pcstr path, allow_include_func_t allow_include_f
                 }
                 else
                 {
-                    if (*I.first || *I.second
-                        //#ifdef DEBUG
-                        // || *I.comment
-                        //#endif
-                        )
+                    if (*I.first || *I.second)
                         insert_item(Current, I);
                 }
             }
@@ -590,8 +580,7 @@ void CInifile::save_as(IWriter& writer, bool bcheck) const
         writer.w_string(temp);
         if (bcheck)
         {
-            xr_sprintf(temp, sizeof temp, "; %d %d %d", (*r_it)->Name._get()->dwCRC, (*r_it)->Name._get()->dwReference,
-                (*r_it)->Name._get()->dwLength);
+            xr_sprintf(temp, sizeof temp, "; %d %d %d", (*r_it)->Name._get()->dwCRC, (*r_it)->Name._get()->dwReference, (*r_it)->Name._get()->dwLength);
             writer.w_string(temp);
         }
 
@@ -687,18 +676,6 @@ CInifile::Sect& CInifile::r_section(pcstr S) const
     auto I = std::lower_bound(DATA.cbegin(), DATA.cend(), section, sect_pred);
     if (!(I != DATA.cend() && xr_strcmp(*(*I)->Name, section) == 0))
     {
-        // g_pStringContainer->verify();
-
-        // string_path ini_dump_fn, path;
-        // strconcat (sizeof(ini_dump_fn), ini_dump_fn, Core.ApplicationName, "_", Core.UserName, ".ini_log");
-        //
-        // FS.update_path (path, "$logs$", ini_dump_fn);
-        // IWriter* F = FS.w_open_ex(path);
-        // save_as (*F);
-        // F->w_string ("shared strings:");
-        // g_pStringContainer->dump(F);
-        // FS.w_close (F);
-
         xrDebug::Fatal(DEBUG_INFO, "Can't open section '%s'. Please attach [*.ini_log] file to your bug report", S);
     }
     return **I;
@@ -935,9 +912,6 @@ void CInifile::w_string(pcstr S, pcstr L, pcstr V, pcstr comment)
     I.first = line[0] ? line : 0;
     I.second = value[0] ? value : 0;
 
-    //#ifdef DEBUG
-    // I.comment = (comment?comment:0);
-    //#endif
     auto it = std::lower_bound(data.Data.begin(), data.Data.end(), *I.first, item_pred);
 
     if (it != data.Data.end())
