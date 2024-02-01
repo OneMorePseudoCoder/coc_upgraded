@@ -139,11 +139,34 @@ void CAI_Stalker::UpdateAvailableDialogs(CPhraseDialogManager* partner)
 
 void CAI_Stalker::feel_touch_new(IGameObject* O)
 {
-    //	Msg					("FEEL_TOUCH::NEW : %s",*O->cName());
+	auto& eu = brain().evaluators();
+    bool propertyItems = true;
+    bool propertyFoundItemToKill = true;
+
+    const auto ePropertyItems = eu.find(StalkerDecisionSpace::eWorldPropertyItems);
+
+    if (ePropertyItems != eu.end())
+    {
+        propertyItems = (*ePropertyItems).second->evaluate();
+    }
+
+    auto ePropertyFoundItemToKill = eu.find(StalkerDecisionSpace::eWorldPropertyFoundItemToKill);
+    auto ePropertyItemToKill = eu.find(StalkerDecisionSpace::eWorldPropertyItemToKill);
+
+    if (ePropertyFoundItemToKill != eu.end() && ePropertyItemToKill != eu.end())
+    {
+        propertyFoundItemToKill = (*ePropertyFoundItemToKill).second->evaluate() && !(*ePropertyItemToKill).second->evaluate();
+    }
+
+    if (!propertyItems && !propertyFoundItemToKill)
+		return;
+
     if (!g_Alive())
         return;
+
     if (Remote())
         return;
+
     if ((O->GetSpatialData().type | STYPE_VISIBLEFORAI) != O->GetSpatialData().type)
         return;
 
@@ -159,8 +182,6 @@ void CAI_Stalker::feel_touch_new(IGameObject* O)
         return;
     }
 
-    VERIFY2(std::find(m_ignored_touched_objects.begin(), m_ignored_touched_objects.end(), O) ==
-            m_ignored_touched_objects.end(),
-        make_string("object %s is already in ignroed touched objects list", O->cName().c_str()));
+    VERIFY2(std::find(m_ignored_touched_objects.begin(), m_ignored_touched_objects.end(), O) == m_ignored_touched_objects.end(), make_string("object %s is already in ignroed touched objects list", O->cName().c_str()));
     m_ignored_touched_objects.push_back(O);
 }

@@ -535,8 +535,7 @@ void CObjectList::register_object_to_destroy(IGameObject* object_to_destroy)
         IGameObject* O = it;
         if (!O->getDestroy() && O->H_Parent() == object_to_destroy)
         {
-            Msg("setDestroy called, but not-destroyed child found parent[%d] child[%d]", object_to_destroy->ID(),
-                O->ID(), Device.dwFrame);
+            Msg("setDestroy called, but not-destroyed child found parent[%d] child[%d]", object_to_destroy->ID(), O->ID(), Device.dwFrame);
             O->setDestroy(true);
         }
     }
@@ -546,8 +545,7 @@ void CObjectList::register_object_to_destroy(IGameObject* object_to_destroy)
         IGameObject* O = it;
         if (!O->getDestroy() && O->H_Parent() == object_to_destroy)
         {
-            Msg("setDestroy called, but not-destroyed child found parent[%d] child[%d]", object_to_destroy->ID(),
-                O->ID(), Device.dwFrame);
+            Msg("setDestroy called, but not-destroyed child found parent[%d] child[%d]", object_to_destroy->ID(), O->ID(), Device.dwFrame);
             O->setDestroy(true);
         }
     }

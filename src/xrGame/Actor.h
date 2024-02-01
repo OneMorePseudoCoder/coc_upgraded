@@ -107,7 +107,6 @@ public:
     float m_snd_noise;
 #ifdef DEBUG
     virtual void OnRender();
-
 #endif
 
 public:

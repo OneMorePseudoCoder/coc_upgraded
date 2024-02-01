@@ -444,14 +444,12 @@ void D3DXRenderBase::r_dsgraph_render_hud_ui()
     RCache.set_RT(0, 2);
     auto zb = HW.pBaseZB;
 
-#if (RENDER == R_R3) || (RENDER == R_R4) || (RENDER==R_GL)
+#if (RENDER == R_R3) || (RENDER == R_R4)
     if (RImplementation.o.dx10_msaa)
         zb = RImplementation.Target->rt_MSAADepth->pZRT;
 #endif
 
-    RImplementation.Target->u_setrt(
-        RImplementation.o.albedo_wo ? RImplementation.Target->rt_Accumulator : RImplementation.Target->rt_Color,
-        rt_null, rt_null, zb);
+    RImplementation.Target->u_setrt(RImplementation.o.albedo_wo ? RImplementation.Target->rt_Accumulator : RImplementation.Target->rt_Color, rt_null, rt_null, zb);
 #endif // RENDER!=R_R1
 
     g_hud->RenderActiveItemUI();

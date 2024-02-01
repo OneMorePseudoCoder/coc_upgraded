@@ -156,9 +156,6 @@
     <ClInclude Include="profiler.h" />
     <ClInclude Include="profiler_inline.h" />
     <ClInclude Include="Properties.h" />
-    <ClInclude Include="property_collection.hpp" />
-    <ClInclude Include="property_collection_forward.hpp" />
-    <ClInclude Include="property_collection_inline.hpp" />
     <ClInclude Include="PS_instance.h" />
     <ClInclude Include="pure.h" />
     <ClInclude Include="pure_relcase.h" />
@@ -213,7 +210,6 @@
     <ClCompile Include="Device_overdraw.cpp" />
     <ClCompile Include="Device_wndproc.cpp" />
     <ClCompile Include="edit_actions.cpp" />
-    <ClCompile Include="Effector.cpp" />
     <ClCompile Include="EffectorPP.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineAPI.cpp" />

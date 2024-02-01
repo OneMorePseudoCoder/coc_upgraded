@@ -258,7 +258,7 @@ void CWallmarksEngine::AddWallmark_internal(
         bb.getsphere(W->bounds.P, W->bounds.R);
     }
 
-    //	if (W->bounds.R < 1.f)
+
     {
         // search if similar wallmark exists
         wm_slot* slot = FindSlot(hShader);
@@ -283,10 +283,6 @@ void CWallmarksEngine::AddWallmark_internal(
         // no similar - register _new_
         slot->static_items.push_back(W);
     }
-    // else
-    //{
-    //	static_wm_destroy(W);
-    //}
 }
 
 void CWallmarksEngine::AddStaticWallmark(
@@ -348,8 +344,7 @@ ICF void BeginStream(ref_geom hGeom, u32& w_offset, FVF::LIT*& w_verts, FVF::LIT
     w_start = w_verts;
 }
 
-ICF u32 FlushStream(
-    ref_geom hGeom, ref_shader shader, u32& w_offset, FVF::LIT*& w_verts, FVF::LIT*& w_start, BOOL bSuppressCull)
+ICF u32 FlushStream(ref_geom hGeom, ref_shader shader, u32& w_offset, FVF::LIT*& w_verts, FVF::LIT*& w_start, BOOL bSuppressCull)
 {
     u32 w_count = u32(w_verts - w_start);
     RCache.Vertex.Unlock(w_count, hGeom->vb_stride);
@@ -368,7 +363,6 @@ ICF u32 FlushStream(
 
 void CWallmarksEngine::Render()
 {
-    //	if (marks.empty())			return;
     // Projection and xform
     float _43 = Device.mProject._43;
     Device.mProject._43 -= ps_r__WallmarkSHIFT;
@@ -411,8 +405,7 @@ void CWallmarksEngine::Render()
                     u32 w_count = u32(w_verts - w_start);
                     if ((w_count + W->verts.size()) >= (MAX_TRIS * 3))
                     {
-                        RImplementation.BasicStats.WMTriCount +=
-                            FlushStream(hGeom, slot->shader, w_offset, w_verts, w_start, FALSE);
+                        RImplementation.BasicStats.WMTriCount += FlushStream(hGeom, slot->shader, w_offset, w_verts, w_start, FALSE);
                         BeginStream(hGeom, w_offset, w_verts, w_start);
                     }
                     static_wm_render(W, w_verts);
@@ -426,8 +419,7 @@ void CWallmarksEngine::Render()
             if (W->ttl <= EPS)
             {
                 static_wm_destroy(W);
-                w_it = slot->static_items.back();
-                slot->static_items.pop_back();
+                w_it = slot->static_items.erase(w_it);
                 break;
             }
         }

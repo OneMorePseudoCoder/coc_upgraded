@@ -130,8 +130,6 @@ void CSheduler::internal_Register(ISheduled* object, BOOL realTime)
 
 bool CSheduler::internal_Unregister(ISheduled* object, BOOL realTime, bool warn_on_not_found)
 {
-    // the object may be already dead
-    // VERIFY (!O->shedule.b_locked);
     if (realTime)
     {
         for (u32 i = 0; i < ItemsRT.size(); i++)
@@ -187,7 +185,6 @@ bool CSheduler::Registered(ISheduled* object) const
     {
         if (it.Object == object)
         {
-            // Msg ("0x%8x found in RT",object);
             count = 1;
             break;
         }
@@ -197,7 +194,6 @@ bool CSheduler::Registered(ISheduled* object) const
     {
         if (it.Object == object)
         {
-            // Msg ("0x%8x found in non-RT",object);
             VERIFY(!count);
             count = 1;
             break;
@@ -208,7 +204,6 @@ bool CSheduler::Registered(ISheduled* object) const
     {
         if (it.Object == object)
         {
-            // Msg ("0x%8x found in process items",object);
             VERIFY(!count);
             count = 1;
             break;
@@ -221,13 +216,11 @@ bool CSheduler::Registered(ISheduled* object) const
         {
             if (it.OP)
             {
-                // Msg ("0x%8x found in registration on register",object);
                 VERIFY(!count);
                 ++count;
             }
             else
             {
-                // Msg ("0x%8x found in registration on UNregister",object);
                 VERIFY(count == 1);
                 --count;
             }
@@ -364,8 +357,7 @@ void CSheduler::ProcessStep()
 
         m_current_step_obj = item.Object;
 
-        item.Object->shedule_Update(
-            clampr(Elapsed, u32(1), u32(_max(u32(item.Object->GetSchedulerData().t_max), u32(1000)))));
+        item.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(item.Object->GetSchedulerData().t_max), u32(1000)))));
         if (!m_current_step_obj)
         {
 #ifdef DEBUG_SCHEDULER
@@ -384,19 +376,6 @@ void CSheduler::ProcessStep()
         }
         item.dwTimeForExecute = dwTime + dwUpdate;
         ItemsProcessed.emplace_back(std::move(item));
-#if 0 // def DEBUG
-        auto itemName = item.Object->shedule_Name().c_str();
-        const u32 delta_ms = dwTime - item.dwTimeForExecute;
-        const u32 execTime = eTimer.GetElapsed_ms();
-        VERIFY3(item.Object->dbg_update_shedule == item.Object->dbg_startframe,
-            "Broken sequence of calls to 'shedule_Update'", itemName);
-
-        if (delta_ms > 3 * dwUpdate)
-            Msg("! xrSheduler: failed to shedule object [%s] (%dms)", itemName, delta_ms);
-
-        if (execTime > 15)
-            Msg("* xrSheduler: too much time consumed by object [%s] (%dms)", itemName, execTime);
-#endif
 
         if (i % 3 != 3 - 1)
             continue;
@@ -466,8 +445,7 @@ void CSheduler::Update()
         if (!item.Object->shedule_Needed())
         {
 #ifdef DEBUG_SCHEDULER
-            Msg("SCHEDULER: process unregister [%s][%x][%s]", item.Object->shedule_Name().c_str(), item.Object,
-                "false");
+            Msg("SCHEDULER: process unregister [%s][%x][%s]", item.Object->shedule_Name().c_str(), item.Object, "false");
 #endif
             item.dwTimeOfLastExecute = dwTime;
             continue;

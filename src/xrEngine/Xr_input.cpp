@@ -3,7 +3,6 @@
 
 #include "xr_input.h"
 #include "IInputReceiver.h"
-#include "Include/editor/ide.hpp"
 #include "GameFont.h"
 #include "PerformanceAlert.hpp"
 
@@ -26,7 +25,7 @@ float stop_vibration_time = flt_max;
 static bool g_exclusive = true;
 static void on_error_dialog(bool before)
 {
-    if (!pInput || !g_exclusive || Device.editor())
+    if (!pInput || !g_exclusive)
         return;
 
     if (before)
@@ -63,10 +62,8 @@ CInput::CInput(BOOL bExclusive, int deviceForInit)
     if (!pDI)
         CHK_DX(DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&pDI, NULL));
 
-    //. u32 kb_input_flags = ((bExclusive)?DISCL_EXCLUSIVE:DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND;
     u32 kb_input_flags = ((bExclusive) ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND;
 
-    //. u32 mouse_input_flags = ((bExclusive)?DISCL_EXCLUSIVE:DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY,
     u32 mouse_input_flags = ((bExclusive) ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY;
 
     // KEYBOARD
@@ -116,11 +113,9 @@ CInput::~CInput(void)
 // Name: CreateInputDevice()
 // Desc: Create a DirectInput device.
 //-----------------------------------------------------------------------------
-HRESULT CInput::CreateInputDevice(
-    LPDIRECTINPUTDEVICE8* device, GUID guidDevice, const DIDATAFORMAT* pdidDataFormat, u32 dwFlags, u32 buf_size)
+HRESULT CInput::CreateInputDevice(LPDIRECTINPUTDEVICE8* device, GUID guidDevice, const DIDATAFORMAT* pdidDataFormat, u32 dwFlags, u32 buf_size)
 {
     // Obtain an interface to the input device
-    //. CHK_DX( pDI->CreateDeviceEx( guidDevice, IID_IDirectInputDevice8, (void**)device, NULL ) );
     CHK_DX(pDI->CreateDevice(guidDevice, /*IID_IDirectInputDevice8,*/ device, NULL));
 
     // Set the device data format. Note: a data format specifies which
@@ -128,16 +123,13 @@ HRESULT CInput::CreateInputDevice(
     // reported.
     CHK_DX((*device)->SetDataFormat(pdidDataFormat));
 
-// Set the cooperativity level to let DirectInput know how this device
-// should interact with the system and with other DirectInput applications.
-    if (!Device.editor())
-    {
-        HRESULT _hr = (*device)->SetCooperativeLevel(RDEVICE.m_hWnd, dwFlags);
-        if (FAILED(_hr) && (_hr == E_NOTIMPL))
-            Msg("! INPUT: Can't set coop level. Emulation???");
-        else
-            R_CHK(_hr);
-    }
+    // Set the cooperativity level to let DirectInput know how this device
+    // should interact with the system and with other DirectInput applications.
+    HRESULT _hr = (*device)->SetCooperativeLevel(RDEVICE.m_hWnd, dwFlags);
+    if (FAILED(_hr) && (_hr == E_NOTIMPL))
+        Msg("! INPUT: Can't set coop level. Emulation???");
+    else
+        R_CHK(_hr);
 
     // setup the buffer size for the keyboard data
     DIPROPDWORD dipdw;
@@ -265,43 +257,8 @@ void CInput::KeyUpdate()
     if (b_alt_tab)
         SendMessage(Device.m_hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 #endif
-    /*
-    #ifndef _EDITOR
-    //update xinput if exist
-    for( DWORD iUserIndex=0; iUserIndex<DXUT_MAX_CONTROLLERS; iUserIndex++ )
-    {
-    DXUTGetGamepadState( iUserIndex, &g_GamePads[iUserIndex], true, false );
-
-    if( !g_GamePads[iUserIndex].bConnected )
-    continue; // unplugged?
-
-    bool new_b, old_b;
-    new_b = !!(g_GamePads[iUserIndex].wPressedButtons & XINPUT_GAMEPAD_A);
-    old_b = !!(g_GamePads[iUserIndex].wLastButtons & XINPUT_GAMEPAD_A);
-
-    if(new_b != old_b)
-    {
-    if(old_b)
-    cbStack.back()->IR_OnMousePress(0);
-    else
-    cbStack.back()->IR_OnMouseRelease(0);
-    }
-    int dx,dy;
-    dx = iFloor(g_GamePads[iUserIndex].fThumbRX*6);
-    dy = iFloor(g_GamePads[iUserIndex].fThumbRY*6);
-    if(dx || dy)
-    cbStack.back()->IR_OnMouseMove ( dx, dy );
-    }
-
-    if(Device.fTimeGlobal > stop_vibration_time)
-    {
-    stop_vibration_time = flt_max;
-    set_vibration (0, 0);
-    }
-    //xinput
-    #endif
-    */
 }
+
 bool CInput::get_dik_name(int dik, LPSTR dest_str, int dest_sz)
 {
     DIPROPSTRING keyname;
@@ -659,16 +616,10 @@ void CInput::unacquire()
 
 void CInput::acquire(const bool& exclusive)
 {
-    pKeyboard->SetCooperativeLevel(
-        Device.editor() ? Device.editor()->main_handle() :
-                          RDEVICE.m_hWnd,
-        (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND);
+    pKeyboard->SetCooperativeLevel(RDEVICE.m_hWnd, (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND);
     pKeyboard->Acquire();
 
-    pMouse->SetCooperativeLevel(
-        Device.editor() ? Device.editor()->main_handle() :
-                          RDEVICE.m_hWnd,
-        (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY);
+    pMouse->SetCooperativeLevel(RDEVICE.m_hWnd, (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY);
     pMouse->Acquire();
 }
 

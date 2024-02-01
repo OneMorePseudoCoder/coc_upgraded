@@ -21,7 +21,6 @@ extern u32 g_dwFPSlimit;
 
 #define DEVICE_RESET_PRECACHE_FRAME_COUNT 10
 
-#include "Include/editor/interfaces.hpp"
 #include "Include/xrRender/FactoryPtr.h"
 #include "Render.h"
 
@@ -191,7 +190,7 @@ public:
 
     Fmatrix mInvFullTransform;
 
-    CRenderDevice() : m_dwWindowStyle(0), fWidth_2(0), fHeight_2(0), m_editor_module(nullptr), m_editor_initialize(nullptr), m_editor_finalize(nullptr), m_editor(nullptr), m_engine(nullptr)
+    CRenderDevice() : m_dwWindowStyle(0), fWidth_2(0), fHeight_2(0), m_engine(nullptr)
     {
         m_hWnd = NULL;
         b_is_Active = FALSE;
@@ -272,19 +271,6 @@ private:
     virtual void AddSeqFrame(pureFrame* f, bool mt);
     virtual void RemoveSeqFrame(pureFrame* f);
 
-public:
-    XRay::Editor::ide_base* editor() const { return m_editor; }
-
-private:
-    void message_loop_weather_editor();
-
-    using initialize_function_ptr = XRay::Editor::initialize_function_ptr;
-    using finalize_function_ptr = XRay::Editor::finalize_function_ptr;
-
-    XRay::Module m_editor_module;
-    initialize_function_ptr m_editor_initialize;
-    finalize_function_ptr m_editor_finalize;
-    XRay::Editor::ide_base* m_editor;
     engine_impl* m_engine;
 };
 

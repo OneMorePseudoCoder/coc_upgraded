@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "xr_3da/resource.h"
 
-#include "Include/editor/ide.hpp"
 #include "engine_impl.hpp"
 #include "GameFont.h"
 #include "PerformanceAlert.hpp"

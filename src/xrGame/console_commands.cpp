@@ -107,8 +107,7 @@ int g_inv_highlight_equipped = 0;
 
 BOOL g_bCheckTime = FALSE;
 int net_cl_inputupdaterate = 50;
-Flags32 g_mt_config = {mtLevelPath | mtDetailPath | mtObjectHandler | mtSoundPlayer | mtAiVision | mtBullets |
-    mtLUA_GC | mtLevelSounds | mtALife | mtMap};
+Flags32 g_mt_config = {mtLevelPath | mtDetailPath | mtObjectHandler | mtSoundPlayer | mtAiVision | mtBullets | mtLUA_GC | mtLevelSounds | mtALife | mtMap};
 #ifdef DEBUG
 Flags32 dbg_net_Draw_Flags = {0};
 #endif
@@ -1652,13 +1651,13 @@ public:
             return;
         if (!g_pGamePersistent || !g_pGameLevel)
             return;
-        if (!Device.editor())
-            g_pGamePersistent->Environment().SetWeather(args, true);
+
+        g_pGamePersistent->Environment().SetWeather(args, true);
     }
 
     void fill_tips(vecTips& tips, u32 mode) override
     {
-        if (!g_pGamePersistent || !g_pGameLevel || Device.editor())
+        if (!g_pGamePersistent || !g_pGameLevel)
         {
             IConsole_Command::fill_tips(tips, mode);
             return;
@@ -1702,6 +1701,122 @@ public:
     }
 };
 
+class CCC_Spawn : public IConsole_Command 
+{
+public:
+	CCC_Spawn(LPCSTR N) : IConsole_Command(N) {};
+	virtual void Execute(LPCSTR args) 
+	{
+		if (!g_pGameLevel) 
+			return;
+
+		int count = 1;
+		char Name[128];	
+		Name[0] = 0;
+		sscanf(args, "%s %d", Name, &count);
+
+		if (count > 50)
+		{
+			Msg("! [g_spawn]: Cancel the command. Maximum value of the second argument: 50. Count is: %d", count);
+			return;
+		}
+
+		if (!pSettings->section_exist(Name))
+		{
+			Msg("! Section [%s] isn`t exist...", Name);
+			return;
+		}
+
+		collide::rq_result RQ = Level().GetPickResult(Device.vCameraPosition, Device.vCameraDirection, 1000.0f, Level().CurrentControlEntity());
+		Fvector pos = Fvector(Device.vCameraPosition).add(Fvector(Device.vCameraDirection).mul(RQ.range));
+
+		if (auto tpGame = smart_cast<game_sv_Single*>(Level().Server->game))
+		{
+			for (int i = 0; i < count; ++i)
+			{
+				CSE_Abstract* entity = tpGame->alife().spawn_item(Name, pos, Actor()->ai_location().level_vertex_id(), Actor()->ai_location().game_vertex_id(), ALife::_OBJECT_ID(-1));
+
+				if (CSE_ALifeAnomalousZone* anom = smart_cast<CSE_ALifeAnomalousZone*>(entity))
+				{
+					CShapeData::shape_def _shape;
+					_shape.data.sphere.P.set(0.0f, 0.0f, 0.0f);
+					_shape.data.sphere.R = 3.0f;
+					_shape.type = CShapeData::cfSphere;
+					anom->assign_shapes(&_shape, 1);
+					anom->m_space_restrictor_type = RestrictionSpace::eRestrictorTypeNone;
+				}
+			}
+		}
+	}
+
+	virtual void fill_tips(vecTips& tips, u32 mode)
+	{
+		for (auto sect : pSettings->sections())
+		{
+			if (sect->line_exist("class") && sect->line_exist("$spawn"))
+				tips.push_back(sect->Name.c_str());
+		}
+	}
+
+	virtual void Info(TInfo& I)
+	{
+		strcpy(I, "name,team,squad,group");
+	}
+};
+
+class CCC_Spawn_to_inv : public IConsole_Command 
+{
+public:
+	CCC_Spawn_to_inv(LPCSTR N) : IConsole_Command(N) {};
+	virtual void Execute(LPCSTR args) 
+	{
+		if (!g_pGameLevel)
+		{
+			Log("Error: No game level!");
+			return;
+		}
+
+		int count = 1;
+		char Name[128];	
+		Name[0] = 0;
+		sscanf(args, "%s %d", Name, &count);
+
+		if (count > 250)
+		{
+			Msg("! [g_spawn_to_inventory]: Cancel the command. Maximum value of the second argument: 250. Cound is: %d", count);
+			return;
+		}
+
+		if (!pSettings->section_exist(Name))
+		{
+			Msg("! Section [%s] isn`t exist...", Name);
+			return;
+		}
+
+		if (!pSettings->line_exist(Name, "class") || !pSettings->line_exist(Name, "inv_weight") || !pSettings->line_exist(Name, "visual"))
+		{
+			Msg("!Failed to load section!");
+			return;
+		}
+
+		for (int i = 0; i < count; ++i)
+			Level().spawn_item(Name, Actor()->Position(), false, Actor()->ID());
+	}
+
+	virtual void Info(TInfo& I)
+	{
+		strcpy(I, "name,team,squad,group");
+	}
+
+	virtual void fill_tips(vecTips& tips, u32 mode)
+	{
+		for (auto sect : pSettings->sections()) 
+		{
+			if (sect->line_exist("class") && sect->line_exist("inv_weight"))
+				tips.push_back(sect->Name.c_str());
+		}
+	}
+};
 
 void CCC_RegisterCommands()
 {
@@ -1895,6 +2010,8 @@ void CCC_RegisterCommands()
         CMD3(CCC_Mask, "g_no_clip", &psActorFlags, AF_NO_CLIP);
         CMD1(CCC_SetWeather, "set_weather");
         CMD1(CCC_GiveMoney, "give_money");
+		CMD1(CCC_Spawn, "g_spawn");
+		CMD1(CCC_Spawn_to_inv, "g_spawn_to_inventory");
     }
 
     CMD3(CCC_Mask, "g_use_tracers", &psActorFlags, AF_USE_TRACERS);

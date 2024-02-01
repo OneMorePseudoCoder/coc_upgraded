@@ -3,8 +3,7 @@
 #include "xrmessages.h"
 #include "xrserver_objects.h"
 
-void xrServer::Perform_transfer(
-    NET_Packet& PR, NET_Packet& PT, CSE_Abstract* what, CSE_Abstract* from, CSE_Abstract* to)
+void xrServer::Perform_transfer(NET_Packet& PR, NET_Packet& PT, CSE_Abstract* what, CSE_Abstract* from, CSE_Abstract* to)
 {
     // Sanity check
     R_ASSERT(what && from && to);
@@ -15,7 +14,6 @@ void xrServer::Perform_transfer(
     // 1. Perform migration if need it
     if (from->owner != to->owner)
         PerformMigration(what, from->owner, to->owner);
-    // Log						("B");
 
     // 2. Detach "FROM"
     xr_vector<u16>& C = from->children;

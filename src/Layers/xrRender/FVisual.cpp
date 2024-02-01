@@ -186,7 +186,7 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
 
 void Fvisual::Render(float)
 {
-#if (RENDER == R_R2) || (RENDER == R_R3) || (RENDER == R_R4) || (RENDER==R_GL)
+#if (RENDER == R_R2) || (RENDER == R_R3) || (RENDER == R_R4)
     if (m_fast && RImplementation.phase == CRender::PHASE_SMAP && !RCache.is_TessEnabled())
     {
         RCache.set_Geometry(m_fast->rm_geom);
@@ -199,11 +199,11 @@ void Fvisual::Render(float)
         RCache.Render(D3DPT_TRIANGLELIST, vBase, 0, vCount, iBase, dwPrimitives);
         RCache.stat.r.s_static.add(vCount);
     }
-#else // (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4) || (RENDER==R_GL)
+#else // (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
     RCache.set_Geometry(rm_geom);
     RCache.Render(D3DPT_TRIANGLELIST, vBase, 0, vCount, iBase, dwPrimitives);
     RCache.stat.r.s_static.add(vCount);
-#endif // (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4) || (RENDER==R_GL)
+#endif // (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
 }
 
 #define PCOPY(a) a = pFrom->a

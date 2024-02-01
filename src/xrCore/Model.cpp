@@ -797,6 +797,7 @@ static inline void UpdateModel(PPM_CONTEXT* MinContext)
 RESTART_MODEL:
     RestoreModelRare(pc1, MinContext, FSuccessor);
 }
+
 // Tabulated escapes for exponential symbol distribution
 static const BYTE ExpEscape[16] = {25, 14, 9, 7, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2};
 #define GET_MEAN(SUMM, SHIFT, ROUND) ((SUMM + (1 << (SHIFT - ROUND))) >> (SHIFT))
@@ -851,6 +852,7 @@ inline void PPM_CONTEXT::decodeBinSymbol() const
         FoundState = NULL;
     }
 }
+
 inline void PPM_CONTEXT::update1(STATE* p)
 {
     (FoundState = p)->Freq += 4;
@@ -863,6 +865,7 @@ inline void PPM_CONTEXT::update1(STATE* p)
             rescale();
     }
 }
+
 inline void PPM_CONTEXT::encodeSymbol1(int symbol)
 {
     UINT LoCnt, i = Stats->Symbol;
@@ -904,6 +907,7 @@ inline void PPM_CONTEXT::encodeSymbol1(int symbol)
     SubRange.high = (SubRange.low = LoCnt) + p->Freq;
     update1(p);
 }
+
 inline void PPM_CONTEXT::decodeSymbol1()
 {
     UINT i, count, HiCnt = Stats->Freq;
@@ -943,12 +947,9 @@ inline void PPM_CONTEXT::decodeSymbol1()
     SubRange.low = (SubRange.high = HiCnt) - p->Freq;
     ((PPM_CONTEXT*)this)->update1(p);
 }
+
 inline void PPM_CONTEXT::update2(STATE* p)
 {
-    /*
-        ++EscCount;
-        RunLength = InitRL;
-    */
     (FoundState = p)->Freq += 4;
     SummFreq += 4;
     if (p->Freq > MAX_FREQ)
@@ -956,6 +957,7 @@ inline void PPM_CONTEXT::update2(STATE* p)
     EscCount++;
     RunLength = InitRL;
 }
+
 inline SEE2_CONTEXT* PPM_CONTEXT::makeEscFreq2() const
 {
     BYTE* pb = (BYTE*)Stats;
@@ -979,6 +981,7 @@ inline SEE2_CONTEXT* PPM_CONTEXT::makeEscFreq2() const
     }
     return psee2c;
 }
+
 inline void PPM_CONTEXT::encodeSymbol2(int symbol)
 {
     SEE2_CONTEXT* psee2c = makeEscFreq2();
@@ -1016,6 +1019,7 @@ SYMBOL_FOUND:
     psee2c->update();
     update2(p);
 }
+
 inline void PPM_CONTEXT::decodeSymbol2()
 {
     SEE2_CONTEXT* psee2c = makeEscFreq2();
@@ -1057,6 +1061,7 @@ inline void PPM_CONTEXT::decodeSymbol2()
         psee2c->Summ += SubRange.scale;
     }
 }
+
 inline void ClearMask(_PPMD_FILE* EncodedFile, _PPMD_FILE* DecodedFile)
 {
     EscCount = 1;
@@ -1114,7 +1119,7 @@ void _STDCALL EncodeFile(_PPMD_FILE* EncodedFile, _PPMD_FILE* DecodedFile, int M
                 ClearMask(EncodedFile, DecodedFile);
         }
         rcEncNormalize(EncodedFile);
-    } // for (PPM_CONTEXT* MinContext; ; )
+    }
 
 STOP_ENCODING:
     rcFlushEncoder(EncodedFile);
@@ -1239,7 +1244,6 @@ static void _STDCALL StartModelRare(int MaxOrder, MR_METHOD MRMethod)
             MaxContext->makeSuffix();
         }
 
-        //        first_time  = false;
         context = MaxContext;
     }
     else
@@ -1251,30 +1255,8 @@ static void _STDCALL StartModelRare(int MaxOrder, MR_METHOD MRMethod)
         ::OrderFall = ::MaxOrder = MaxOrder;
         ::MRMethod = MRMethod;
 
-        ///        InitSubAllocator();
         RunLength = InitRL = -((MaxOrder < 12) ? MaxOrder : 12) - 1;
-        ///        MaxContext = (PPM_CONTEXT*) AllocContext();
-        ///        MaxContext->Suffix = NULL;
-
         MaxContext = context;
         FoundState = 0;
-
-        /*
-                if( !trained_model || _PPMD_E_GETC(trained_model) > MaxOrder )
-                {
-                    MaxContext->SummFreq=(MaxContext->NumStats=255)+2;
-                    MaxContext->Stats = (PPM_CONTEXT::STATE*) AllocUnits(256/2);
-                    for( PrevSuccess=i=0;i < 256;i++)
-                    {
-                        MaxContext->Stats[i].Symbol=i;  MaxContext->Stats[i].Freq=1;
-                        MaxContext->Stats[i].Successor=NULL;
-                    }
-                }
-                else
-                {
-                    MaxContext->read(trained_model,0xFF);
-                    MaxContext->makeSuffix();
-                }
-        */
     }
 }

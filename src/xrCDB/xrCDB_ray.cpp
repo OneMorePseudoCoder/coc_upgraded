@@ -15,7 +15,6 @@ struct alignas(16) vec_t : public Fvector3
 {
     float pad;
 };
-// static vec_t	vec_c	( float _x, float _y, float _z)	{ vec_t v; v.x=_x;v.y=_y;v.z=_z;v.pad=0; return v; }
 
 struct alignas(16) aabb_t
 {
@@ -566,4 +565,5 @@ void COLLIDER::ray_query(const MODEL* m_def, const Fvector& r_start, const Fvect
             }
         }
     }
+    sort();
 }

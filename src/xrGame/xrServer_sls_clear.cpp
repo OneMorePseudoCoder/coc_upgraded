@@ -21,8 +21,6 @@ void xrServer::Perform_destroy(CSE_Abstract* object)
     {
         CSE_Abstract* child = game->get_entity_from_eid(object->children.back());
         R_ASSERT2(child, make_string("child registered but not found [%d]", object->children.back()));
-        //		Msg					("SLS-CLEAR : REJECT  [%s][%s] FROM
-        //[%s][%s]",child->name(),child->name_replace(),object->name(),object->name_replace());
         Perform_reject(child, object, 2 * NET_Latency);
 #ifdef DEBUG
 #ifdef SLOW_VERIFY_ENTITIES
@@ -32,7 +30,6 @@ void xrServer::Perform_destroy(CSE_Abstract* object)
         Perform_destroy(child);
     }
 
-    //	Msg						("SLS-CLEAR : DESTROY [%s][%s]",object->name(),object->name_replace());
     u16 object_id = object->ID;
     entity_Destroy(object);
 
@@ -65,15 +62,14 @@ void xrServer::SLS_Clear()
             Perform_destroy((*I).second);
             break;
         }
-        if (!found) // R_ASSERT(found);
+        if (!found)
         {
             I = entities.begin();
             E = entities.end();
             for (; I != E; ++I)
             {
                 if (I->second)
-                    Msg("! ERROR: can't destroy object [%d][%s] with parent [%d]", I->second->ID,
-                        I->second->s_name.size() ? I->second->s_name.c_str() : "unknown", I->second->ID_Parent);
+                    Msg("! ERROR: can't destroy object [%d][%s] with parent [%d]", I->second->ID, I->second->s_name.size() ? I->second->s_name.c_str() : "unknown", I->second->ID_Parent);
                 else
                     Msg("! ERROR: can't destroy entity [%d][?] with parent[?]", I->first);
             }

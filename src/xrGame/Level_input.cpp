@@ -119,9 +119,6 @@ void CLevel::IR_OnKeyboardPress(int key)
     if (Device.dwPrecacheFrame)
         return;
 
-    if (Device.editor() && (pInput->iGetAsyncKeyState(DIK_LALT) || pInput->iGetAsyncKeyState(DIK_RALT)))
-        return;
-
     bool b_ui_exist = !!CurrentGameUI();
 
     EGameActions _curr = get_binded_action(key);
@@ -135,9 +132,6 @@ void CLevel::IR_OnKeyboardPress(int key)
 
     if (_curr == kPAUSE)
     {
-        if (Device.editor())
-            return;
-
         if (!g_block_pause)
         {
 #if defined(DEBUG) || defined(COC_DEBUG)

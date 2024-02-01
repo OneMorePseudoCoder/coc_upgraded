@@ -168,8 +168,6 @@ BOOL CInventoryOwner::net_Spawn(CSE_Abstract* DC)
 
 void CInventoryOwner::net_Destroy()
 {
-
-
     inventory().Clear();
     inventory().SetActiveSlot(NO_ACTIVE_SLOT);
 }
@@ -182,21 +180,18 @@ void CInventoryOwner::save(NET_Packet& output_packet)
         output_packet.w_u8((u8)inventory().GetActiveSlot());
 
     CharacterInfo().save(output_packet);
-    //save_data(m_game_name, output_packet);
     save_data(m_money, output_packet);
 }
+
 void CInventoryOwner::load(IReader& input_packet)
 {
     u8 active_slot = input_packet.r_u8();
     if (active_slot == NO_ACTIVE_SLOT)
         inventory().SetActiveSlot(NO_ACTIVE_SLOT);
-    // else
-    // inventory().Activate_deffered(active_slot, Device.dwFrame);
 
     m_tmp_active_slot_num = active_slot;
 
     CharacterInfo().load(input_packet);
-    //load_data(m_game_name, input_packet);
     load_data(m_money, input_packet);
 }
 
@@ -243,7 +238,6 @@ CTrade* CInventoryOwner::GetTrade()
 }
 
 //состояние диалога
-
 //нам предлагают поговорить,
 //проверяем наше отношение
 //и если не враг начинаем разговор
@@ -255,9 +249,6 @@ bool CInventoryOwner::OfferTalk(CInventoryOwner* talk_partner)
     //проверить отношение к собеседнику
     CEntityAlive* pPartnerEntityAlive = smart_cast<CEntityAlive*>(talk_partner);
     R_ASSERT(pPartnerEntityAlive);
-
-    //	ALife::ERelationType relation = RELATION_REGISTRY().GetRelationType(this, talk_partner);
-    //	if(relation == ALife::eRelationTypeEnemy) return false;
 
     if (!is_alive() || !pPartnerEntityAlive->g_Alive())
         return false;
@@ -272,9 +263,9 @@ void CInventoryOwner::StartTalk(CInventoryOwner* talk_partner, bool start_trade)
     m_bTalking = true;
     m_pTalkPartner = talk_partner;
 }
+
 #include "UIGameSP.h"
 #include "ui\UITalkWnd.h"
-
 void CInventoryOwner::StopTalk()
 {
     m_pTalkPartner = NULL;
@@ -375,7 +366,6 @@ void CInventoryOwner::spawn_supplies()
 //игровое имя
 LPCSTR CInventoryOwner::Name() const
 {
-    //	return CharacterInfo().Name();
     return m_game_name.c_str();
 }
 
@@ -406,7 +396,7 @@ void CInventoryOwner::SetCommunity(CHARACTER_COMMUNITY_INDEX new_community)
     CSE_ALifeTraderAbstract* trader = smart_cast<CSE_ALifeTraderAbstract*>(e_entity);
     if (!trader)
         return;
-    //	EA->id_Team = CharacterInfo().Community().team();
+
     trader->m_community_index = new_community;
 }
 
@@ -417,6 +407,7 @@ void CInventoryOwner::SetRank(CHARACTER_RANK_VALUE rank)
     CSE_Abstract* e_entity = ai().alife().objects().object(EA->ID(), false);
     if (!e_entity)
         return;
+
     CSE_ALifeTraderAbstract* trader = smart_cast<CSE_ALifeTraderAbstract*>(e_entity);
     if (!trader)
         return;

@@ -73,6 +73,7 @@ void CALifeStorageManager::save(LPCSTR save_name_no_check, bool update_name)
     void* dest_data;
     {
         CMemoryWriter stream;
+        stream.reserve(4 * 1024 * 1024);
         header().save(stream);
         time_manager().save(stream);
         spawns().save(stream);

@@ -19,7 +19,6 @@
 #define INCLUDE_FROM_ENGINE
 #include "xrCore/FS_impl.h"
 
-#include "Include/editor/ide.hpp"
 #include "engine_impl.hpp"
 
 #include "xrSASH.h"
@@ -101,10 +100,8 @@ void CRenderDevice::End(void)
     // Present goes here, so call OA Frame end.
     if (g_SASH.IsBenchmarkRunning())
         g_SASH.DisplayFrame(Device.fTimeGlobal);
-    GEnv.Render->End();
 
-    if (load_finished && m_editor)
-        m_editor->on_load_finished();
+    GEnv.Render->End();
 }
 
 // XXX: make it work correct in all situations
@@ -298,21 +295,8 @@ void CRenderDevice::on_idle()
         Sleep(1);
 }
 
-void CRenderDevice::message_loop_weather_editor()
-{
-    m_editor->run();
-    m_editor_finalize(m_editor);
-    xr_delete(m_engine);
-}
-
 void CRenderDevice::message_loop()
 {
-    if (editor())
-    {
-        message_loop_weather_editor();
-        return;
-    }
-
     MSG msg;
     PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
     while (msg.message != WM_QUIT)
@@ -422,7 +406,6 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
     {
         if (!Paused())
             bShowPauseString =
-                editor() ? FALSE :
 #ifdef DEBUG
                            !xr_strcmp(reason, "li_pause_key_no_clip") ? FALSE :
 #endif // DEBUG
@@ -466,10 +449,7 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM /*lParam*/)
     const BOOL fMinimized = (BOOL)HIWORD(wParam);
 
     const BOOL isWndActive = (fActive != WA_INACTIVE && !fMinimized) ? TRUE : FALSE;
-    if (!editor() && isWndActive)
-        pInput->ClipCursor(true);
-    else
-        pInput->ClipCursor(false);
+    pInput->ClipCursor(isWndActive ? true : false);
 
     extern int ps_always_active;
     const BOOL isGameActive = ps_always_active || isWndActive;

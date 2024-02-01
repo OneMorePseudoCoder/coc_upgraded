@@ -279,3 +279,5 @@ RESULT& COLLIDER::r_add()
 }
 
 void COLLIDER::r_free() { rd.clear(); }
+
+void COLLIDER::sort() { std::sort(rd.begin(), rd.end(), [](const auto& a, const auto& b) { return a.range < b.range; }); }

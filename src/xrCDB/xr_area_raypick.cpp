@@ -16,8 +16,7 @@ using namespace collide;
 //--------------------------------------------------------------------------------
 // RayTest - Occluded/No
 //--------------------------------------------------------------------------------
-BOOL CObjectSpace::RayTest(const Fvector& start, const Fvector& dir, float range, collide::rq_target tgt,
-    collide::ray_cache* cache, IGameObject* ignore_object)
+BOOL CObjectSpace::RayTest(const Fvector& start, const Fvector& dir, float range, collide::rq_target tgt, collide::ray_cache* cache, IGameObject* ignore_object)
 {
     lock->Enter();
     BOOL _ret = _RayTest(start, dir, range, tgt, cache, ignore_object);
@@ -25,8 +24,8 @@ BOOL CObjectSpace::RayTest(const Fvector& start, const Fvector& dir, float range
     lock->Leave();
     return _ret;
 }
-BOOL CObjectSpace::_RayTest(const Fvector& start, const Fvector& dir, float range, collide::rq_target tgt,
-    collide::ray_cache* cache, IGameObject* ignore_object)
+
+BOOL CObjectSpace::_RayTest(const Fvector& start, const Fvector& dir, float range, collide::rq_target tgt, collide::ray_cache* cache, IGameObject* ignore_object)
 {
     VERIFY(_abs(dir.magnitude() - 1) < EPS);
     r_temp.r_clear();
@@ -37,8 +36,7 @@ BOOL CObjectSpace::_RayTest(const Fvector& start, const Fvector& dir, float rang
     // dynamic test
     if (tgt & rqtDyn)
     {
-        u32 d_flags =
-            STYPE_COLLIDEABLE | ((tgt & rqtObstacle) ? STYPE_OBSTACLE : 0) | ((tgt & rqtShape) ? STYPE_SHAPE : 0);
+        u32 d_flags = STYPE_COLLIDEABLE | ((tgt & rqtObstacle) ? STYPE_OBSTACLE : 0) | ((tgt & rqtShape) ? STYPE_SHAPE : 0);
         // traverse object database
         g_SpatialSpace->q_ray(r_spatial, 0, d_flags, start, dir, range);
         // Determine visibility for dynamic part of scene
@@ -109,8 +107,7 @@ BOOL CObjectSpace::_RayTest(const Fvector& start, const Fvector& dir, float rang
 //--------------------------------------------------------------------------------
 // RayPick
 //--------------------------------------------------------------------------------
-BOOL CObjectSpace::RayPick(
-    const Fvector& start, const Fvector& dir, float range, rq_target tgt, rq_result& R, IGameObject* ignore_object)
+BOOL CObjectSpace::RayPick(const Fvector& start, const Fvector& dir, float range, rq_target tgt, rq_result& R, IGameObject* ignore_object)
 {
     lock->Enter();
     BOOL _res = _RayPick(start, dir, range, tgt, R, ignore_object);
@@ -118,8 +115,8 @@ BOOL CObjectSpace::RayPick(
     lock->Leave();
     return _res;
 }
-BOOL CObjectSpace::_RayPick(
-    const Fvector& start, const Fvector& dir, float range, rq_target tgt, rq_result& R, IGameObject* ignore_object)
+
+BOOL CObjectSpace::_RayPick(const Fvector& start, const Fvector& dir, float range, rq_target tgt, rq_result& R, IGameObject* ignore_object)
 {
     r_temp.r_clear();
     R.O = 0;
@@ -186,6 +183,7 @@ BOOL CObjectSpace::RayQuery(collide::rq_results& dest, const collide::ray_defs& 
     lock->Leave();
     return (_res);
 }
+
 BOOL CObjectSpace::_RayQuery2(collide::rq_results& r_dest, const collide::ray_defs& R, collide::rq_callback* CB, LPVOID user_data, collide::test_callback* tb, IGameObject* ignore_object)
 {
     // initialize query
@@ -193,10 +191,8 @@ BOOL CObjectSpace::_RayQuery2(collide::rq_results& r_dest, const collide::ray_de
     r_temp.r_clear();
 
     rq_target s_mask = rqtStatic;
-    rq_target d_mask = rq_target(((R.tgt & rqtObject) ? rqtObject : rqtNone) |
-        ((R.tgt & rqtObstacle) ? rqtObstacle : rqtNone) | ((R.tgt & rqtShape) ? rqtShape : rqtNone));
-    u32 d_flags =
-        STYPE_COLLIDEABLE | ((R.tgt & rqtObstacle) ? STYPE_OBSTACLE : 0) | ((R.tgt & rqtShape) ? STYPE_SHAPE : 0);
+    rq_target d_mask = rq_target(((R.tgt & rqtObject) ? rqtObject : rqtNone) | ((R.tgt & rqtObstacle) ? rqtObstacle : rqtNone) | ((R.tgt & rqtShape) ? rqtShape : rqtNone));
+    u32 d_flags = STYPE_COLLIDEABLE | ((R.tgt & rqtObstacle) ? STYPE_OBSTACLE : 0) | ((R.tgt & rqtShape) ? STYPE_SHAPE : 0);
 
     // Test static
     if (R.tgt & s_mask)
@@ -377,8 +373,7 @@ BOOL CObjectSpace::_RayQuery(collide::rq_results& r_dest, const collide::ray_def
                         s_res.range = R.range - s_rd.range - EPS_L;
 #ifdef DEBUG
                         if (!(fis_zero(s_res.range, EPS) || s_res.range >= 0.f))
-                            xrDebug::Fatal(
-                                DEBUG_INFO, "Invalid RayQuery static range: %f (%f). /#1/", s_res.range, s_rd.range);
+                            xrDebug::Fatal(DEBUG_INFO, "Invalid RayQuery static range: %f (%f). /#1/", s_res.range, s_rd.range);
 #endif
                     }
                 }

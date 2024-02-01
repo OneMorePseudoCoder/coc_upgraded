@@ -7,11 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "Include/editor/engine.hpp"
-
 class IInputReceiver;
 
-class engine_impl : public XRay::Editor::engine_base
+class engine_impl
 {
 public:
     engine_impl();

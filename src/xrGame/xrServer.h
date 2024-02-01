@@ -44,17 +44,7 @@ private:
     u32 m_last_update_time;
 
 private:
-    typedef CID_Generator<u32, // time identifier type
-        u8, // compressed id type
-        u16, // id type
-        u8, // block id type
-        u16, // chunk id type
-        0, // min value
-        u16(-2), // max value
-        256, // block size
-        u16(-1) // invalid id
-        >
-        id_generator_type;
+    typedef CID_Generator<u32, u8, u16, u8, u16, 0, u16(-2), 256, u16(-1)> id_generator_type;
 
 private:
     id_generator_type m_tID_Generator;
@@ -67,9 +57,6 @@ private:
         void FrameEnd() { Update.FrameEnd(); }
     };
     ServerStatistics stats;
-
-protected:
-    game_sv_GameState* game;
 
 public:
     virtual IServerGameState* GetGameState() override { return game; }
@@ -86,18 +73,15 @@ public:
     void Perform_reject(CSE_Abstract* what, CSE_Abstract* from, int delta);
     void Perform_destroy(CSE_Abstract* tpSE_Abstract);
 
-    CSE_Abstract* Process_spawn(NET_Packet& P, ClientID sender,
-                                bool bSpawnWithClientsMainEntityAsParent = false, CSE_Abstract* tpExistedEntity = nullptr) override;
+    CSE_Abstract* Process_spawn(NET_Packet& P, ClientID sender, bool bSpawnWithClientsMainEntityAsParent = false, CSE_Abstract* tpExistedEntity = nullptr) override;
     void Process_update(NET_Packet& P, ClientID sender);
     void Process_save(NET_Packet& P, ClientID sender);
     void Process_event(NET_Packet& P, ClientID sender);
     void Process_event_ownership(NET_Packet& P, ClientID sender, u32 time, u16 ID, BOOL bForced = FALSE);
-    bool Process_event_reject(NET_Packet& P, const ClientID sender, const u32 time, const u16 id_parent,
-        const u16 id_entity, bool send_message = true);
+    bool Process_event_reject(NET_Packet& P, const ClientID sender, const u32 time, const u16 id_parent, const u16 id_entity, bool send_message = true);
     void Process_event_destroy(NET_Packet& P, ClientID sender, u32 time, u16 ID, NET_Packet* pEPack);
-    void Process_event_activate(NET_Packet& P, const ClientID sender, const u32 time, const u16 id_parent,
-        const u16 id_entity, bool send_message = true);
-
+    void Process_event_activate(NET_Packet& P, const ClientID sender, const u32 time, const u16 id_parent, const u16 id_entity, bool send_message = true);
+    game_sv_GameState* game;
     void __stdcall SendConfigFinished(ClientID const& clientId);
 
 protected:

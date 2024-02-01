@@ -110,8 +110,7 @@ void CBaseMonster::Load(LPCSTR section)
     {
         m_steer_manager = new steering_behaviour::manager();
 
-        m_grouping_behaviour = new squad_grouping_behaviour(
-            this, Fvector3().set(0.f, 0.f, 0.f), Fvector3().set(0.f, separate_factor, 0.f), separate_range);
+        m_grouping_behaviour = new squad_grouping_behaviour(this, Fvector3().set(0.f, 0.f, 0.f), Fvector3().set(0.f, separate_factor, 0.f), separate_range);
 
         get_steer_manager()->add(new steering_behaviour::grouping(m_grouping_behaviour));
     }

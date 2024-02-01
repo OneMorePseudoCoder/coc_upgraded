@@ -2542,11 +2542,11 @@ extern "C" void dJointSetAMotorAxis (dxJointAMotor *joint, int anum, int rel,
 extern "C" void dJointSetAMotorAngle (dxJointAMotor *joint, int anum,
 				      dReal angle)
 {
-  dAASSERT(joint && anum >= 0 && anum < 3);
+  dAASSERT(joint && anum >= 0 && anum < 2);
   dUASSERT(joint->vtable == &__damotor_vtable,"joint is not an amotor");
   if (joint->mode == dAMotorUser) {
     if (anum < 0) anum = 0;
-    if (anum > 3) anum = 3;
+    if (anum > 2) anum = 2;
     joint->angle[anum] = angle;
   }
 }
@@ -2620,10 +2620,10 @@ extern "C" int dJointGetAMotorAxisRel (dxJointAMotor *joint, int anum)
 
 extern "C" dReal dJointGetAMotorAngle (dxJointAMotor *joint, int anum)
 {
-  dAASSERT(joint && anum >= 0 && anum < 3);
+  dAASSERT(joint && anum >= 0 && anum < 2);
   dUASSERT(joint->vtable == &__damotor_vtable,"joint is not an amotor");
   if (anum < 0) anum = 0;
-  if (anum > 3) anum = 3;
+  if (anum > 2) anum = 2;
   return joint->angle[anum];
 }
 
@@ -2799,7 +2799,7 @@ extern "C" void dJointSetFixedQuaternionPos (dxJointFixed *joint,dQuaternion qua
       // set joint->qrel to the transpose of the first body's q
       joint->qrel[0] = quaternion[0];//joint->node[0].body->q[0];
       for (i=1; i<4; i++) joint->qrel[i] = -quaternion[i];//-joint->node[0].body->q[i];
-      for (i=0; i<4; i++) joint->offset[i] = pos[i];//joint->node[0].body->posr.pos[i];
+      for (i=0; i<3; i++) joint->offset[i] = pos[i];//joint->node[0].body->posr.pos[i];
     }
   }
 }

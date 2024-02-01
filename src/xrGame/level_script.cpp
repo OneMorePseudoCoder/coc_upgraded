@@ -102,24 +102,17 @@ CScriptGameObject* get_object_by_id(u16 id)
 LPCSTR get_weather() { return *g_pGamePersistent->Environment().GetWeather(); }
 void set_weather(pcstr const weather_name, const bool forced)
 {
-    if (!Device.editor())
-        g_pGamePersistent->Environment().SetWeather(weather_name, forced);
+    g_pGamePersistent->Environment().SetWeather(weather_name, forced);
 }
 
 bool set_weather_fx(pcstr const weather_name)
 {
-    if (!Device.editor())
-        return g_pGamePersistent->Environment().SetWeatherFX(weather_name);
-
-    return false;
+    return g_pGamePersistent->Environment().SetWeatherFX(weather_name);
 }
 
 bool start_weather_fx_from_time(pcstr const weather_name, const float time)
 {
-    if (!Device.editor())
-        return g_pGamePersistent->Environment().StartWeatherFXFromTime(weather_name, time);
-
-    return false;
+    return g_pGamePersistent->Environment().StartWeatherFXFromTime(weather_name, time);
 }
 
 bool is_wfx_playing() { return (g_pGamePersistent->Environment().IsWFXPlaying()); }
@@ -127,7 +120,7 @@ float get_wfx_time() { return (g_pGamePersistent->Environment().wfx_time); }
 void stop_weather_fx() { g_pGamePersistent->Environment().StopWFX(); }
 void set_time_factor(const float time_factor)
 {
-    if (!OnServer() || Device.editor())
+    if (!OnServer())
         return;
 
     Level().Server->GetGameState()->SetGameTimeFactor(time_factor);

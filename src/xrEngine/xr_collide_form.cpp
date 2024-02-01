@@ -44,6 +44,7 @@ void CCF_Skeleton::SElement::center(Fvector& center) const
     default: NODEFAULT;
     }
 }
+
 bool pred_find_elem(const CCF_Skeleton::SElement& E, u16 elem) { return E.elem_id < elem; }
 bool CCF_Skeleton::_ElementCenter(u16 elem_id, Fvector& e_center)
 {
@@ -78,12 +79,14 @@ IC bool RAYvsOBB(const Fmatrix& IM, const Fvector& b_hsize, const Fvector& S, co
     }
     return false;
 }
+
 IC bool RAYvsSPHERE(const Fsphere& s_sphere, const Fvector& S, const Fvector& D, float& R, BOOL bCull)
 {
     Fsphere::ERP_Result rp_res = s_sphere.intersect(S, D, R);
     VERIFY(R >= 0.f);
     return ((rp_res == Fsphere::rpOriginOutside) || (!bCull && (rp_res == Fsphere::rpOriginInside)));
 }
+
 IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvector& D, float& R, BOOL bCull)
 {
     // Actual test
@@ -96,10 +99,8 @@ CCF_Skeleton::CCF_Skeleton(IGameObject* O) : ICollisionForm(O, cftObject)
 {
     // getVisData
     IRenderVisual* pVisual = O->Visual();
-    // IKinematics* K = PKinematics(pVisual); VERIFY3(K,"Can't create skeleton without Kinematics.",*O->cNameVisual());
     IKinematics* K = PKinematics(pVisual);
     VERIFY3(K, "Can't create skeleton without Kinematics.", *O->cNameVisual());
-    // bv_box.set (K->vis.box);
     bv_box.set(pVisual->getVisData().box);
     bv_box.getsphere(bv_sphere.P, bv_sphere.R);
     vis_mask = 0;
@@ -152,9 +153,6 @@ void CCF_Skeleton::BuildState()
         {
             const Fobb& B = shape.box;
             B.xform_get(ME);
-
-            // VERIFY2( DET(ME)>EPS, ( make_string("0 scale bone matrix, %d \n", I->elem_id ) +
-            // dbg_object_full_dump_string( owner ) ).c_str() );
 
             I->b_hsize.set(B.m_halfsize);
             // prepare matrix World to Element
@@ -324,11 +322,8 @@ BOOL CCF_EventBox::Contact(IGameObject* O)
     }
     return TRUE;
 }
+
 BOOL CCF_EventBox::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R) { return FALSE; }
-/*
-void CCF_EventBox::_BoxQuery(const Fbox& B, const Fmatrix& M, u32 flags)
-{ return; }
-*/
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -395,10 +390,7 @@ BOOL CCF_Shape::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R)
     }
     return bHIT;
 }
-/*
-void CCF_Shape::_BoxQuery(const Fbox& B, const Fmatrix& M, u32 flags)
-{ return; }
-*/
+
 void CCF_Shape::add_sphere(Fsphere& S)
 {
     shapes.push_back(shape_def());

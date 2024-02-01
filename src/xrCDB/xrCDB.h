@@ -160,6 +160,7 @@ public:
     ICF int r_count() { return rd.size(); };
     ICF void r_clear() { rd.clear(); };
     ICF void r_clear_compact() { rd.clear(); };
+    void sort();
 };
 
 //
@@ -173,8 +174,7 @@ class XRCDB_API Collector
 public:
     void add_face(const Fvector& v0, const Fvector& v1, const Fvector& v2, u16 material, u16 sector);
     void add_face_D(const Fvector& v0, const Fvector& v1, const Fvector& v2, u32 dummy);
-    void add_face_packed(
-        const Fvector& v0, const Fvector& v1, const Fvector& v2, u16 material, u16 sector, float eps = EPS);
+    void add_face_packed(const Fvector& v0, const Fvector& v1, const Fvector& v2, u16 material, u16 sector, float eps = EPS);
     void add_face_packed_D(const Fvector& v0, const Fvector& v1, const Fvector& v2, u32 dummy, float eps = EPS);
     void remove_duplicate_T();
     void calc_adjacency(xr_vector<u32>& dest);

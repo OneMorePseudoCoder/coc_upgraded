@@ -160,8 +160,7 @@ Flags32 ps_r2_ls_flags = {R2FLAG_SUN
     | R3FLAG_GBUFFER_OPT | R2FLAG_DETAIL_BUMP | R2FLAG_DOF | R2FLAG_SOFT_PARTICLES | R2FLAG_SOFT_WATER |
     R2FLAG_STEEP_PARALLAX | R2FLAG_SUN_FOCUS | R2FLAG_SUN_TSM | R2FLAG_TONEMAP | R2FLAG_VOLUMETRIC_LIGHTS}; // r2-only
 
-Flags32 ps_r2_ls_flags_ext = {
-    /*R2FLAGEXT_SSAO_OPT_DATA |*/ R2FLAGEXT_SSAO_HALF_DATA | R2FLAGEXT_ENABLE_TESSELLATION};
+Flags32 ps_r2_ls_flags_ext = {R2FLAGEXT_SSAO_HALF_DATA | R2FLAGEXT_ENABLE_TESSELLATION};
 
 BOOL ps_clear_models_on_unload = 0; // Alundaio
 BOOL ps_use_precompiled_shaders = 0; // Alundaio
@@ -549,7 +548,7 @@ public:
     }
 };
 
-#if RENDER != R_R1 && RENDER != R_GL
+#if RENDER != R_R1
 #include "r__pixel_calculator.h"
 class CCC_BuildSSA : public IConsole_Command
 {
@@ -738,7 +737,7 @@ void xrRender_initconsole()
     //  Igor: just to test bug with rain/particles corruption
     CMD1(CCC_RestoreQuadIBData, "r_restore_quad_ib_data");
 #ifdef DEBUG
-#if RENDER != R_R1 && RENDER != R_GL
+#if RENDER != R_R1
     CMD1(CCC_BuildSSA, "build_ssa");
 #endif
     CMD4(CCC_Integer, "r__lsleep_frames", &ps_r__LightSleepFrames, 4, 30);
