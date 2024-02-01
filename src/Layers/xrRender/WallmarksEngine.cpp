@@ -419,13 +419,13 @@ void CWallmarksEngine::Render()
             if (W->ttl <= EPS)
             {
                 static_wm_destroy(W);
-                w_it = slot->static_items.erase(w_it);
+                w_it = slot->static_items.back();
+                slot->static_items.pop_back();
                 break;
             }
         }
         // Flush stream
-        RImplementation.BasicStats.WMTriCount += FlushStream(
-            hGeom, slot->shader, w_offset, w_verts, w_start, FALSE); //. remove line if !(suppress cull needed)
+        RImplementation.BasicStats.WMTriCount += FlushStream(hGeom, slot->shader, w_offset, w_verts, w_start, FALSE); //. remove line if !(suppress cull needed)
         BeginStream(hGeom, w_offset, w_verts, w_start);
 
         // dynamic wallmarks

@@ -1727,14 +1727,11 @@ public:
 			return;
 		}
 
-		collide::rq_result RQ = Level().GetPickResult(Device.vCameraPosition, Device.vCameraDirection, 1000.0f, Level().CurrentControlEntity());
-		Fvector pos = Fvector(Device.vCameraPosition).add(Fvector(Device.vCameraDirection).mul(RQ.range));
-
 		if (auto tpGame = smart_cast<game_sv_Single*>(Level().Server->game))
 		{
 			for (int i = 0; i < count; ++i)
 			{
-				CSE_Abstract* entity = tpGame->alife().spawn_item(Name, pos, Actor()->ai_location().level_vertex_id(), Actor()->ai_location().game_vertex_id(), ALife::_OBJECT_ID(-1));
+                CSE_Abstract* entity = tpGame->alife().spawn_item(Name, Actor()->Position(), Actor()->ai_location().level_vertex_id(), Actor()->ai_location().game_vertex_id(), ALife::_OBJECT_ID(-1));
 
 				if (CSE_ALifeAnomalousZone* anom = smart_cast<CSE_ALifeAnomalousZone*>(entity))
 				{
