@@ -147,3 +147,13 @@ float CEatableItem::Weight() const
 
     return res;
 }
+
+u32 CEatableItem::Cost() const
+{
+    u32 res = inherited::Cost();
+    int percent = (GetRemainingUses() * 100) / m_iMaxUses;
+
+    res = (res * percent) / 100;
+
+    return res;
+}

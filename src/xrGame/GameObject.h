@@ -343,6 +343,7 @@ public:
     virtual CScriptCallbackExVoid& callback(GameObject::ECallbackType type) const override;
     virtual LPCSTR visual_name(CSE_Abstract* server_entity) override;
     virtual void On_B_NotCurrentEntity() override {}
+	CSE_ALifeDynamicObject* alife_object() const; // returns the server instance for this object
     virtual bool is_ai_obstacle() const override;
     virtual ai_obstacle& obstacle() const override
     {

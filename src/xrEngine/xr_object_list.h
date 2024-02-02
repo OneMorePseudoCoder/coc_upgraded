@@ -88,6 +88,7 @@ private:
 
 public:
     void Update(bool bForce);
+	void ProcessDestroyQueue();
 
     void net_Register(IGameObject* O);
     void net_Unregister(IGameObject* O);

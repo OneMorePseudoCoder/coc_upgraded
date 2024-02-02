@@ -58,7 +58,14 @@ void CALifeSwitchManager::add_online(CSE_ALifeDynamicObject* object, bool update
     ClientID clientID;
     clientID.set(server().GetServerClient() ? server().GetServerClient()->ID.value() : 0);
     server().Process_spawn(tNetPacket, clientID, FALSE, l_tpAbstract);
-    object->s_flags._and (u16(-1) ^ M_SPAWN_UPDATE);
+    object->s_flags._and(u16(-1) ^ M_SPAWN_UPDATE);
+
+	if (object->used_ai_locations() && !ai().level_graph().valid_vertex_id(object->m_tNodeID))
+	{
+		Msg("Trying to correct invalid vertex %u for object %s", object->m_tNodeID, object->name_replace());
+		object->m_tNodeID = ai().level_graph().vertex(object->m_tNodeID, object->o_Position);
+		Msg("  new vertex: %u", object->m_tNodeID);
+	}
 
 #ifndef COC_EDITION
     if (!object->used_ai_locations() || ai().level_graph().valid_vertex_id(object->m_tNodeID))

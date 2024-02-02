@@ -39,15 +39,11 @@ BOOL CBackpack::net_Spawn(CSE_Abstract* DC)
 void CBackpack::net_Export(NET_Packet& P)
 {
     inherited::net_Export(P);
-    //P.w_float_q8(GetCondition(), 0.0f, 1.0f);
 }
 
 void CBackpack::net_Import(NET_Packet& P)
 {
     inherited::net_Import(P);
-    /*float _cond;
-    P.r_float_q8(_cond, 0.0f, 1.0f);
-    SetCondition(_cond);*/
 }
 
 void CBackpack::OnH_A_Chield()
@@ -58,29 +54,11 @@ void CBackpack::OnH_A_Chield()
 void CBackpack::OnMoveToSlot(const SInvItemPlace& previous_place)
 {
     inherited::OnMoveToSlot(previous_place);
-    /*
-    if (m_pInventory && (previous_place.type == eItemPlaceSlot))
-    {
-    CActor* pActor = smart_cast<CActor*> (H_Parent());
-    if (pActor)
-    {
-    }
-    }
-    */
 }
 
 void CBackpack::OnMoveToRuck(const SInvItemPlace& previous_place)
 {
     inherited::OnMoveToRuck(previous_place);
-    /*
-    if (m_pInventory && (previous_place.type == eItemPlaceSlot))
-    {
-    CActor* pActor = smart_cast<CActor*> (H_Parent());
-    if (pActor)
-    {
-    }
-    }
-    */
 }
 
 void CBackpack::Hit(float hit_power, ALife::EHitType hit_type)

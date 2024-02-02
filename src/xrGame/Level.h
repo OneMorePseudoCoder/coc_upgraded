@@ -198,6 +198,8 @@ public:
     GlobalFeelTouch m_feel_deny;
     CZoneList* hud_zones_list = nullptr;
     CZoneList* create_hud_zones_list();
+	std::vector<std::uint16_t> m_just_destroyed;
+	collide::rq_result GetPickResult(Fvector pos, Fvector dir, float range, IGameObject* ignore);
 
 private:
     // preload sounds registry
@@ -324,15 +326,19 @@ public:
 protected:
     CBulletManager* m_pBulletManager;
 
+private:
+	bool m_is_removing_objects;
+
 public:
     IC CBulletManager& BulletManager() { return *m_pBulletManager; }
     bool IsServer();
     bool IsClient();
-    CSE_Abstract* spawn_item(
-        LPCSTR section, const Fvector& position, u32 level_vertex_id, u16 parent_id, bool return_item = false);
+    CSE_Abstract* spawn_item(LPCSTR section, const Fvector& position, u32 level_vertex_id, u16 parent_id, bool return_item = false);
 
 public:
     void remove_objects();
+	bool is_removing_objects() { return m_is_removing_objects; }
+	void OnDestroyObject(std::uint16_t id) override;
 
 #ifdef DEBUG
     LevelGraphDebugRender* GetLevelGraphDebugRender() const { return levelGraphDebugRender; }

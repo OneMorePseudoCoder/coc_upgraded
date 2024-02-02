@@ -21,6 +21,7 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
     R_ASSERT2(E, *s_name);
 
     E->Spawn_Read(P);
+
     if (E->s_flags.is(M_SPAWN_UPDATE))
         E->UPDATE_Read(P);
 
@@ -29,23 +30,24 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
         F_entity_Destroy(E);
         return;
     }
-    //-------------------------------------------------
-    //.	Msg ("M_SPAWN - %s[%d][%x] - %d %d", *s_name,  E->ID, E,E->ID_Parent, Device.dwFrame);
-    //-------------------------------------------------
+
     // force object to be local for server client
     if (OnServer())
     {
         E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
     };
 
-    /*
-    game_spawn_queue.push_back(E);
-    if (g_bDebugEvents)		ProcessGameSpawns();
-    /*/
+	if (std::find(m_just_destroyed.begin(), m_just_destroyed.end(), E->ID) != m_just_destroyed.end()) 
+	{
+		Msg("* [%s]: skip just destroyed [%s] ID: [%u] ID_Parent: [%u]", __FUNCTION__, E->name_replace(), E->ID, E->ID_Parent);
+		m_just_destroyed.erase(std::remove(m_just_destroyed.begin(), m_just_destroyed.end(), E->ID), m_just_destroyed.end());
+		F_entity_Destroy(E);
+		return;
+	}
+
     g_sv_Spawn(E);
 
     F_entity_Destroy(E);
-    //*/
 };
 
 void CLevel::g_cl_Spawn(LPCSTR name, u8 rp, u16 flags, Fvector pos)
@@ -57,7 +59,6 @@ void CLevel::g_cl_Spawn(LPCSTR name, u8 rp, u16 flags, Fvector pos)
     // Fill
     E->s_name = name;
     E->set_name_replace("");
-    //.	E->s_gameid			=	u8(GameID());
     E->s_RP = rp;
     E->ID = 0xffff;
     E->ID_Parent = 0xffff;
@@ -83,6 +84,13 @@ extern float debug_on_frame_gather_stats_frequency;
 
 void CLevel::g_sv_Spawn(CSE_Abstract* E)
 {
+	auto obj = Objects.net_Find(E->ID);
+	if (obj && obj->getDestroy()) 
+	{
+		Msg("[%s]: %s[%u] already net_Spawn'ed, ProcessDestroyQueue()", __FUNCTION__, obj->cName().c_str(), obj->ID());
+		Objects.ProcessDestroyQueue();
+	}
+
     // Client spawn
     IGameObject* O = Objects.Create(*E->s_name);
     if (!O)

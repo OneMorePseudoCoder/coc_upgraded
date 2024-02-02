@@ -26,9 +26,7 @@ const LPCSTR ratingField = "rating_names";
 const LPCSTR reputationgField = "reputation_names";
 const LPCSTR goodwillField = "goodwill_names";
 
-const LPCSTR st_months[12] = // StringTable for GetDateAsString()
-    {"month_january", "month_february", "month_march", "month_april", "month_may", "month_june", "month_july",
-        "month_august", "month_september", "month_october", "month_november", "month_december"};
+const LPCSTR st_months[12] = { "month_january", "month_february", "month_march", "month_april", "month_may", "month_june", "month_july", "month_august", "month_september", "month_october", "month_november", "month_december" };
 
 ui_shader* g_BuyMenuShader = NULL;
 ui_shader* g_EquipmentIconsShader = NULL;
@@ -49,7 +47,6 @@ void InventoryUtilities::CreateShaders()
 {
     g_tmpWMShader = new ui_shader();
     (*g_tmpWMShader)->create("effects\\wallmark", "wm\\wm_grenade");
-    // g_tmpWMShader.create("effects\\wallmark",  "wm\\wm_grenade");
 }
 
 void InventoryUtilities::DestroyShaders()
@@ -258,8 +255,7 @@ const shared_str InventoryUtilities::Get_GameTimeAndDate_AsString()
 
 //////////////////////////////////////////////////////////////////////////
 
-const shared_str InventoryUtilities::GetTimeAsString(
-    ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator, bool full_mode)
+const shared_str InventoryUtilities::GetTimeAsString(ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator, bool full_mode)
 {
     string32 bufTime;
 
@@ -354,8 +350,7 @@ LPCSTR InventoryUtilities::GetTimePeriodAsString(LPSTR _buff, u32 buff_sz, ALife
         cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", day2 - day1, *StringTable().translate("ui_st_days"));
 
     if (!cnt && hours1 != hours2)
-        cnt =
-            xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", hours2 - hours1, *StringTable().translate("ui_st_hours"));
+        cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", hours2 - hours1, *StringTable().translate("ui_st_hours"));
 
     if (!cnt && mins1 != mins2)
         cnt = xr_sprintf(_buff + cnt, buff_sz - cnt, "%d %s", mins2 - mins1, *StringTable().translate("ui_st_mins"));
@@ -464,6 +459,7 @@ LPCSTR InventoryUtilities::GetRankAsText(CHARACTER_RANK_VALUE rankID)
     CharInfoStrings::const_iterator cit = charInfoRankStrings->upper_bound(rankID);
     if (charInfoRankStrings->end() == cit)
         return charInfoRankStrings->rbegin()->second.c_str();
+
     return cit->second.c_str();
 }
 

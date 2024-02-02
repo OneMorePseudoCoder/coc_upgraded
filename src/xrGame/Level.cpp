@@ -40,6 +40,8 @@
 #include "player_hud.h"
 #include "UI/UIGameTutorial.h"
 #include "CustomDetector.h"
+#include "xrEngine/GameMtlLib.h"
+#include "xrEngine/IGame_Persistent.h"
 #include "xrPhysics/IPHWorld.h"
 #include "xrPhysics/console_vars.h"
 #include "xrEngine/GameFont.h"
@@ -92,6 +94,7 @@ CLevel::CLevel()
     m_ph_commander_scripts = new CPHCommander();
     pObjects4CrPr.clear();
     pActors4CrPr.clear();
+	m_is_removing_objects = false;
     g_player_hud = new player_hud();
     g_player_hud->load_default();
     Msg("%s", Core.Params);
@@ -253,15 +256,15 @@ void CLevel::cl_Process_Event(u16 dest, u16 type, NET_Packet& P)
 void CLevel::ProcessGameEvents()
 {
     // Game events
-    {
-        NET_Packet P;
-        u32 svT = timeServer() - NET_Latency;
-        while (game_events->available(svT))
-        {
-            u16 ID, dest, type;
-            game_events->get(ID, dest, type, P);
-            switch (ID)
-            {
+	NET_Packet P;
+	u32 svT = timeServer() - NET_Latency;
+	m_just_destroyed.clear();
+	while (game_events->available(svT))
+	{
+		u16 ID, dest, type;
+		game_events->get(ID, dest, type, P);
+		switch (ID)
+		{
             case M_SPAWN:
             {
                 u16 dummy16;
@@ -279,10 +282,8 @@ void CLevel::ProcessGameEvents()
                 VERIFY(0);
                 break;
             }
-            }
-        }
-    }
-    
+		}
+	}
 }
 
 void CLevel::MakeReconnect()
@@ -769,7 +770,13 @@ void CLevel::OnAlifeSimulatorLoaded()
     GameTaskManager().ResetStorage();
 }
 
+void CLevel::OnDestroyObject(std::uint16_t id)
+{ 
+	m_just_destroyed.push_back(id);
+}
+
 u32 GameID() { return Game().Type(); }
+
 CZoneList* CLevel::create_hud_zones_list()
 {
     hud_zones_list = new CZoneList();
@@ -794,4 +801,42 @@ CZoneList::~CZoneList()
 {
     clear();
     destroy();
+}
+
+ICF static BOOL GetPickDist_Callback(collide::rq_result& result, LPVOID params)
+{
+	collide::rq_result* RQ = (collide::rq_result*)params;
+	if (result.O)
+	{
+		if (Actor())
+		{
+			if (result.O == Actor())
+				return TRUE;
+			if (Actor()->Holder())
+			{
+				CCar* car = smart_cast<CCar*>(Actor()->Holder());
+				if (car && result.O == car)
+					return TRUE;
+			}
+		}
+	}
+	else
+	{
+		CDB::TRI* T = Level().ObjectSpace.GetStaticTris() + result.element;
+		SGameMtl* pMtl = GMLib.GetMaterialByIdx(T->material);
+		if (pMtl && (pMtl->Flags.is(SGameMtl::flPassable) || pMtl->Flags.is(SGameMtl::flActorObstacle)))
+			return TRUE;
+	}
+	*RQ = result;
+	return FALSE;
+}
+
+collide::rq_result CLevel::GetPickResult(Fvector pos, Fvector dir, float range, IGameObject* ignore)
+{
+	collide::rq_result RQ; 
+	RQ.set(NULL, range, -1);
+	collide::rq_results RQR;
+	collide::ray_defs RD(pos, dir, RQ.range, CDB::OPT_FULL_TEST, collide::rqtBoth);
+	Level().ObjectSpace.RayQuery(RQR, RD, GetPickDist_Callback, &RQ, NULL, ignore);
+	return RQ;
 }

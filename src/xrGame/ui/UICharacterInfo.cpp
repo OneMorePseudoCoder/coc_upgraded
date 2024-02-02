@@ -318,7 +318,7 @@ void CUICharacterInfo::Update()
             {
                 m_icons[eIcon]->SetTextureColor(m_deadbody_color);
                 if (pCreature->g_Alive())
-                    m_icons[eIcon]->SetTextureColor(color_argb(255, 255, 255, 160));
+                    m_icons[eIcon]->SetTextureColor(color_argb(255, 255, 255, 255));
                 else
                     m_icons[eIcon]->SetTextureColor(m_deadbody_color);
             }

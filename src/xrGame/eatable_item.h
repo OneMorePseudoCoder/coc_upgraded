@@ -43,4 +43,5 @@ public:
     virtual u8 GetRemainingUses() const { return (u8)roundf(((float)m_iMaxUses)*m_fCondition); }
     void SetRemainingUses(u8 value) { m_fCondition = ((float)value / (float)m_iMaxUses); clamp(m_fCondition, 0.f, 1.f); };
     float Weight() const override;
+	u32 Cost() const override;
 };

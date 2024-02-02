@@ -27,6 +27,8 @@ extern bool g_b_ClearGameCaptions;
 
 void CLevel::remove_objects()
 {
+	m_is_removing_objects = true;
+
     BOOL b_stored = psDeviceFlags.test(rsDisableObjectsAsCrows);
 
     int loop = 5;
@@ -97,6 +99,7 @@ void CLevel::remove_objects()
 
     g_pGamePersistent->destroy_particles(false);
 	GEnv.Sound->stop_emitters();
+	m_is_removing_objects = false;
 }
 
 #ifdef DEBUG

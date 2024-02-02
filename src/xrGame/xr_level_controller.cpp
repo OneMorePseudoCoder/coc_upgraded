@@ -49,7 +49,6 @@ void remap_keys()
         else
             kb.key_local_name = kb.key_name;
 
-        //.		Msg("[%s]-[%s]",kb.key_name, kb.key_local_name.c_str());
         ++idx;
     }
 }

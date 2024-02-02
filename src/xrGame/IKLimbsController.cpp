@@ -91,6 +91,10 @@ float CIKLimbsController::LegLengthShiftLimit(float current_shift, const SCalcul
         if (cd[j].state.foot_step)
         {
             float s_down = cd[j].m_limb->ObjShiftDown(current_shift, cd[j]);
+
+			if (isnan(s_down))
+				continue;
+
             if (shift_down < s_down)
                 shift_down = s_down;
         }

@@ -244,7 +244,12 @@ void CObjectList::Update(bool bForce)
             stats.Update.End();
         }
     }
+	// Destroy
+	ProcessDestroyQueue();
+}
 
+void CObjectList::ProcessDestroyQueue()
+{
     // Destroy
     if (!destroy_queue.empty())
     {

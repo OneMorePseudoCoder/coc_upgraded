@@ -92,8 +92,7 @@ ALife::ERelationType CScriptGameObject::GetRelationType(CScriptGameObject* who)
     CEntityAlive* l_tpEntityAlive1 = smart_cast<CEntityAlive*>(&object());
     if (!l_tpEntityAlive1)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "%s cannot access class member GetRelationType!", *object().cName());
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "%s cannot access class member GetRelationType!", *object().cName());
         return ALife::eRelationTypeDummy;
     }
 
@@ -114,8 +113,7 @@ IC T* CScriptGameObject::action_planner()
     CAI_Stalker* manager = smart_cast<CAI_Stalker*>(&object());
     if (!manager)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "CAI_Stalker : cannot access class member action_planner!");
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "CAI_Stalker : cannot access class member action_planner!");
         return (0);
     }
     return (&manager->brain());
@@ -131,8 +129,7 @@ void CScriptGameObject::set_enemy_callback(const luabind::functor<bool>& functor
     CCustomMonster* monster = smart_cast<CCustomMonster*>(&object());
     if (!monster)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "CCustomMonster : cannot access class member set_enemy_callback!");
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "CCustomMonster : cannot access class member set_enemy_callback!");
         return;
     }
     monster->memory().enemy().useful_callback().set(functor);
@@ -143,8 +140,7 @@ void CScriptGameObject::set_enemy_callback(const luabind::functor<bool>& functor
     CCustomMonster* monster = smart_cast<CCustomMonster*>(&this->object());
     if (!monster)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "CCustomMonster : cannot access class member set_enemy_callback!");
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "CCustomMonster : cannot access class member set_enemy_callback!");
         return;
     }
     monster->memory().enemy().useful_callback().set(functor, object);
@@ -155,8 +151,7 @@ void CScriptGameObject::set_enemy_callback()
     CCustomMonster* monster = smart_cast<CCustomMonster*>(&object());
     if (!monster)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "CCustomMonster : cannot access class member set_enemy_callback!");
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "CCustomMonster : cannot access class member set_enemy_callback!");
         return;
     }
     monster->memory().enemy().useful_callback().clear();

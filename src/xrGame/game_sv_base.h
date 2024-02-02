@@ -33,7 +33,6 @@ public:
     virtual BOOL OnTouch(u16 eidWho, u16 eidTarget, BOOL forced = FALSE) = 0;
     virtual void OnDetach(u16 eidWho, u16 eidTarget) = 0;
     virtual BOOL OnActivate(u16 eidWho, u16 eidTarget) = 0;
-    virtual void OnDestroyObject(u16 eidWho) = 0;
     // кто-то получил Hit
     virtual void OnHit(u16 hitterId, u16 targetId, NET_Packet& packet) = 0;
     // игрок получил Hit
@@ -111,7 +110,6 @@ public:
     virtual BOOL OnTouch(u16 eid_who, u16 eid_target, BOOL bForced = FALSE) = 0; // TRUE=allow ownership, FALSE=denied
     virtual void OnDetach(u16 eid_who, u16 eid_target) = 0;
     virtual BOOL OnActivate(u16 eid_who, u16 eid_target) { return TRUE; };
-    virtual void OnDestroyObject(u16 eid_who);
 
 	virtual void OnHit(u16 id_hitter, u16 id_hitted, NET_Packet& P);	//кто-то получил Hit
 	virtual void OnPlayerConnect(ClientID id_who);
