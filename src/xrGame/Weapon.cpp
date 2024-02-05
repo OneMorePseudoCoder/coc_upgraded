@@ -467,6 +467,7 @@ void CWeapon::Load(LPCSTR section)
     }
 
     InitAddons();
+
     if (pSettings->line_exist(section, "weapon_remove_time"))
         m_dwWeaponRemoveTime = pSettings->r_u32(section, "weapon_remove_time");
     else
@@ -948,8 +949,11 @@ bool CWeapon::Action(u16 cmd, u32 flags)
                 FireEnd();
         };
     }
-        return true;
-    case kWPN_NEXT: { return SwitchAmmoType(flags);
+	return true;
+
+    case kWPN_NEXT: 
+	{ 
+		return SwitchAmmoType(flags);
     }
 
     case kWPN_ZOOM:
@@ -1033,7 +1037,8 @@ bool CWeapon::SwitchAmmoType(u32 flags)
         l_newType = u8((u32(l_newType + 1)) % m_ammoTypes.size());
         b1 = (l_newType != m_ammoType.type1);
         b2 = unlimited_ammo() ? false : (!m_pInventory->GetAny(m_ammoTypes[l_newType].c_str()));
-    } while (b1 && b2);
+    } 
+	while (b1 && b2);
 
     if (l_newType != m_ammoType.type1)
     {
@@ -1060,7 +1065,8 @@ void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
     int l_type = 0;
     l_type %= m_ammoTypes.size();
 
-    if (!ammoSect) ammoSect = m_ammoTypes[l_type].c_str();
+    if (!ammoSect) 
+		ammoSect = m_ammoTypes[l_type].c_str();
 
     ++l_type;
     l_type %= m_ammoTypes.size();
@@ -1423,7 +1429,7 @@ void CWeapon::OnZoomIn()
 
     if (m_zoom_params.m_sUseZoomPostprocess.size() && IsScopeAttached())
     {
-        CActor *pA = smart_cast<CActor *>(H_Parent());
+        CActor *pA = smart_cast<CActor*>(H_Parent());
         if (pA && !m_zoom_params.m_pNight_vision)
         {
             m_zoom_params.m_pNight_vision = new CNightVisionEffector(m_zoom_params.m_sUseZoomPostprocess, effNightvisionScope);
@@ -1472,8 +1478,7 @@ void CWeapon::SwitchState(u32 S)
 #ifndef MASTER_GOLD
     if (bDebug)
     {
-        Msg("---Server is going to send GE_WPN_STATE_CHANGE to [%d], weapon_section[%s], parent[%s]", S,
-            cNameSect().c_str(), H_Parent() ? H_Parent()->cName().c_str() : "NULL Parent");
+        Msg("---Server is going to send GE_WPN_STATE_CHANGE to [%d], weapon_section[%s], parent[%s]", S, cNameSect().c_str(), H_Parent() ? H_Parent()->cName().c_str() : "NULL Parent");
     }
 #endif // #ifndef MASTER_GOLD
 
@@ -1493,6 +1498,7 @@ void CWeapon::SwitchState(u32 S)
 }
 
 void CWeapon::OnMagazineEmpty() { VERIFY((u32)m_ammoElapsed.type1 == m_magazine.size()); }
+
 void CWeapon::reinit()
 {
     CShootingObject::reinit();
@@ -1904,8 +1910,7 @@ u8 CWeapon::GetCurrentHudOffsetIdx()
     if (!pActor)
         return 0;
 
-    bool b_aiming = ((IsZoomed() && m_zoom_params.m_fZoomRotationFactor <= 1.f) ||
-        (!IsZoomed() && m_zoom_params.m_fZoomRotationFactor > 0.f));
+    bool b_aiming = ((IsZoomed() && m_zoom_params.m_fZoomRotationFactor <= 1.f) || (!IsZoomed() && m_zoom_params.m_fZoomRotationFactor > 0.f));
 
     if (!b_aiming)
         return 0;

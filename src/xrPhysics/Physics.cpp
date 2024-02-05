@@ -7,7 +7,6 @@
 #include "tri-colliderknoopc/dTriList.h"
 #include "PHContactBodyEffector.h"
 #include "xrEngine/GameMtlLib.h"
-
 #include "PHCollideValidator.h"
 #ifdef DEBUG
 #include "debug_output.h"
@@ -25,13 +24,12 @@ extern CPHWorld* ph_world;
 ///////////////////////////////////////////////////////////////////
 
 #include "ExtendedGeom.h"
-// PhysicsStepTimeCallback		*physics_step_time_callback				= 0;
 
-const float default_w_limit = 9.8174770f; //(M_PI/16.f/(fixed_step=0.02f));
-const float default_l_limit = 150.f; //(3.f/fixed_step=0.02f);
+const float default_w_limit = 9.8174770f;
+const float default_l_limit = 150.f;
 const float default_l_scale = 1.01f;
 const float default_w_scale = 1.01f;
-const float default_k_l = 0.0002f; // square resistance !!
+const float default_k_l = 0.0002f;
 const float default_k_w = 0.05f;
 
 extern const u16 max_joint_allowed_for_exeact_integration = 30;
@@ -53,11 +51,8 @@ const float default_world_gravity = 2 * 9.81f;
 
 int phIterations = 18;
 float phTimefactor = 1.f;
-// float		phBreakCommonFactor										= 0.01f;
-// float		phRigidBreakWeaponFactor								= 1.f;
 Fbox phBoundaries = {1000.f, 1000.f, -1000.f, -1000.f};
-// float		ph_tri_query_ex_aabb_rate								= 1.3f;
-// int			ph_tri_clear_disable_count								= 10;
+
 dWorldID phWorld;
 
 /////////////////////////////////////
@@ -86,14 +81,14 @@ IC void add_contact_body_effector(dBodyID body, const dContact& c, SGameMtl* mat
     }
 }
 
-IC static int CollideIntoGroup(
-    dGeomID o1, dGeomID o2, dJointGroupID jointGroup, CPHIsland* world, const int& MAX_CONTACTS)
+IC static int CollideIntoGroup(dGeomID o1, dGeomID o2, dJointGroupID jointGroup, CPHIsland* world, const int& MAX_CONTACTS)
 {
     const int RS = 800 + 10;
     const int N = RS;
 
     static dContact contacts[RS];
     int collided_contacts = 0;
+
     // get the contacts up to a maximum of N contacts
     int n;
 
@@ -178,8 +173,6 @@ IC static int CollideIntoGroup(
             }
             if (material_1->Flags.test(SGameMtl::flPassable))
                 do_collide = false;
-            //	if(material_2->Flags.is(SGameMtl::flClimable))
-            //		do_collide=false;
         }
         if (is_tri_2)
         {
@@ -225,10 +218,8 @@ IC static int CollideIntoGroup(
 
         if (usr_data_2)
         {
-            usr_data_2->pushing_b_neg = usr_data_2->pushing_b_neg &&
-                !GMLibrary().GetMaterialByIdx(usr_data_2->b_neg_tri->material)->Flags.test(SGameMtl::flPassable);
-            usr_data_2->pushing_neg = usr_data_2->pushing_neg &&
-                !GMLibrary().GetMaterialByIdx(usr_data_2->neg_tri->material)->Flags.test(SGameMtl::flPassable);
+            usr_data_2->pushing_b_neg = usr_data_2->pushing_b_neg && !GMLibrary().GetMaterialByIdx(usr_data_2->b_neg_tri->material)->Flags.test(SGameMtl::flPassable);
+            usr_data_2->pushing_neg = usr_data_2->pushing_neg && !GMLibrary().GetMaterialByIdx(usr_data_2->neg_tri->material)->Flags.test(SGameMtl::flPassable);
             pushing_neg = usr_data_2->pushing_b_neg || usr_data_2->pushing_neg;
             if (usr_data_2->ph_object)
             {
@@ -238,10 +229,8 @@ IC static int CollideIntoGroup(
         ///////////////////////////////////////////////////////////////////////////////////////
         if (usr_data_1)
         {
-            usr_data_1->pushing_b_neg = usr_data_1->pushing_b_neg &&
-                !GMLibrary().GetMaterialByIdx(usr_data_1->b_neg_tri->material)->Flags.test(SGameMtl::flPassable);
-            usr_data_1->pushing_neg = usr_data_1->pushing_neg &&
-                !GMLibrary().GetMaterialByIdx(usr_data_1->neg_tri->material)->Flags.test(SGameMtl::flPassable);
+            usr_data_1->pushing_b_neg = usr_data_1->pushing_b_neg && !GMLibrary().GetMaterialByIdx(usr_data_1->b_neg_tri->material)->Flags.test(SGameMtl::flPassable);
+            usr_data_1->pushing_neg = usr_data_1->pushing_neg && !GMLibrary().GetMaterialByIdx(usr_data_1->neg_tri->material)->Flags.test(SGameMtl::flPassable);
             pushing_neg = usr_data_1->pushing_b_neg || usr_data_1->pushing_neg;
             if (usr_data_1->ph_object)
             {
@@ -289,89 +278,6 @@ void CollideStatic(dGeomID o2, CPHObject* obj2)
     CollideIntoGroup(ph_world->GetMeshGeom(), o2, ContactGroup, island2, island2->MaxJoints());
 }
 
-// half square time
-
-/*
-void BodyCutForce(dBodyID body)
-{
-dReal linear_limit=l_limit;
-//applyed force
-const dReal* force=	dBodyGetForce(body);
-
-//body mass
-dMass m;
-dBodyGetMass(body,&m);
-
-//accceleration correspondent to the force
-dVector3 a={force[0]/m.mass,force[1]/m.mass,force[2]/m.mass};
-
-//current velocity
-const dReal* start_vel=dBodyGetLinearVel(body);
-
-//velocity adding during one step
-dVector3 add_vel={a[0]*fixed_step,a[1]*fixed_step,a[2]*fixed_step};
-
-//result velocity
-dVector3 vel={start_vel[0]+add_vel[0],start_vel[1]+add_vel[1],start_vel[2]+add_vel[2]};
-
-//result velocity magnitude
-dReal speed=dSqrt(dDOT(vel,vel));
-
-if(speed>linear_limit) //then we need to cut applied force
-{
-//solve the triangle - cutted velocity - current veocity - add velocity
-//to find cutted adding velocity
-
-//add_vell magnitude
-dReal add_speed=dSqrt(dDOT(add_vel,add_vel));
-
-//current velocity magnitude
-dReal start_speed=dSqrt(dDOT(start_vel,start_vel));
-
-//cosinus of the angle between vel ang add_vell
-dReal cosinus1=dFabs(dDOT(add_vel,start_vel)/start_speed/add_speed);
-
-dReal cosinus1_2=cosinus1*cosinus1;
-if(cosinus1_2>1.f)
-cosinus1_2=1.f;
-dReal cutted_add_speed;
-if(cosinus1_2==1.f)
-cutted_add_speed=linear_limit-start_speed;
-else
-{
-//sinus
-dReal sinus1_2=1.f-cosinus1_2;
-
-
-dReal sinus1=dSqrt(sinus1_2);
-
-
-//sinus of the angle between cutted velocity and adding velociity (sinus theorem)
-dReal sinus2=sinus1/linear_limit*start_speed;
-dReal sinus2_2=sinus2*sinus2;
-if(sinus2_2>1.f)sinus2_2=1.f;
-
-dReal cosinus2_2=1.f-sinus2_2;
-dReal cosinus2=dSqrt(cosinus2_2);
-
-//sinus of 180-ang1-ang2
-dReal sinus3=sinus1*cosinus2+cosinus1*sinus2;
-
-//cutted adding velocity magnitude (sinus theorem)
-
-cutted_add_speed=linear_limit/sinus1*sinus3;
-}
-//substitude force
-
-dBodyAddForce(body,
-cutted_add_speed/add_speed/fixed_step*m.mass*add_vel[0]-force[0],
-cutted_add_speed/add_speed/fixed_step*m.mass*add_vel[1]-force[1],
-cutted_add_speed/add_speed/fixed_step*m.mass*add_vel[2]-force[2]
-);
-}
-
-}
-*/
 // limit for angular accel
 void dBodyAngAccelFromTorqu(const dBodyID body, dReal* ang_accel, const dReal* torque)
 {
@@ -381,6 +287,7 @@ void dBodyAngAccelFromTorqu(const dBodyID body, dReal* ang_accel, const dReal* t
     dInvertPDMatrix(m.I, invI, 3);
     dMULTIPLY1_333(ang_accel, invI, torque);
 }
+
 void FixBody(dBodyID body, float ext_param, float mass_param)
 {
     dMass m;
@@ -393,7 +300,9 @@ void FixBody(dBodyID body, float ext_param, float mass_param)
     dBodySetForce(body, 0, 0, 0);
     dBodySetTorque(body, 0, 0, 0);
 }
+
 void FixBody(dBodyID body) { FixBody(body, fix_ext_param, fix_mass_param); }
+
 void BodyCutForce(dBodyID body, float l_limit, float w_limit)
 {
     const dReal wa_limit = w_limit / fixed_step;
@@ -408,8 +317,7 @@ void BodyCutForce(dBodyID body, float l_limit, float w_limit)
 
     if (force_mag > force_limit)
     {
-        dBodySetForce(body, force[0] / force_mag * force_limit, force[1] / force_mag * force_limit,
-            force[2] / force_mag * force_limit);
+        dBodySetForce(body, force[0] / force_mag * force_limit, force[1] / force_mag * force_limit, force[2] / force_mag * force_limit);
     }
 
     const dReal* torque = dBodyGetTorque(body);
@@ -499,6 +407,7 @@ float E_NLD(dBodyID b1, dBodyID b2, const dReal* norm) // norm - from 2 to 1
 
     return (kin_energy_start - kin_energy_end);
 }
+
 float E_NL(dBodyID b1, dBodyID b2, const dReal* norm)
 {
     VERIFY(b1 || b2);
@@ -512,6 +421,7 @@ float E_NL(dBodyID b1, dBodyID b2, const dReal* norm)
     else
         return E_NlS(b2, norm, -1);
 }
+
 void ApplyGravityAccel(dBodyID body, const dReal* accel)
 {
     dMass m;

@@ -428,6 +428,9 @@ extern void random_dir(Fvector& tgt_dir, const Fvector& src_dir, float dispersio
 
 void CShootingObject::FireBullet(const Fvector& pos, const Fvector& shot_dir, float fire_disp, const CCartridge& cartridge, u16 parent_id, u16 weapon_id, bool send_hit, int iShotNum)
 {
+	if (fis_zero(m_fStartBulletSpeed) || fis_zero(fireDistance))
+		return;
+
     Fvector dir;
     random_dir(dir, shot_dir, fire_disp);
 

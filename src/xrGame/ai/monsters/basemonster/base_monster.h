@@ -504,7 +504,7 @@ public:
         float prediction_factor;
     };
 
-    bool can_attack_on_move();
+    virtual bool can_attack_on_move();
     float get_attack_on_move_max_go_close_time();
     float get_attack_on_move_far_radius();
     float get_attack_on_move_attack_radius();
@@ -560,7 +560,8 @@ public:
     pcstr get_head_bone_name() const { return m_head_bone_name; }
     shared_str get_section() const { return m_section; }
     anti_aim_ability* get_anti_aim() { return m_anti_aim; }
-    virtual void on_attack_on_run_hit() {}
+    virtual void on_attack_on_run_hit(const CEntityAlive* enemy) {}
+
 private:
     void update_eyes_visibility();
     float get_screen_space_coverage_diagonal();

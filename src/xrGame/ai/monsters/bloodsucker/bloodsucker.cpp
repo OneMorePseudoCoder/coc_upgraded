@@ -74,8 +74,10 @@ void CAI_Bloodsucker::Load(LPCSTR section)
     }
     else
         collision_hit_off = false;
+
     if (!pSettings->line_exist(section, "is_friendly"))
         com_man().add_ability(ControlCom::eControlRunAttack);
+
     com_man().add_ability(ControlCom::eControlRotationJump);
     com_man().add_ability(ControlCom::eControlJump);
 
@@ -141,69 +143,39 @@ void CAI_Bloodsucker::Load(LPCSTR section)
     }
     else
     {
-        anim().AddAnim(eAnimStandIdle, "stand_idle_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimStandDamaged, "stand_damaged_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimStandTurnLeft, "stand_turn_ls_", -1, &velocity_turn, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimStandTurnRight, "stand_turn_rs_", -1, &velocity_turn, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(
-            eAnimSleep, "lie_sleep_", -1, &velocity_none, PS_LIE, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimSleepStanding, "stand_sleep_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimWalkFwd, "stand_walk_fwd_", -1, &velocity_walk, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimWalkDamaged, "stand_walk_fwd_dmg_", -1, &velocity_walk_dmg, PS_STAND, "fx_run_f",
-            "fx_stand_b", "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(
-            eAnimRun, "stand_run_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimRunDamaged, "stand_run_dmg_", -1, &velocity_run_dmg, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimStandIdle, "stand_idle_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimStandDamaged, "stand_damaged_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimStandTurnLeft, "stand_turn_ls_", -1, &velocity_turn, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimStandTurnRight, "stand_turn_rs_", -1, &velocity_turn, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimSleep, "lie_sleep_", -1, &velocity_none, PS_LIE, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimSleepStanding, "stand_sleep_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimWalkFwd, "stand_walk_fwd_", -1, &velocity_walk, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimWalkDamaged, "stand_walk_fwd_dmg_", -1, &velocity_walk_dmg, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimRun, "stand_run_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimRunDamaged, "stand_run_dmg_", -1, &velocity_run_dmg, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 
-        anim().AddAnim(eAnimRunTurnLeft, "stand_run_turn_left_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimRunTurnRight, "stand_run_turn_right_", -1, &velocity_run, PS_STAND, "fx_run_f",
-            "fx_stand_b", "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimScared, "stand_scared_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimRunTurnLeft, "stand_run_turn_left_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimRunTurnRight, "stand_run_turn_right_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimScared, "stand_scared_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 
-        anim().AddAnim(eAnimCheckCorpse, "stand_check_corpse_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(
-            eAnimEat, "sit_eat_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimCheckCorpse, "stand_check_corpse_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimEat, "sit_eat_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 
-        anim().AddAnim(eAnimDie, "stand_idle_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l",
-            "fx_stand_r");
+        anim().AddAnim(eAnimDie, "stand_idle_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 
-        anim().AddAnim(eAnimAttack, "stand_attack_", -1, &velocity_turn, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimAttackRun, "stand_attack_run_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-
-        anim().AddAnim(eAnimLookAround, "stand_look_around_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimSitIdle, "sit_idle_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b", "fx_stand_l",
-            "fx_stand_r");
-        anim().AddAnim(eAnimSitStandUp, "sit_stand_up_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimSitToSleep, "sit_sleep_down_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimStandSitDown, "stand_sit_down_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-
-        anim().AddAnim(eAnimSteal, "stand_steal_", -1, &velocity_steal, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-
-        anim().AddAnim(eAnimThreaten, "stand_threaten_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b",
-            "fx_stand_l", "fx_stand_r");
-        anim().AddAnim(eAnimMiscAction_00, "stand_to_aggressive_", -1, &velocity_none, PS_STAND, "fx_run_f",
-            "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimAttack, "stand_attack_", -1, &velocity_turn, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimAttackRun, "stand_attack_run_", -1, &velocity_run, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimLookAround, "stand_look_around_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimSitIdle, "sit_idle_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimSitStandUp, "sit_stand_up_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimSitToSleep, "sit_sleep_down_", -1, &velocity_none, PS_SIT, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimStandSitDown, "stand_sit_down_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimSteal, "stand_steal_", -1, &velocity_steal, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimThreaten, "stand_threaten_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
+        anim().AddAnim(eAnimMiscAction_00, "stand_to_aggressive_", -1, &velocity_none, PS_STAND, "fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
     }
 
     // define transitions
-    //	anim().AddTransition(PS_STAND,			eAnimThreaten,	eAnimMiscAction_00,	false);
     anim().AddTransition(eAnimStandSitDown, eAnimSleep, eAnimSitToSleep, false);
     anim().AddTransition(PS_STAND, eAnimSleep, eAnimStandSitDown, true);
     anim().AddTransition(PS_STAND, PS_SIT, eAnimStandSitDown, false);
@@ -213,7 +185,6 @@ void CAI_Bloodsucker::Load(LPCSTR section)
 
     // define links from Action to animations
     anim().LinkAction(ACT_STAND_IDLE, eAnimStandIdle);
-    // anim().LinkAction(ACT_CAPTURE_PREPARE,	eAnimCapturePrepare);
     anim().LinkAction(ACT_SIT_IDLE, eAnimSitIdle);
     anim().LinkAction(ACT_LIE_IDLE, eAnimSitIdle);
     anim().LinkAction(ACT_WALK_FWD, eAnimWalkFwd);
@@ -221,8 +192,7 @@ void CAI_Bloodsucker::Load(LPCSTR section)
     anim().LinkAction(ACT_RUN, eAnimRun);
     anim().LinkAction(ACT_EAT, eAnimEat);
     anim().LinkAction(ACT_SLEEP, eAnimSleep);
-    anim().LinkAction(ACT_REST, eAnimSitIdle);
-    // anim().LinkAction(ACT_DRAG,			eAnimWalkBkwd);
+    anim().LinkAction(ACT_REST, eAnimSitIdle);;
     anim().LinkAction(ACT_ATTACK, eAnimAttack);
     anim().LinkAction(ACT_STEAL, eAnimSteal);
     anim().LinkAction(ACT_LOOK_AROUND, eAnimLookAround);
@@ -234,10 +204,8 @@ void CAI_Bloodsucker::Load(LPCSTR section)
 #endif
 
     // load other misc stuff
-    invisible_vel.set(pSettings->r_float(section, "Velocity_Invisible_Linear"),
-        pSettings->r_float(section, "Velocity_Invisible_Angular"));
-    movement().detail().add_velocity(MonsterMovement::eVelocityParameterInvisible,
-        CDetailPathManager::STravelParams(invisible_vel.linear, invisible_vel.angular));
+    invisible_vel.set(pSettings->r_float(section, "Velocity_Invisible_Linear"), pSettings->r_float(section, "Velocity_Invisible_Angular"));
+    movement().detail().add_velocity(MonsterMovement::eVelocityParameterInvisible, CDetailPathManager::STravelParams(invisible_vel.linear, invisible_vel.angular));
 
     LoadVampirePPEffector(pSettings->r_string(section, "vampire_effector"));
     m_vampire_min_delay = pSettings->r_u32(section, "Vampire_Delay");
@@ -257,13 +225,10 @@ void CAI_Bloodsucker::Load(LPCSTR section)
 
     READ_IF_EXISTS(pSettings, r_float, section, "separate_factor", 0.f);
 
-    m_visibility_state_change_min_delay = READ_IF_EXISTS(
-        pSettings, r_u32, section, "visibility_state_change_min_delay", default_visibility_state_change_min_delay);
+    m_visibility_state_change_min_delay = READ_IF_EXISTS(pSettings, r_u32, section, "visibility_state_change_min_delay", default_visibility_state_change_min_delay);
 
-    m_full_visibility_radius =
-        READ_IF_EXISTS(pSettings, r_float, section, full_visibility_radius_string, default_full_visibility_radius);
-    m_partial_visibility_radius = READ_IF_EXISTS(
-        pSettings, r_float, section, partial_visibility_radius_string, default_partial_visibility_radius);
+    m_full_visibility_radius = READ_IF_EXISTS(pSettings, r_float, section, full_visibility_radius_string, default_full_visibility_radius);
+    m_partial_visibility_radius = READ_IF_EXISTS(pSettings, r_float, section, partial_visibility_radius_string, default_partial_visibility_radius);
     m_visibility_state = unset;
     m_visibility_state_last_changed_time = 0;
 
@@ -283,19 +248,15 @@ void CAI_Bloodsucker::reinit()
 
     Bones.Reset();
 
-    com_man().ta_fill_data(anim_triple_vampire, "vampire_0", "vampire_1", "vampire_2", TA_EXECUTE_LOOPED,
-        TA_DONT_SKIP_PREPARE, 0); // ControlCom::eCapturePath | ControlCom::eCaptureMovement);
+    com_man().ta_fill_data(anim_triple_vampire, "vampire_0", "vampire_1", "vampire_2", TA_EXECUTE_LOOPED, TA_DONT_SKIP_PREPARE, 0);
 
     m_alien_control.reinit();
 
     state_invisible = false;
 
-    // com_man().add_rotation_jump_data("run_turn_r_0","run_turn_r_1","run_turn_r_0","run_turn_r_1", PI - 0.01f,
-    // SControlRotationJumpData::eStopAtOnce | SControlRotationJumpData::eRotateOnce);
     com_man().add_rotation_jump_data("run_turn_l_0", "run_turn_l_1", "run_turn_r_0", "run_turn_r_1", PI_DIV_2);
 
-    com_man().load_jump_data("boloto_jump_prepare", 0, "boloto_jump_fly", "boloto_jump_end", u32(-1),
-        MonsterMovement::eBloodsuckerVelocityParameterJumpGround, 0);
+    com_man().load_jump_data("boloto_jump_prepare", 0, "boloto_jump_fly", "boloto_jump_end", u32(-1), MonsterMovement::eBloodsuckerVelocityParameterJumpGround, 0);
 
     // save visual
     m_visual_default = cNameVisual();
@@ -311,23 +272,13 @@ void CAI_Bloodsucker::reload(LPCSTR section)
 {
     inherited::reload(section);
 
-    sound().add(pSettings->r_string(section, "Sound_Vampire_Grasp"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING,
-        MonsterSound::eHighPriority + 4, MonsterSound::eBaseChannel, eVampireGrasp, "bip01_head");
-    sound().add(pSettings->r_string(section, "Sound_Vampire_Sucking"), DEFAULT_SAMPLE_COUNT,
-        SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 3, MonsterSound::eBaseChannel, eVampireSucking,
-        "bip01_head");
-    sound().add(pSettings->r_string(section, "Sound_Vampire_Hit"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING,
-        MonsterSound::eHighPriority + 2, MonsterSound::eBaseChannel, eVampireHit, "bip01_head");
-    sound().add(pSettings->r_string(section, "Sound_Vampire_StartHunt"), DEFAULT_SAMPLE_COUNT,
-        SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 5, MonsterSound::eBaseChannel, eVampireStartHunt,
-        "bip01_head");
-    sound().add(pSettings->r_string(section, "Sound_Invisibility_Change_State"), DEFAULT_SAMPLE_COUNT,
-        SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eNormalPriority, MonsterSound::eChannelIndependent << 1,
-        eChangeVisibility, "bip01_head");
-    sound().add(pSettings->r_string(section, "Sound_Growl"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING,
-        MonsterSound::eHighPriority + 6, MonsterSound::eBaseChannel, eGrowl, "bip01_head");
-    sound().add(pSettings->r_string(section, "Sound_Alien"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING,
-        MonsterSound::eCriticalPriority, u32(MonsterSound::eCaptureAllChannels), eAlien, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Vampire_Grasp"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 4, MonsterSound::eBaseChannel, eVampireGrasp, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Vampire_Sucking"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 3, MonsterSound::eBaseChannel, eVampireSucking, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Vampire_Hit"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 2, MonsterSound::eBaseChannel, eVampireHit, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Vampire_StartHunt"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 5, MonsterSound::eBaseChannel, eVampireStartHunt, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Invisibility_Change_State"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eNormalPriority, MonsterSound::eChannelIndependent << 1, eChangeVisibility, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Growl"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eHighPriority + 6, MonsterSound::eBaseChannel, eGrowl, "bip01_head");
+    sound().add(pSettings->r_string(section, "Sound_Alien"), DEFAULT_SAMPLE_COUNT, SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eCriticalPriority, u32(MonsterSound::eCaptureAllChannels), eAlien, "bip01_head");
 }
 
 void CAI_Bloodsucker::LoadVampirePPEffector(LPCSTR section)
@@ -341,12 +292,9 @@ void CAI_Bloodsucker::LoadVampirePPEffector(LPCSTR section)
     pp_vampire_effector.noise.fps = pSettings->r_float(section, "noise_fps");
     VERIFY(!fis_zero(pp_vampire_effector.noise.fps));
 
-    sscanf(pSettings->r_string(section, "color_base"), "%f,%f,%f", &pp_vampire_effector.color_base.r,
-        &pp_vampire_effector.color_base.g, &pp_vampire_effector.color_base.b);
-    sscanf(pSettings->r_string(section, "color_gray"), "%f,%f,%f", &pp_vampire_effector.color_gray.r,
-        &pp_vampire_effector.color_gray.g, &pp_vampire_effector.color_gray.b);
-    sscanf(pSettings->r_string(section, "color_add"), "%f,%f,%f", &pp_vampire_effector.color_add.r,
-        &pp_vampire_effector.color_add.g, &pp_vampire_effector.color_add.b);
+    sscanf(pSettings->r_string(section, "color_base"), "%f,%f,%f", &pp_vampire_effector.color_base.r, &pp_vampire_effector.color_base.g, &pp_vampire_effector.color_base.b);
+    sscanf(pSettings->r_string(section, "color_gray"), "%f,%f,%f", &pp_vampire_effector.color_gray.r, &pp_vampire_effector.color_gray.g, &pp_vampire_effector.color_gray.b);
+    sscanf(pSettings->r_string(section, "color_add"), "%f,%f,%f", &pp_vampire_effector.color_add.r, &pp_vampire_effector.color_add.g, &pp_vampire_effector.color_add.b);
 }
 
 void CAI_Bloodsucker::BoneCallback(CBoneInstance* B)
@@ -359,11 +307,8 @@ void CAI_Bloodsucker::BoneCallback(CBoneInstance* B)
 void CAI_Bloodsucker::vfAssignBones()
 {
     // Установка callback на кости
-
-    bone_spine = &smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(
-        smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_spine"));
-    bone_head = &smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(
-        smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_head"));
+    bone_spine = &smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_spine"));
+    bone_head = &smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_head"));
     if (!PPhysicsShell()) //нельзя ставить колбеки, если создан физ шел - у него стоят свои колбеки!!!
     {
         bone_spine->set_callback(bctCustom, BoneCallback, this);
@@ -378,51 +323,14 @@ void CAI_Bloodsucker::vfAssignBones()
     Bones.AddBone(bone_head, AXIS_Y);
 }
 
-//#define MAX_BONE_ANGLE PI_DIV_4
-
-void CAI_Bloodsucker::LookDirection(Fvector to_dir, float bone_turn_speed)
-{
-    //// получаем вектор направления к источнику звука и его мировые углы
-    // float		yaw,pitch;
-    // to_dir.getHP(yaw,pitch);
-
-    //// установить параметры вращения по yaw
-    // float cur_yaw = -movement().m_body.current.yaw;						// текущий мировой угол монстра
-    // float bone_angle;											// угол для боны
-
-    // float dy = _abs(angle_normalize_signed(yaw - cur_yaw));		// дельта, на которую нужно поворачиваться
-
-    // if (angle_difference(cur_yaw,yaw) <= MAX_BONE_ANGLE) {		// bone turn only
-    //	bone_angle = dy;
-    //} else {													// torso & bone turn
-    //	if (movement().IsMoveAlongPathFinished() || !movement().enabled()) movement().m_body.target.yaw =
-    // angle_normalize(-yaw);
-    //	if (dy / 2 < MAX_BONE_ANGLE) bone_angle = dy / 2;
-    //	else bone_angle = MAX_BONE_ANGLE;
-    //}
-
-    // bone_angle /= 2;
-    // if (from_right(yaw,cur_yaw)) bone_angle *= -1.f;
-
-    // Bones.SetMotion(bone_spine, AXIS_X, bone_angle, bone_turn_speed, 100);
-    // Bones.SetMotion(bone_head,	AXIS_X, bone_angle, bone_turn_speed, 100);
-
-    //// установить параметры вращения по pitch
-    // clamp(pitch, -MAX_BONE_ANGLE, MAX_BONE_ANGLE);
-    // pitch /= 2;
-
-    // Bones.SetMotion(bone_spine, AXIS_Y, pitch, bone_turn_speed, 100);
-    // Bones.SetMotion(bone_head,	AXIS_Y, pitch, bone_turn_speed, 100);
-}
-
 void CAI_Bloodsucker::ActivateVampireEffector()
 {
-    Actor()->Cameras().AddCamEffector(
-        new CVampireCameraEffector(6.0f, get_head_position(this), get_head_position(Actor())));
+    Actor()->Cameras().AddCamEffector(new CVampireCameraEffector(6.0f, get_head_position(this), get_head_position(Actor())));
     Actor()->Cameras().AddPPEffector(new CVampirePPEffector(pp_vampire_effector, 6.0f));
 }
 
 bool CAI_Bloodsucker::WantVampire() { return !!fsimilar(m_vampire_want_value, 1.f); }
+
 void CAI_Bloodsucker::SatisfyVampire()
 {
     m_vampire_want_value = 0.f;
@@ -437,9 +345,7 @@ void CAI_Bloodsucker::SatisfyVampire()
 void CAI_Bloodsucker::CheckSpecParams(u32 spec_params)
 {
     if ((spec_params & ASP_CHECK_CORPSE) == ASP_CHECK_CORPSE)
-    {
         com_man().seq_run(anim().get_motion_id(eAnimCheckCorpse));
-    }
 
     if ((spec_params & ASP_THREATEN) == ASP_THREATEN)
     {
@@ -490,41 +396,27 @@ CAI_Bloodsucker::visibility_t CAI_Bloodsucker::get_visibility_state() const
 void CAI_Bloodsucker::set_visibility_state(visibility_t new_state)
 {
     if (m_force_visibility_state != unset)
-    {
         new_state = m_force_visibility_state;
-    }
 
     if (new_state == unset)
-    {
         return;
-    }
 
     if (m_visibility_state == new_state)
-    {
         return;
-    }
 
     if (Device.dwTimeGlobal < m_visibility_state_last_changed_time + get_visibility_state_change_min_delay())
-    {
         return;
-    }
 
     m_visibility_state_last_changed_time = Device.dwTimeGlobal;
 
     m_visibility_state = new_state;
 
     if (m_visibility_state == full_visibility)
-    {
         stop_invisible_predator();
-    }
     else if (m_visibility_state == partial_visibility)
-    {
         start_invisible_predator();
-    }
     else
-    {
         sound().play(CAI_Bloodsucker::eChangeVisibility);
-    }
 }
 
 void CAI_Bloodsucker::force_visibility_state(int state)
@@ -541,38 +433,27 @@ void CAI_Bloodsucker::update_invisibility()
     using namespace detail::bloodsucker;
 
     if (!g_Alive())
-    {
         set_visibility_state(full_visibility);
-    }
     else if (Device.dwTimeGlobal < m_runaway_invisible_time + default_runaway_invisible_time / 6)
-    {
         set_visibility_state(partial_visibility);
-    }
     else if (Device.dwTimeGlobal < m_runaway_invisible_time + default_runaway_invisible_time)
-    {
         set_visibility_state(no_visibility);
-    }
     else if (CEntityAlive const* const enemy = EnemyMan.get_enemy())
     {
+		EMonsterState state = StateMan->get_state_type(); //dsh:
         float const dist2enemy = enemy->Position().distance_to(Position());
 
-        if (dist2enemy <= get_full_visibility_radius())
-        {
+		if (smart_cast<const CActor*>(enemy) && is_state(state, eStatePanic))
+			set_visibility_state(no_visibility);
+		else if (dist2enemy <= get_full_visibility_radius())
             set_visibility_state(full_visibility);
-        }
         else if (dist2enemy <= get_partial_visibility_radius())
-        {
             set_visibility_state(partial_visibility);
-        }
         else
-        {
             set_visibility_state(no_visibility);
-        }
     }
     else
-    {
         set_visibility_state(full_visibility);
-    }
 }
 
 void CAI_Bloodsucker::UpdateCL()
@@ -616,36 +497,24 @@ void CAI_Bloodsucker::Die(IGameObject* who)
 void CAI_Bloodsucker::post_fsm_update()
 {
     inherited::post_fsm_update();
-
-    // EMonsterState state = StateMan->get_state_type();
-    //
-    // установить агрессивность
-    // bool aggressive =	(is_state(state, eStateAttack)) ||
-    //					(is_state(state, eStatePanic))	||
-    //					(is_state(state, eStateHitted));
 }
 
 bool CAI_Bloodsucker::check_start_conditions(ControlCom::EControlType type)
 {
     if (type == ControlCom::eControlJump)
-    {
         return false;
-    }
 
     if (!inherited::check_start_conditions(type))
-    {
         return false;
-    }
 
     if (type == ControlCom::eControlRunAttack)
-    {
         return !state_invisible;
-    }
 
     return true;
 }
 
 void CAI_Bloodsucker::set_alien_control(bool val) { val ? m_alien_control.activate() : m_alien_control.deactivate(); }
+
 void CAI_Bloodsucker::set_vis()
 {
     m_vis_state = 1;
@@ -659,7 +528,9 @@ void CAI_Bloodsucker::set_invis()
 }
 
 void CAI_Bloodsucker::set_collision_off(bool b_collision) { collision_off = b_collision; }
+
 bool CAI_Bloodsucker::is_collision_off() { return collision_off; }
+
 void CAI_Bloodsucker::jump(const Fvector& position, float factor)
 {
     com_man().script_jump(position, factor);
@@ -675,15 +546,17 @@ void CAI_Bloodsucker::set_drag_jump(CEntityAlive* e, LPCSTR s, const Fvector& po
     m_drag_anim_jump = true;
     m_animated = true;
 }
+
 bool CAI_Bloodsucker::is_drag_anim_jump() { return m_drag_anim_jump; }
+
 bool CAI_Bloodsucker::is_animated() { return m_animated; }
+
 void CAI_Bloodsucker::start_drag()
 {
     if (m_animated)
     {
         com_man().script_capture(ControlCom::eControlAnimation);
-        smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(
-            "boloto_attack_link_bone", TRUE, animation_end_jump, this);
+        smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle("boloto_attack_link_bone", TRUE, animation_end_jump, this);
         m_animated = false;
     }
 }
@@ -691,21 +564,19 @@ void CAI_Bloodsucker::start_drag()
 void CAI_Bloodsucker::animation_end_jump(CBlend* B)
 {
     ((CAI_Bloodsucker*)B->CallbackParam)->set_invis();
-    ((CAI_Bloodsucker*)B->CallbackParam)
-        ->jump(((CAI_Bloodsucker*)B->CallbackParam)->j_position, ((CAI_Bloodsucker*)B->CallbackParam)->j_factor);
+    ((CAI_Bloodsucker*)B->CallbackParam)->jump(((CAI_Bloodsucker*)B->CallbackParam)->j_position, ((CAI_Bloodsucker*)B->CallbackParam)->j_factor);
 }
 
 void CAI_Bloodsucker::predator_start()
 {
-    // if m_predator==false  is_invisible
     if (m_vis_state != 0)
     {
         if (m_vis_state == 1)
-        {
             return;
-        }
+
         m_predator = false;
     }
+
     if (m_predator)
         return;
 
@@ -718,7 +589,6 @@ void CAI_Bloodsucker::predator_start()
     sound().play(CAI_Bloodsucker::eChangeVisibility);
 
     m_predator = true;
-    // state_invisible				= false;
 }
 
 void CAI_Bloodsucker::predator_stop()
@@ -732,11 +602,9 @@ void CAI_Bloodsucker::predator_stop()
 
         m_predator = true;
     }
-    // if m_predator==true  is_visible
+
     if (!m_predator)
-    {
         return;
-    }
 
     cNameVisual_set(*m_visual_default);
     character_physics_support()->in_ChangeVisual();
@@ -751,7 +619,9 @@ void CAI_Bloodsucker::predator_stop()
 }
 
 void CAI_Bloodsucker::predator_freeze() { control().animation().freeze(); }
+
 void CAI_Bloodsucker::predator_unfreeze() { control().animation().unfreeze(); }
+
 void CAI_Bloodsucker::move_actor_cam(float angle)
 {
     if (Actor()->cam_Active())
@@ -761,8 +631,7 @@ void CAI_Bloodsucker::move_actor_cam(float angle)
     }
 }
 
-void CAI_Bloodsucker::HitEntity(
-    const CEntity* pEntity, float fDamage, float impulse, Fvector& dir, ALife::EHitType hit_type, bool draw_hit_marks)
+void CAI_Bloodsucker::HitEntity(const CEntity* pEntity, float fDamage, float impulse, Fvector& dir, ALife::EHitType hit_type, bool draw_hit_marks)
 {
     bool is_critical = rand() / (float)RAND_MAX <= m_critical_hit_chance;
 
@@ -775,6 +644,7 @@ void CAI_Bloodsucker::HitEntity(
 }
 
 bool CAI_Bloodsucker::in_solid_state() { return true; }
+
 void CAI_Bloodsucker::Hit(SHit* pHDS)
 {
     if (!collision_hit_off)
@@ -788,6 +658,7 @@ void CAI_Bloodsucker::start_invisible_predator()
     state_invisible = true;
     predator_start();
 }
+
 void CAI_Bloodsucker::stop_invisible_predator()
 {
     state_invisible = false;
@@ -821,17 +692,22 @@ void CAI_Bloodsucker::renderable_Render()
 
 bool CAI_Bloodsucker::done_enough_hits_before_vampire()
 {
-    return (int)m_hits_before_vampire >=
-        (int)m_sufficient_hits_before_vampire + m_sufficient_hits_before_vampire_random;
+    return (int)m_hits_before_vampire >= (int)m_sufficient_hits_before_vampire + m_sufficient_hits_before_vampire_random;
 }
 
-void CAI_Bloodsucker::on_attack_on_run_hit() { ++m_hits_before_vampire; }
+void CAI_Bloodsucker::on_attack_on_run_hit(const CEntityAlive* enemy) 
+{ 
+    if (smart_cast<const CActor*>(enemy))
+        ++m_hits_before_vampire;
+}
+
 void CAI_Bloodsucker::force_stand_sleep_animation(u32 index)
 {
     anim().set_override_animation(eAnimSleepStanding, index);
 }
 
 void CAI_Bloodsucker::release_stand_sleep_animation() { anim().clear_override_animation(); }
+
 #ifdef DEBUG
 CBaseMonster::SDebugInfo CAI_Bloodsucker::show_debug_info()
 {
@@ -842,8 +718,7 @@ CBaseMonster::SDebugInfo CAI_Bloodsucker::show_debug_info()
     string128 text;
     xr_sprintf(text, "Vampire Want Value = [%f] Speed = [%f]", m_vampire_want_value, m_vampire_want_speed);
     DBG().text(this).add_item(text, info.x, info.y += info.delta_y, info.color);
-    DBG().text(this).add_item(
-        "---------------------------------------", info.x, info.y += info.delta_y, info.delimiter_color);
+    DBG().text(this).add_item("---------------------------------------", info.x, info.y += info.delta_y, info.delimiter_color);
 
     return CBaseMonster::SDebugInfo();
 }
@@ -877,3 +752,11 @@ void CAI_Bloodsucker::debug_on_key(int key)
 #endif //_DEBUG
 
 #endif // DEBUG
+
+bool CAI_Bloodsucker::can_attack_on_move()
+{
+    if (!inherited::can_attack_on_move())
+        return false;
+
+    return CAI_Bloodsucker::m_time_last_vampire + m_vampire_min_delay <= Device.dwTimeGlobal;
+}

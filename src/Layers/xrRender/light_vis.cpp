@@ -13,11 +13,6 @@ void light::vis_prepare()
     if (int(indirect_photons) != ps_r2_GI_photons)
         gi_generate();
 
-    //	. test is sheduled for future	= keep old result
-    //	. test time comes :)
-    //		. camera inside light volume	= visible,	shedule for 'small' interval
-    //		. perform testing				= ???,		pending
-
     u32 frame = Device.dwFrame;
     if (frame < vis.frame2test)
         return;
@@ -32,16 +27,15 @@ void light::vis_prepare()
         safe_area = _max(_max(VIEWPORT_NEAR, _max(x0, x1)), c);
     }
 
-    // Msg	("sc[%f,%f,%f]/c[%f,%f,%f] - sr[%f]/r[%f]",VPUSH(spatial.center),VPUSH(position),spatial.radius,range);
-    // Msg	("dist:%f, sa:%f",Device.vCameraPosition.distance_to(spatial.center),safe_area);
     bool skiptest = false;
     if (ps_r2_ls_flags.test(R2FLAG_EXP_DONT_TEST_UNSHADOWED) && !flags.bShadow)
         skiptest = true;
+
     if (ps_r2_ls_flags.test(R2FLAG_EXP_DONT_TEST_SHADOWED) && flags.bShadow)
         skiptest = true;
 
     if (skiptest || Device.vCameraPosition.distance_to(spatial.sphere.P) <= (spatial.sphere.R * 1.01f + safe_area))
-    { // small error
+    {
         vis.visible = true;
         vis.pending = false;
         vis.frame2test = frame + ::Random.randI(delay_small_min, delay_small_max);
@@ -53,6 +47,7 @@ void light::vis_prepare()
     xform_calc();
     RCache.set_xform_world(m_xform);
     vis.query_order = RImplementation.occq_begin(vis.query_id);
+
     //	Hack: Igor. Light is visible if it's frutum is visible. (Only for volumetric)
     //	Hope it won't slow down too much since there's not too much volumetric lights
     //	TODO: sort for performance improvement if this technique hurts
@@ -60,32 +55,19 @@ void light::vis_prepare()
         RCache.set_Stencil(FALSE);
     else
         RCache.set_Stencil(TRUE, D3DCMP_LESSEQUAL, 0x01, 0xff, 0x00);
+
     RImplementation.Target->draw_volume(this);
     RImplementation.occq_end(vis.query_id);
 }
 
 void light::vis_update()
 {
-    //	. not pending	->>> return (early out)
-    //	. test-result:	visible:
-    //		. shedule for 'large' interval
-    //	. test-result:	invisible:
-    //		. shedule for 'next-frame' interval
-
     if (!vis.pending)
         return;
 
     u32 frame = Device.dwFrame;
     u32 fragments = RImplementation.occq_get(vis.query_id);
-    // Log					("",fragments);
     vis.visible = (fragments > cullfragments);
     vis.pending = false;
-    if (vis.visible)
-    {
-        vis.frame2test = frame + ::Random.randI(delay_large_min, delay_large_max);
-    }
-    else
-    {
-        vis.frame2test = frame + 1;
-    }
+	vis.frame2test = vis.visible ? frame + ::Random.randI(delay_large_min, delay_large_max) : frame + 1;
 }

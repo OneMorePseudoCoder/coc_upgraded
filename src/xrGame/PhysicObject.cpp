@@ -243,11 +243,7 @@ void CPhysicObject::anim_time_set(float time)
     if (time < 0.f || time > m_anim_blend->timeTotal)
     {
 #ifdef DEBUG
-        Msg(" ! can not set blend time %f - it must be in range 0 - %f(timeTotal) obj: %s, model: %s, anim: %s", time,
-            m_anim_blend->timeTotal, cName().c_str(), cNameVisual().c_str(),
-            smart_cast<IKinematicsAnimated*>(PPhysicsShell()->PKinematics())
-                ->LL_MotionDefName_dbg(m_anim_blend->motionID)
-                .first);
+        Msg(" ! can not set blend time %f - it must be in range 0 - %f(timeTotal) obj: %s, model: %s, anim: %s", time, m_anim_blend->timeTotal, cName().c_str(), cNameVisual().c_str(), smart_cast<IKinematicsAnimated*>(PPhysicsShell()->PKinematics())->LL_MotionDefName_dbg(m_anim_blend->motionID).first);
 #endif
         return;
     }
@@ -286,8 +282,7 @@ void CPhysicObject::CreateSkeleton(CSE_ALifeObjectPhysic* po)
     LPCSTR fixed_bones = *po->fixed_bones;
     m_pPhysicsShell = P_build_Shell(this, !po->_flags.test(CSE_PHSkeleton::flActive), fixed_bones);
     ApplySpawnIniToPhysicShell(&po->spawn_ini(), m_pPhysicsShell, fixed_bones[0] != '\0');
-    ApplySpawnIniToPhysicShell(
-        smart_cast<IKinematics*>(Visual())->LL_UserData(), m_pPhysicsShell, fixed_bones[0] != '\0');
+    ApplySpawnIniToPhysicShell(smart_cast<IKinematics*>(Visual())->LL_UserData(), m_pPhysicsShell, fixed_bones[0] != '\0');
 }
 
 void CPhysicObject::Load(LPCSTR section)
@@ -702,6 +697,7 @@ bool CPhysicObject::get_door_vectors(Fvector& closed, Fvector& open) const
     u16 door_bone = K->LL_BoneID("door");
     if (door_bone == BI_NONE)
         return false;
+
     const CBoneData& bd = K->LL_GetData(door_bone);
     const SBoneShape& shape = bd.shape;
     if (shape.type != SBoneShape::stBox)
@@ -734,14 +730,22 @@ bool CPhysicObject::get_door_vectors(Fvector& closed, Fvector& open) const
 
     const SJointIKData& joint = bd.IK_data;
     const Fvector2& limits = joint.limits[1].limit;
+    float limitX = limits.x;
+    float limitY = limits.y;
 
-    if (M_PI - limits.y < EPS && M_PI + limits.x < EPS)
+	if (fsimilar(limitX, limitY)) 
+	{
+		auto j = m_pPhysicsShell->get_Joint(door_bone);
+        j->GetLimits(limitY, limitX, 0);
+	}
+
+    if (M_PI - limitY < EPS && M_PI + limitX < EPS)
         return false;
 
-    Fmatrix to_hi = Fmatrix().rotateY(-limits.x);
+    Fmatrix to_hi = Fmatrix().rotateY(-limitX);
     to_hi.transform_dir(open, door_dir_local);
 
-    Fmatrix to_lo = Fmatrix().rotateY(-limits.y);
+    Fmatrix to_lo = Fmatrix().rotateY(-limitY);
     to_lo.transform_dir(closed, door_dir_local);
 
     start_pos.transform_dir(open);

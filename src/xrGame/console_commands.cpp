@@ -249,15 +249,6 @@ public:
                     Msg("! there are only %d vertexes!", ai().game_graph().header().vertex_count());
                 else if (_min(id1, id2) < 0)
                     Msg("! invalid vertex number (%d)!", _min(id1, id2));
-                else
-                {
-                    //						Sleep				(1);
-                    //						CTimer				timer;
-                    //						timer.Start			();
-                    //						float				fValue = ai().m_tpAStar->ffFindMinimalPath(id1,id2);
-                    //						Msg					("* %7.2f[%d] : %11I64u cycles (%.3f
-                    // microseconds)",fValue,ai().m_tpAStar->m_tpaNodes.size(),timer.GetElapsed_ticks(),timer.GetElapsed_ms()*1000.f);
-                }
             else
                 Msg("! not enough parameters!");
         }
@@ -630,22 +621,6 @@ public:
             Msg("! Cannot load saved game %s, invalid file name", saved_game);
             return;
         }
-
-        /*     moved to level_network_messages.cpp
-                CSavedGameWrapper			wrapper(args);
-                if (wrapper.level_id() == ai().level_graph().level_id()) {
-                    if (Device.Paused())
-                        Device.Pause		(FALSE, TRUE, TRUE, "CCC_ALifeLoadFrom");
-
-                    Level().remove_objects	();
-
-                    game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
-                    R_ASSERT				(game);
-                    game->restart_simulator	(saved_game);
-
-                    return;
-                }
-        */
 
         if (MainMenu()->IsActive())
             MainMenu()->Activate(false);
@@ -1022,18 +997,7 @@ public:
         }
         ph_dbg_draw_mask1.set(ph_m1_DbgTrackObject, TRUE);
         PH_DBG_SetTrackObject();
-        // IGameObject* O= Level().Objects.FindObjectByName(args);
-        // if(O)
-        //{
-        //	PH_DBG_SetTrackObject(*(O->cName()));
-        //	ph_dbg_draw_mask1.set(ph_m1_DbgTrackObject,TRUE);
-        //}
     }
-
-    // virtual void	Info	(TInfo& I)
-    //{
-    //	xr_strcpy(I,"restart game fast");
-    //}
 };
 #endif
 
@@ -1931,23 +1895,15 @@ void CCC_RegisterCommands()
     CMD3(CCC_Mask, "ai_animation_stats", &psAI_Flags, aiAnimationStats);
 
     /////////////////////////////////////////////HIT ANIMATION////////////////////////////////////////////////////
-    // float						power_factor				= 2.f;
-    // float						rotational_power_factor		= 3.f;
-    // float						side_sensitivity_threshold	= 0.2f;
-    // float						anim_channel_factor			= 3.f;
-
     CMD4(CCC_Float, "hit_anims_power", &ghit_anims_params.power_factor, 0.0f, 100.0f);
     CMD4(CCC_Float, "hit_anims_rotational_power", &ghit_anims_params.rotational_power_factor, 0.0f, 100.0f);
     CMD4(CCC_Float, "hit_anims_side_sensitivity_threshold", &ghit_anims_params.side_sensitivity_threshold, 0.0f, 10.0f);
     CMD4(CCC_Float, "hit_anims_channel_factor", &ghit_anims_params.anim_channel_factor, 0.0f, 100.0f);
-    // float	block_blend					= 0.1f;
-    // float	reduce_blend				= 0.5f;
-    // float	reduce_power_factor			= 0.5f;
     CMD4(CCC_Float, "hit_anims_block_blend", &ghit_anims_params.block_blend, 0.f, 1.f);
     CMD4(CCC_Float, "hit_anims_reduce_blend", &ghit_anims_params.reduce_blend, 0.f, 1.f);
     CMD4(CCC_Float, "hit_anims_reduce_blend_factor", &ghit_anims_params.reduce_power_factor, 0.0f, 1.0f);
     CMD4(CCC_Integer, "hit_anims_tune", &tune_hit_anims, 0, 1);
-/////////////////////////////////////////////HIT ANIMATION END////////////////////////////////////////////////////
+	/////////////////////////////////////////////HIT ANIMATION END////////////////////////////////////////////////////
 
     CMD1(CCC_DumpModelBones, "debug_dump_model_bones");
 
@@ -2095,16 +2051,6 @@ void CCC_RegisterCommands()
     extern BOOL dbg_draw_doors;
     CMD4(CCC_Integer, "dbg_draw_doors", &dbg_draw_doors, FALSE, TRUE);
 
-    /*
-    extern int ik_allign_free_foot;
-    extern int ik_local_blending;
-    extern int ik_blend_free_foot;
-    extern int ik_collide_blend;
-        CMD4(CCC_Integer,	"ik_allign_free_foot"			,&ik_allign_free_foot,	0,	1);
-        CMD4(CCC_Integer,	"ik_local_blending"				,&ik_local_blending,	0,	1);
-        CMD4(CCC_Integer,	"ik_blend_free_foot"			,&ik_blend_free_foot,	0,	1);
-        CMD4(CCC_Integer,	"ik_collide_blend"				,&ik_collide_blend,	0,	1);
-    */
     extern BOOL dbg_draw_ragdoll_spawn;
     CMD4(CCC_Integer, "dbg_draw_ragdoll_spawn", &dbg_draw_ragdoll_spawn, FALSE, TRUE);
     extern BOOL debug_step_info;

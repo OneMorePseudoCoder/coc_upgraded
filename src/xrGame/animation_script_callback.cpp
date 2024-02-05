@@ -6,8 +6,7 @@
 #include "game_object_space.h"
 #include "Include/xrRender/KinematicsAnimated.h"
 
-CBlend* PlayMotionByParts(
-    IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam)
+CBlend* PlayMotionByParts(IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam)
 {
     CBlend* ret = 0;
     CMotionDef* md = sa->LL_GetMotionDef(motion_ID);
@@ -20,7 +19,6 @@ CBlend* PlayMotionByParts(
         CBlend* blend = sa->LL_PlayCycle(i, motion_ID, bMixIn, Callback, CallbackParam);
         if (blend && !ret)
             ret = blend;
-        // m_anim_blend = PKinematicsAnimated->PlayCycle(*visual->startup_animation);
     }
     return ret;
 }
@@ -50,27 +48,6 @@ void anim_script_callback::anim_callback(CBlend* B)
     anim_script_callback* ths = ((anim_script_callback*)B->CallbackParam);
     VERIFY(ths);
     VERIFY(ths->is_set);
-
-    ////////////////////BLEND UPDATE//////////////////////////////////////////////
-    // float quant = dt*speed;
-    // timeCurrent += quant; // stop@end - time is not going
-
-    // bool	running_fwrd	=  ( quant > 0 );
-    // float	const END_EPS	=	SAMPLE_SPF+EPS;
-    // bool	at_end			=	running_fwrd && ( timeCurrent > ( timeTotal-END_EPS ) );
-    // bool	at_begin		=	!running_fwrd && ( timeCurrent < 0.f );
-    ////..............................
-    ////..............................
-    ////..............................
-    // if( at_end )
-    //{
-    //	timeCurrent	= timeTotal-END_EPS;		// stop@end - time frozen at the end
-    //	if( timeCurrent<0.f ) timeCurrent =0.f;
-    //}
-    // else
-    //	timeCurrent	= 0.f;
-
-    ////////////////////BLEND UPDATE//////////////////////////////////////////////
 
     if (B->timeTotal - B->timeCurrent - END_EPS < B->timeCurrent) // this cool expression sims to work for all cases!
     {

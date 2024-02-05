@@ -368,13 +368,11 @@ void CRender::add_leafs_Dynamic(dxRender_Visual* pVisual)
         FHierrarhyVisual* pV = (FHierrarhyVisual*)pVisual;
         for (auto &i : pV->children)
         {
-            i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала
-                                                                                   // [use shader data from parent model, rather than it childrens]
-
+            i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала use shader data from parent model, rather than it childrens]
             add_leafs_Dynamic(i);
         }
     }
-        return;
+	return;
     case MT_SKELETON_ANIM:
     case MT_SKELETON_RIGID:
     {
@@ -400,8 +398,7 @@ void CRender::add_leafs_Dynamic(dxRender_Visual* pVisual)
             pV->CalculateWallmarks(); //. bug?
             for (auto &i : pV->children)
             {
-                i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала
-                                                                                       // [use shader data from parent model, rather than it childrens]
+                i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала [use shader data from parent model, rather than it childrens]
                 add_leafs_Dynamic(i);
             }
         }
@@ -449,8 +446,7 @@ void CRender::add_leafs_Static(dxRender_Visual* pVisual)
         FHierrarhyVisual* pV = (FHierrarhyVisual*)pVisual;
         for (auto &i : pV->children)
         {
-            i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала
-                                                         // [use shader data from parent model, rather than it childrens]
+            i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала [use shader data from parent model, rather than it childrens]
             add_leafs_Static(i);
         }
     }
@@ -463,8 +459,7 @@ void CRender::add_leafs_Static(dxRender_Visual* pVisual)
         pV->CalculateBones(TRUE);
         for (auto &i : pV->children)
         {
-            i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала
-                                                         // [use shader data from parent model, rather than it childrens]
+            i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала [use shader data from parent model, rather than it childrens]
             add_leafs_Static(i);
         }
     }
@@ -490,8 +485,7 @@ void CRender::add_leafs_Static(dxRender_Visual* pVisual)
             // Add all children, doesn't perform any tests
             for (auto &i : pV->children)
             {
-                i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала
-                                                                                       // [use shader data from parent model, rather than it childrens]
+                i->vis.obj_data = pV->getVisData().obj_data; // Наследники используют шейдерные данные от родительского визуала [use shader data from parent model, rather than it childrens]
                 add_leafs_Static(i);
             }
         }
@@ -1073,8 +1067,7 @@ void D3DXRenderBase::DumpStatistics(IGameFont& font, IPerformanceAlert* alert)
     font.OutNext("DT_Vis/Cnt:   %2.2fms/%d", BasicStats.DetailVisibility.result, BasicStats.DetailCount);
     font.OutNext("DT_Render:    %2.2fms", BasicStats.DetailRender.result);
     font.OutNext("DT_Cache:     %2.2fms", BasicStats.DetailCache.result);
-    font.OutNext("Wallmarks:    %2.2fms, %d/%d - %d", BasicStats.Wallmarks.result, BasicStats.StaticWMCount,
-        BasicStats.DynamicWMCount, BasicStats.WMTriCount);
+    font.OutNext("Wallmarks:    %2.2fms, %d/%d - %d", BasicStats.Wallmarks.result, BasicStats.StaticWMCount, BasicStats.DynamicWMCount, BasicStats.WMTriCount);
     font.OutNext("Glows:        %2.2fms", BasicStats.Glows.result);
     font.OutNext("Lights:       %2.2fms, %d", BasicStats.Lights.result, BasicStats.Lights.count);
     font.OutNext("RT:           %2.2fms, %d", BasicStats.RenderTargets.result, BasicStats.RenderTargets.count);

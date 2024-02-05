@@ -317,16 +317,14 @@ void remove_call(const luabind::object& lua_object, LPCSTR condition, LPCSTR act
     Level().ph_commander_scripts().remove_call(&c, &a);
 }
 
-void add_call(
-    const luabind::object& lua_object, const luabind::functor<bool>& condition, const luabind::functor<void>& action)
+void add_call(const luabind::object& lua_object, const luabind::functor<bool>& condition, const luabind::functor<void>& action)
 {
     CPHScriptObjectConditionN* c = new CPHScriptObjectConditionN(lua_object, condition);
     CPHScriptObjectActionN* a = new CPHScriptObjectActionN(lua_object, action);
     Level().ph_commander_scripts().add_call(c, a);
 }
 
-void remove_call(
-    const luabind::object& lua_object, const luabind::functor<bool>& condition, const luabind::functor<void>& action)
+void remove_call(const luabind::object& lua_object, const luabind::functor<bool>& condition, const luabind::functor<void>& action)
 {
     CPHScriptObjectConditionN c(lua_object, condition);
     CPHScriptObjectActionN a(lua_object, action);
@@ -533,8 +531,7 @@ int g_get_general_goodwill_between(u16 from, u16 to)
         return (0);
     }
     CHARACTER_GOODWILL community_to_obj_goodwill = RELATION_REGISTRY().GetCommunityGoodwill(from_obj->Community(), to);
-    CHARACTER_GOODWILL community_to_community_goodwill =
-        RELATION_REGISTRY().GetCommunityRelation(from_obj->Community(), to_obj->Community());
+    CHARACTER_GOODWILL community_to_community_goodwill = RELATION_REGISTRY().GetCommunityRelation(from_obj->Community(), to_obj->Community());
 
     return presonal_goodwill + community_to_obj_goodwill + community_to_community_goodwill;
 }
@@ -651,9 +648,7 @@ void set_active_cam(u8 mode)
 //-Alundaio
 
 // KD: raypick	
-bool ray_pick(const Fvector& start, const Fvector& dir, float range,
-              collide::rq_target tgt, script_rq_result& script_R,
-              CScriptGameObject* ignore_object)
+bool ray_pick(const Fvector& start, const Fvector& dir, float range, collide::rq_target tgt, script_rq_result& script_R, CScriptGameObject* ignore_object)
 {
     collide::rq_result R;
     IGameObject* ignore = nullptr;
@@ -709,14 +704,27 @@ void qweasddMess1(NET_Packet& val1, bool val2 = false, bool val3 = true)
     LPCSTR str2 = val3 ? "Yes3" : "No3";
     Msg("qweasddMess1 -> packetstr = %s, val2 = %s, val3 = %s", packetstr, str1, str2);
 }
-void patrol_path_add(LPCSTR patrol_path, CPatrolPath* path) {
+
+void patrol_path_add(LPCSTR patrol_path, CPatrolPath* path) 
+{
 	ai().patrol_paths_raw().add_path(shared_str(patrol_path), path);
 }
 
-
-void patrol_path_remove(LPCSTR patrol_path) {
+void patrol_path_remove(LPCSTR patrol_path) 
+{
 	ai().patrol_paths_raw().remove_path(shared_str(patrol_path));
 }
+
+float is_ray_intersect_sphere(Fvector pos, Fvector dir, Fvector C, float R) 
+{
+	Fsphere sphere;
+	sphere.P = C;
+	sphere.R = R;
+	dir.normalize_safe();
+	float dist;
+	return sphere.intersect_ray( pos, dir, dist ) == Fsphere::rpNone ? -1.0f : dist;
+}
+
 // XXX nitrocaster: one can export enum like class, without defining dummy type
 template<typename T>
 struct EnumCallbackType {};
@@ -811,18 +819,14 @@ IC static void CLevel_Export(lua_State* luaState)
         def("remove_dialog_to_render", remove_dialog_to_render),
         def("hide_indicators", hide_indicators),
         def("hide_indicators_safe", hide_indicators_safe),
-
+		def("is_ray_intersect_sphere", is_ray_intersect_sphere),
         def("show_indicators", show_indicators),
         def("show_weapon", show_weapon),
         def("add_call", ((void (*)(const luabind::functor<bool>&, const luabind::functor<void>&)) & add_call)),
-        def("add_call",
-            ((void (*)(const luabind::object&, const luabind::functor<bool>&, const luabind::functor<void>&)) &
-                add_call)),
+        def("add_call", ((void (*)(const luabind::object&, const luabind::functor<bool>&, const luabind::functor<void>&)) &add_call)),
         def("add_call", ((void (*)(const luabind::object&, LPCSTR, LPCSTR)) & add_call)),
         def("remove_call", ((void (*)(const luabind::functor<bool>&, const luabind::functor<void>&)) & remove_call)),
-        def("remove_call",
-            ((void (*)(const luabind::object&, const luabind::functor<bool>&, const luabind::functor<void>&)) &
-                remove_call)),
+        def("remove_call", ((void (*)(const luabind::object&, const luabind::functor<bool>&, const luabind::functor<void>&)) &remove_call)),
         def("remove_call", ((void (*)(const luabind::object&, LPCSTR, LPCSTR)) & remove_call)),
         def("remove_calls_for_object", remove_calls_for_object), def("present", is_level_present),
         def("disable_input", disable_input), def("enable_input", enable_input), def("spawn_phantom", spawn_phantom),

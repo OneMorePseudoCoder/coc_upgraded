@@ -86,7 +86,6 @@ void CHelmet::net_Import(NET_Packet& P)
 void CHelmet::OnH_A_Chield()
 {
     inherited::OnH_A_Chield();
-    //	ReloadBonesProtection();
 }
 
 void CHelmet::OnMoveToSlot(const SInvItemPlace& previous_place)
@@ -141,24 +140,15 @@ bool CHelmet::install_upgrade_impl(LPCSTR section, bool test)
 {
     bool result = inherited::install_upgrade_impl(section, test);
 
-    result |= process_if_exists(
-        section, "burn_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeBurn], test);
-    result |= process_if_exists(
-        section, "shock_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeShock], test);
-    result |= process_if_exists(
-        section, "strike_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeStrike], test);
-    result |= process_if_exists(
-        section, "wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeWound], test);
-    result |= process_if_exists(
-        section, "radiation_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeRadiation], test);
-    result |= process_if_exists(
-        section, "telepatic_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeTelepatic], test);
-    result |= process_if_exists(section, "chemical_burn_protection", &CInifile::r_float,
-                                m_HitTypeProtection[ALife::eHitTypeChemicalBurn], test);
-    result |= process_if_exists(
-        section, "explosion_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeExplosion], test);
-    result |= process_if_exists(
-        section, "fire_wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeFireWound], test);
+    result |= process_if_exists(section, "burn_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeBurn], test);
+    result |= process_if_exists(section, "shock_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeShock], test);
+    result |= process_if_exists(section, "strike_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeStrike], test);
+    result |= process_if_exists(section, "wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeWound], test);
+    result |= process_if_exists(section, "radiation_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeRadiation], test);
+    result |= process_if_exists(section, "telepatic_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeTelepatic], test);
+    result |= process_if_exists(section, "chemical_burn_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeChemicalBurn], test);
+    result |= process_if_exists(section, "explosion_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeExplosion], test);
+    result |= process_if_exists(section, "fire_wound_protection", &CInifile::r_float, m_HitTypeProtection[ALife::eHitTypeFireWound], test);
 
     LPCSTR str;
     bool result2 = process_if_exists_set(section, "nightvision_sect", &CInifile::r_string, str, test);
@@ -177,8 +167,7 @@ bool CHelmet::install_upgrade_impl(LPCSTR section, bool test)
     result |= process_if_exists(section, "power_loss", &CInifile::r_float, m_fPowerLoss, test);
     clamp(m_fPowerLoss, 0.0f, 1.0f);
 
-    result |= process_if_exists(
-        section, "nearest_enemies_show_dist", &CInifile::r_float, m_fShowNearestEnemiesDistance, test);
+    result |= process_if_exists(section, "nearest_enemies_show_dist", &CInifile::r_float, m_fShowNearestEnemiesDistance, test);
 
     result2 = process_if_exists_set(section, "bones_koeff_protection", &CInifile::r_string, str, test);
     if (result2 && !test)
@@ -238,8 +227,7 @@ float CHelmet::HitThroughArmor(float hit_power, s16 element, float ap, bool& add
     else
     {
         float one = 0.1f;
-        if (hit_type == ALife::eHitTypeStrike || hit_type == ALife::eHitTypeWound ||
-            hit_type == ALife::eHitTypeWound_2 || hit_type == ALife::eHitTypeExplosion)
+        if (hit_type == ALife::eHitTypeStrike || hit_type == ALife::eHitTypeWound || hit_type == ALife::eHitTypeWound_2 || hit_type == ALife::eHitTypeExplosion)
         {
             one = 1.0f;
         }

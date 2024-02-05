@@ -48,7 +48,6 @@ public:
 private:
     static void BoneCallback(CBoneInstance* B);
     void vfAssignBones();
-    void LookDirection(Fvector to_dir, float bone_turn_speed);
 
     bonesManipulation Bones;
 
@@ -205,7 +204,6 @@ private:
 public:
     float get_full_visibility_radius();
     float get_partial_visibility_radius();
-    float get_no_visibility_radius();
     TTime get_visibility_state_change_min_delay();
     void start_runaway_invisible() { m_runaway_invisible_time = Device.dwTimeGlobal; }
     void clear_runaway_invisible() { m_runaway_invisible_time = 0; }
@@ -224,6 +222,7 @@ public:
     u32 m_hits_before_vampire;
     u32 m_sufficient_hits_before_vampire;
     int m_sufficient_hits_before_vampire_random;
-    virtual void on_attack_on_run_hit();
+    virtual void on_attack_on_run_hit(const CEntityAlive* enemy);
     bool done_enough_hits_before_vampire();
+    virtual bool can_attack_on_move();
 };

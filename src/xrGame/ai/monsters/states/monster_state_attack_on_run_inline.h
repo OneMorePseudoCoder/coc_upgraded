@@ -117,7 +117,6 @@ void ATTACK_ON_RUN_STATE::set_movement_phaze(phaze const new_phaze)
 
         bool left_side = ((self2enemy.x * self_dir.z) - (self2enemy.z * self_dir.x)) > 0.f;
         m_prepare_side = left_side ? left : right;
-        //		m_prepare_side					=   (rand() % 2) ? left : right;
     }
 }
 
@@ -321,8 +320,7 @@ void ATTACK_ON_RUN_STATE::update_movement_target()
 
         Fvector const predicted2self = -self2predicted;
 
-        Fvector const predicted2part = cr_fvector3(predicted2self.x * cos_alpha - predicted2self.z * sin_alpha, 0,
-            predicted2self.x * sin_alpha + predicted2self.z * cos_alpha);
+        Fvector const predicted2part = cr_fvector3(predicted2self.x * cos_alpha - predicted2self.z * sin_alpha, 0, predicted2self.x * sin_alpha + predicted2self.z * cos_alpha);
 
         Fvector const predicted2target = normalize(predicted2part) * far_radius;
         self2target = self2predicted + predicted2target;
@@ -336,8 +334,7 @@ void ATTACK_ON_RUN_STATE::update_movement_target()
         float const cos_alpha = dist2atack_point / self2predicted_mag;
         float const sin_alpha = (attack_radius / self2predicted_mag) * (m_attack_side == right ? -1.f : 1.f);
 
-        Fvector const self2atack_point = cr_fvector3(self2predicted.x * cos_alpha - self2predicted.z * sin_alpha, 0,
-            self2predicted.x * sin_alpha + self2predicted.z * cos_alpha);
+        Fvector const self2atack_point = cr_fvector3(self2predicted.x * cos_alpha - self2predicted.z * sin_alpha, 0, self2predicted.x * sin_alpha + self2predicted.z * cos_alpha);
 
         float const self2atack_mag = self2atack_point.magnitude();
         float const attack2target_mag = 3;
@@ -435,8 +432,6 @@ void ATTACK_ON_RUN_STATE::update_attack()
             choose_next_atack_animation();
             m_attacking = false;
 
-            // set_movement_phaze				(go_prepare);
-
             EMotionAnim override_animation = this->object->anim().get_override_animation();
             if (override_animation == eAnimAttackOnRunLeft || override_animation == eAnimAttackOnRunRight)
             {
@@ -478,19 +473,15 @@ void ATTACK_ON_RUN_STATE::update_attack()
 
             bool const good_attack_angle = attack_angle < deg2rad(30.f);
 
-            // bool const see_enemy_now		=	object->EnemyMan.see_enemy_now(enemy);
-            bool const good_attack_dist =
-                current_atack_dist < allowed_atack_distance && current_atack_dist > disallowed_atack_distance;
+            bool const good_attack_dist = current_atack_dist < allowed_atack_distance && current_atack_dist > disallowed_atack_distance;
 
-            if (current_atack_dist < disallowed_atack_distance && m_phaze == go_close &&
-                current_time() > m_phaze_chosen_time + 3000 && enemy == main_enemy)
+            if (current_atack_dist < disallowed_atack_distance && m_phaze == go_close && current_time() > m_phaze_chosen_time + 3000 && enemy == main_enemy)
             {
                 set_movement_phaze(go_prepare);
             }
 
 #ifdef DEBUG_STATE
             text_tree.add_line("good_attack_angle", good_attack_angle);
-            // text_tree.add_line					("see_enemy_now", see_enemy_now);
             text_tree.add_line("good_attack_dist", good_attack_dist);
 #endif // #ifdef DEBUG_STATE
 
@@ -504,7 +495,7 @@ void ATTACK_ON_RUN_STATE::update_attack()
 
         if (can_attack)
         {
-            this->object->on_attack_on_run_hit();
+            this->object->on_attack_on_run_hit(m_enemy_to_attack);
             m_attacking = true;
             m_reach_old_target = true;
             m_reach_old_target_start_time = current_time();
@@ -514,13 +505,12 @@ void ATTACK_ON_RUN_STATE::update_attack()
             float attack_animation_length = 0;
             MotionID motion;
             EMotionAnim const anim = m_attack_side == left ? eAnimAttackOnRunLeft : eAnimAttackOnRunRight;
-            bool const got_animation_info = this->object->anim().get_animation_info(
-                anim, m_animation_index[m_attack_side], motion, attack_animation_length);
+            bool const got_animation_info = object->anim().get_animation_info(anim, m_animation_index[m_attack_side], motion, attack_animation_length);
 
             VERIFY(got_animation_info);
 
             m_attack_end_time = current_time() + TTime(1000 * attack_animation_length);
-            this->object->anim().set_override_animation(anim, m_animation_index[m_attack_side]);
+            object->anim().set_override_animation(anim, m_animation_index[m_attack_side]);
         }
     }
 
@@ -557,21 +547,7 @@ void ATTACK_ON_RUN_STATE::execute()
     this->object->set_state_sound(MonsterSound::eMonsterSoundAggressive);
     this->object->path().extrapolate_path(true);
 
-    // обработать squad инфо
     this->object->path().set_use_dest_orient(false);
-
-    // 	CMonsterSquad *squad	= monster_squad().get_squad(object);
-    // 	if (squad && squad->SquadActive())
-    // 	{
-    // 		// Получить команду
-    // 		SSquadCommand command;
-    // 		squad->GetCommand(object, command);
-    // 		if (command.type == SC_ATTACK)
-    // 		{
-    // 			object->path().set_use_dest_orient	(true);
-    // 			object->path().set_dest_direction	(command.direction);
-    // 		}
-    // 	}
 }
 
 TEMPLATE_SIGNATURE
@@ -597,6 +573,7 @@ bool ATTACK_ON_RUN_STATE::check_start_conditions()
     {
         return false;
     }
+
     if (dist < this->object->MeleeChecker.get_min_distance())
     {
         return false;
@@ -614,8 +591,6 @@ bool ATTACK_ON_RUN_STATE::check_start_conditions()
 TEMPLATE_SIGNATURE
 bool ATTACK_ON_RUN_STATE::check_completion()
 {
-    // if (!object->control().path_builder().is_moving_on_path() ||
-    //	(object->m_time_last_attack_success != 0)) return true;
     return false;
 }
 

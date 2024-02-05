@@ -106,7 +106,6 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 
     // Back buffer
     //  TODO: DX10: implement dynamic format selection
-    // sd.BufferDesc.Format     = fTarget;
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.BufferCount = 2;
 
@@ -149,11 +148,8 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
         // D3D_FEATURE_LEVEL_10_0,
     };
 
-    R = D3D11CreateDevice(m_pAdapter,
-        D3D_DRIVER_TYPE_UNKNOWN, // Если мы выбираем конкретный адаптер, то мы обязаны использовать D3D_DRIVER_TYPE_UNKNOWN.
-        NULL, createDeviceFlags, pFeatureLevels, sizeof(pFeatureLevels) / sizeof(pFeatureLevels[0]),
-        D3D11_SDK_VERSION, &pDevice, &FeatureLevel, &pContext);
-		
+    R = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, createDeviceFlags, pFeatureLevels, sizeof(pFeatureLevels) / sizeof(pFeatureLevels[0]), D3D11_SDK_VERSION, &pDevice, &FeatureLevel, &pContext);
+
 	IDXGIDevice1* pDeviceDXGI = nullptr;
 	R_CHK(pDevice->QueryInterface(__uuidof(IDXGIDevice1), reinterpret_cast<void**>(&pDeviceDXGI)));
 	R_CHK(pDeviceDXGI->SetMaximumFrameLatency(1));
@@ -182,8 +178,7 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
             "Please try to restart the game.\n"
             "CreateDevice returned 0x%08x", R);
         FlushLog();
-        MessageBox(nullptr, "Failed to initialize graphics hardware.\nPlease try to restart the game.", "Error!",
-            MB_OK | MB_ICONERROR);
+        MessageBox(nullptr, "Failed to initialize graphics hardware.\nPlease try to restart the game.", "Error!", MB_OK | MB_ICONERROR);
         TerminateProcess(GetCurrentProcess(), 0);
     };
 
@@ -272,8 +267,7 @@ void CHW::Reset(HWND hwnd)
     _SHOW_REF("refCount:pBaseRT", pBaseRT);
     _RELEASE(pBaseZB);
     _RELEASE(pBaseRT);
-    CHK_DX(m_pSwapChain->ResizeBuffers(
-        cd.BufferCount, desc.Width, desc.Height, desc.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+    CHK_DX(m_pSwapChain->ResizeBuffers(cd.BufferCount, desc.Width, desc.Height, desc.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
     UpdateViews();
 
     updateWindowProps(hwnd);
@@ -401,11 +395,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
                 RECT DesktopRect;
                 GetClientRect(GetDesktopWindow(), &DesktopRect);
 
-                SetRect(&m_rcWindowBounds,
-                    (DesktopRect.right - m_ChainDesc.BufferDesc.Width) / 2,
-                    (DesktopRect.bottom - m_ChainDesc.BufferDesc.Height) / 2,
-                    (DesktopRect.right + m_ChainDesc.BufferDesc.Width) / 2,
-                    (DesktopRect.bottom + m_ChainDesc.BufferDesc.Height) / 2);
+                SetRect(&m_rcWindowBounds, (DesktopRect.right - m_ChainDesc.BufferDesc.Width) / 2, (DesktopRect.bottom - m_ChainDesc.BufferDesc.Height) / 2, (DesktopRect.right + m_ChainDesc.BufferDesc.Width) / 2, (DesktopRect.bottom + m_ChainDesc.BufferDesc.Height) / 2);
             }
             else
             {
@@ -416,11 +406,7 @@ void CHW::updateWindowProps(HWND m_hWnd)
 
             AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
 
-            SetWindowPos(m_hWnd, HWND_NOTOPMOST,
-                         m_rcWindowBounds.left, m_rcWindowBounds.top + fYOffset,
-                         m_rcWindowBounds.right - m_rcWindowBounds.left,
-                         m_rcWindowBounds.bottom - m_rcWindowBounds.top,
-                         SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
+            SetWindowPos(m_hWnd, HWND_NOTOPMOST, m_rcWindowBounds.left, m_rcWindowBounds.top + fYOffset, m_rcWindowBounds.right - m_rcWindowBounds.left, m_rcWindowBounds.bottom - m_rcWindowBounds.top, SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
         }
     }
     else
@@ -453,7 +439,6 @@ void fill_vid_mode_list(CHW* _hw)
     xr_vector<DXGI_MODE_DESC> displayModes;
 
     IDXGIOutput* pOutput;
-    //_hw->m_pSwapChain->GetContainingOutput(&pOutput);
     _hw->m_pAdapter->EnumOutputs(0, &pOutput);
     VERIFY(pOutput);
 
@@ -509,7 +494,6 @@ void CHW::UpdateViews()
 
     //  Create Depth/stencil buffer
     //  HACK: DX10: hard depth buffer format
-    // R_CHK    (pDevice->GetDepthStencilSurface    (&pBaseZB));
     ID3DTexture2D* pDepthStencil = NULL;
     D3D_TEXTURE2D_DESC descDepth;
     descDepth.Width = sd.BufferDesc.Width;
@@ -523,9 +507,7 @@ void CHW::UpdateViews()
     descDepth.BindFlags = D3D_BIND_DEPTH_STENCIL;
     descDepth.CPUAccessFlags = 0;
     descDepth.MiscFlags = 0;
-    R = pDevice->CreateTexture2D(&descDepth, // Texture desc
-        NULL, // Initial data
-        &pDepthStencil); // [out] Texture
+    R = pDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
     R_CHK(R);
 
     //  Create Depth/stencil view

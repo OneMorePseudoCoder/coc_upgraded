@@ -23,18 +23,6 @@ void CStalkerAnimationManager::script_play_callback(CBlend* blend)
     CStalkerAnimationPair& pair = animation_manager.script();
     const SCRIPT_ANIMATIONS& animations = animation_manager.script_animations();
 
-#if 0
-	Msg							(
-		"%6d Script callback [%s]",
-		Device.dwTimeGlobal,
-		animations.empty()
-		?
-		"unknown"
-		:
-		animation_manager.m_skeleton_animated->LL_MotionDefName_dbg(animations.front().animation())
-	);
-#endif
-
     if (pair.animation() && !animations.empty() && (pair.animation() == animations.front().animation()))
         animation_manager.pop_script_animation();
 
@@ -44,23 +32,14 @@ void CStalkerAnimationManager::script_play_callback(CBlend* blend)
     pair.on_animation_end();
 }
 
-void CStalkerAnimationManager::add_script_animation(
-    LPCSTR animation, bool hand_usage, Fvector position, Fvector rotation, bool local_animation)
+void CStalkerAnimationManager::add_script_animation(LPCSTR animation, bool hand_usage, Fvector position, Fvector rotation, bool local_animation)
 {
     const MotionID& motion = m_skeleton_animated->ID_Cycle_Safe(animation);
     if (!motion)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "There is no animation %s (object %s)!", animation, *object().cName());
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "There is no animation %s (object %s)!", animation, *object().cName());
         return;
     }
-
-    //	Msg("add_script_animation %f,%f,%f %f,%f,%f local=%s [%s]",
-    //		position.x,position.y,position.z,
-    //		rotation.x,rotation.y,rotation.z,
-    //		local_animation ? "true" : "false",
-    //		m_object->animation_movement() ? "true" : "false"
-    //	);
 
     Fmatrix transform;
     rotation.mul(PI / 180.f);
@@ -74,8 +53,7 @@ void CStalkerAnimationManager::add_script_animation(LPCSTR animation, bool hand_
     const MotionID& motion = m_skeleton_animated->ID_Cycle_Safe(animation);
     if (!motion)
     {
-        GEnv.ScriptEngine->script_log(
-            LuaMessageType::Error, "There is no animation %s (object %s)!", animation, *object().cName());
+        GEnv.ScriptEngine->script_log(LuaMessageType::Error, "There is no animation %s (object %s)!", animation, *object().cName());
         return;
     }
 
@@ -87,8 +65,7 @@ const CStalkerAnimationScript& CStalkerAnimationManager::assign_script_animation
     VERIFY(!script_animations().empty());
 
     const CStalkerAnimationScript& animation = script_animations().front();
-    if (animation.use_movement_controller() ||
-        script().use_animation_movement_control(m_skeleton_animated, animation.animation()))
+    if (animation.use_movement_controller() || script().use_animation_movement_control(m_skeleton_animated, animation.animation()))
         script().target_matrix(object().XFORM());
 
     return (script_animations().front());

@@ -127,8 +127,7 @@ void Vision::feel_vision_update(IGameObject* parent, Fvector& P, float dt, float
 
         {
             diff.resize(_max(seen.size(), query.size()));
-            xr_vector<IGameObject*>::iterator E2 =
-                std::set_difference(seen.begin(), seen.end(), query.begin(), query.end(), diff.begin());
+            xr_vector<IGameObject*>::iterator E2 = std::set_difference(seen.begin(), seen.end(), query.begin(), query.end(), diff.begin());
             diff.resize(E2 - diff.begin());
             for (u32 i = 0; i < diff.size(); i++)
                 o_new(diff[i]);
@@ -139,8 +138,7 @@ void Vision::feel_vision_update(IGameObject* parent, Fvector& P, float dt, float
     if (!query.empty())
     {
         diff.resize(_max(seen.size(), query.size()));
-        xr_vector<IGameObject*>::iterator E =
-            std::set_difference(query.begin(), query.end(), seen.begin(), seen.end(), diff.begin());
+        xr_vector<IGameObject*>::iterator E = std::set_difference(query.begin(), query.end(), seen.begin(), seen.end(), diff.begin());
         diff.resize(E - diff.begin());
         for (u32 i = 0; i < diff.size(); i++)
             o_delete(diff[i]);

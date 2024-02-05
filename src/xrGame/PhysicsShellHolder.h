@@ -64,6 +64,7 @@ public:
     virtual ICollisionHitCallback* get_collision_hit_callback() { return NULL; }
     virtual void set_collision_hit_callback(ICollisionHitCallback* cc) { ; }
     virtual void enable_notificate() { ; }
+
 public:
     virtual void PHGetLinearVell(Fvector& velocity);
     virtual void PHSetLinearVell(Fvector& velocity);

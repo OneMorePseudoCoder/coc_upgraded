@@ -212,7 +212,7 @@ CActor::~CActor()
 #ifdef DEBUG
     Device.seqRender.Remove(this);
 #endif
-    // xr_delete(Weapons);
+
     for (int i = 0; i < eacMaxCam; ++i)
         xr_delete(cameras[i]);
 
@@ -1064,6 +1064,7 @@ void CActor::shedule_Update(u32 DT)
         }
         mstate_old = mstate_real;
     }
+
     NET_Jump = 0;
 
     inherited::shedule_Update(DT);
@@ -1443,8 +1444,7 @@ void CActor::OnItemDrop(CInventoryItem* inventory_item, bool just_before_destroy
         weapon->OnZoomOut();
     }
 
-    if (!just_before_destroy && inventory_item->BaseSlot() == GRENADE_SLOT &&
-        NULL == inventory().ItemFromSlot(GRENADE_SLOT))
+    if (!just_before_destroy && inventory_item->BaseSlot() == GRENADE_SLOT && NULL == inventory().ItemFromSlot(GRENADE_SLOT))
     {
         PIItem grenade = inventory().SameSlot(GRENADE_SLOT, inventory_item, true);
 
@@ -1514,14 +1514,7 @@ void CActor::UpdateArtefactsOnBeltAndOutfit()
 
     CCustomOutfit* outfit = GetOutfit();
     CHelmet* pHelmet = smart_cast<CHelmet*>(inventory().ItemFromSlot(HELMET_SLOT));
-    if (!outfit && !pHelmet)
-    {
-/*      if (GetNightVisionStatus())
-        {
-                SwitchNightVision(false);
-		} */
-    }
-    else
+    if (outfit && pHelmet)
     {
         conditions().ChangeBleeding(((outfit ? outfit->m_fBleedingRestoreSpeed : 0.f) + (pHelmet ? pHelmet->m_fBleedingRestoreSpeed : 0.f))  * f_update_time);
         conditions().ChangeHealth(((outfit ? outfit->m_fHealthRestoreSpeed : 0.f) + (pHelmet ? pHelmet->m_fHealthRestoreSpeed : 0.f))    * f_update_time);
@@ -1594,35 +1587,6 @@ void CActor::AnimTorsoPlayCallBack(CBlend* B)
     actor->m_bAnimTorsoPlayed = FALSE;
 }
 
-/*
-void CActor::UpdateMotionIcon(u32 mstate_rl)
-{
-    CUIMotionIcon*	motion_icon=CurrentGameUI()->UIMainIngameWnd->MotionIcon();
-    if(mstate_rl&mcClimb)
-    {
-        motion_icon->ShowState(CUIMotionIcon::stClimb);
-    }
-    else
-    {
-        if(mstate_rl&mcCrouch)
-        {
-            if (!isActorAccelerated(mstate_rl, IsZoomAimingMode()))
-                motion_icon->ShowState(CUIMotionIcon::stCreep);
-            else
-                motion_icon->ShowState(CUIMotionIcon::stCrouch);
-        }
-        else
-        if(mstate_rl&mcSprint)
-                motion_icon->ShowState(CUIMotionIcon::stSprint);
-        else
-        if(mstate_rl&mcAnyMove && isActorAccelerated(mstate_rl, IsZoomAimingMode()))
-            motion_icon->ShowState(CUIMotionIcon::stRun);
-        else
-            motion_icon->ShowState(CUIMotionIcon::stNormal);
-    }
-}
-*/
-
 CPHDestroyable* CActor::ph_destroyable() { return smart_cast<CPHDestroyable*>(character_physics_support()); }
 CEntityConditionSimple* CActor::create_entity_condition(CEntityConditionSimple* ec)
 {
@@ -1648,7 +1612,7 @@ bool CActor::use_center_to_aim() const { return (!!(mstate_real & mcCrouch)); }
 bool CActor::can_attach(const CInventoryItem* inventory_item) const
 {
     const CAttachableItem* item = smart_cast<const CAttachableItem*>(inventory_item);
-    if (!item || /*!item->enabled() ||*/ !item->can_be_attached())
+    if (!item || !item->can_be_attached())
         return (false);
 
     //можно ли присоединять объекты такого типа
@@ -1682,8 +1646,7 @@ void CActor::OnDifficultyChanged()
 CVisualMemoryManager* CActor::visual_memory() const { return &memory().visual(); }
 float CActor::GetMass()
 {
-    return g_Alive() ? character_physics_support()->movement()->GetMass() :
-                       m_pPhysicsShell ? m_pPhysicsShell->getMass() : 0;
+    return g_Alive() ? character_physics_support()->movement()->GetMass() : m_pPhysicsShell ? m_pPhysicsShell->getMass() : 0;
 }
 
 bool CActor::is_on_ground()
@@ -1693,7 +1656,7 @@ bool CActor::is_on_ground()
 
 bool CActor::is_ai_obstacle() const
 {
-    return false; // true);
+    return false;
 }
 
 float CActor::GetRestoreSpeed(ALife::EConditionRestoreType const& type)
@@ -1882,7 +1845,6 @@ void CActor::SwitchNightVision(bool vision_on, bool use_sounds, bool send_event)
         object->u_EventGen(packet, GE_TRADER_FLAGS, object->ID());
         packet.w_u32(m_trader_flags.get());
         object->u_EventSend(packet);
-        // Msg("GE_TRADER_FLAGS event sent %d", m_trader_flags.get());
     }
 }
 
@@ -1891,14 +1853,6 @@ bool CActor::use_HolderEx(CHolderCustom* object, bool bForce)
 {
 	if (m_holder)
 	{
-		/*
-		CCar* car = smart_cast<CCar*>(m_holder);
-		if (car)
-		{
-			detach_Vehicle();
-			return true;
-		}
-		*/
 		if (!m_holder->ExitLocked() || bForce)
 		{
 			if (!object || (m_holder == object)) {
@@ -1951,14 +1905,6 @@ bool CActor::use_HolderEx(CHolderCustom* object, bool bForce)
 	}
 	else
 	{
-		/*
-		CCar* car = smart_cast<CCar*>(object);
-		if (car)
-		{
-			attach_Vehicle(object);
-			return true;
-		}
-		*/
 		if (object && (!object->EnterLocked() || bForce))
 		{
 			Fvector center;	Center(center);

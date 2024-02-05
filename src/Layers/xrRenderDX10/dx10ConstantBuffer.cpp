@@ -6,7 +6,6 @@
 dx10ConstantBuffer::~dx10ConstantBuffer()
 {
     RImplementation.Resources->_DeleteConstantBuffer(this);
-    //	Flush();
     _RELEASE(m_pBuffer);
     xr_free(m_pBufferData);
 }

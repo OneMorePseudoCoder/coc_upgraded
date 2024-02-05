@@ -38,14 +38,7 @@ BOOL CCF_DynamicMesh::_RayQuery(const collide::ray_defs& Q, collide::rq_results&
             {
                 r.range = br.dist;
             }
-#if 0
-            if (res)
-            {
-                ph_debug_render->open_cashed_draw();
-                ph_debug_render->draw_tri(br.tri[0], br.tri[1], br.tri[2], color_argb(50, 255, 0, 0), 0);
-                ph_debug_render->close_cashed_draw(50000);
-            }
-#endif
+
             return !res;
         }
 
@@ -55,18 +48,12 @@ BOOL CCF_DynamicMesh::_RayQuery(const collide::ray_defs& Q, collide::rq_results&
             NODEFAULT;
             return *this;
         }
-    } pick((collide::ray_defs&)(Q), (const IGameObject&)(*owner), (IKinematics&)(*K));
+    } 
 
-    R.r_results().erase(
-        std::remove_if(R.r_results().begin() + s_count, R.r_results().end(), pick), R.r_results().end());
-    /*
-    for( collide::rq_result* i = R.r_begin() + s_count; i < R.r_end(); ++i )
-    {
-    IKinematics::pick_result r;
-    if( K->PickBone( owner->XFORM(), r, Q.range, Q.start, Q.dir, (u16) i->element ) )
-    return TRUE;
-    }
-    */
+	pick((collide::ray_defs&)(Q), (const IGameObject&)(*owner), (IKinematics&)(*K));
+
+    R.r_results().erase(std::remove_if(R.r_results().begin() + s_count, R.r_results().end(), pick), R.r_results().end());
+
     VERIFY(R.r_count() >= s_count);
     return R.r_count() > s_count;
 }

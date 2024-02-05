@@ -62,8 +62,12 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, IGameObject* obj
                 entity->XFORM().transform_tiny(S.P);
                 float dist = rd.range;
                 // проверим попали ли мы в описывающую сферу
-                if (Fsphere::rpNone != S.intersect_full(bullet->bullet_pos, bullet->dir, dist))
-                {
+				Fsphere::ERP_Result result = S.intersect(bullet->bullet_pos, bullet->dir, dist);
+				if (result != Fsphere::rpNone) 
+				{
+					if (result == Fsphere::rpOriginInside) 
+						dist = 0.0f;
+
                     // да попали, найдем кто стрелял
                     bool play_whine = true;
                     IGameObject* initiator = Level().Objects.net_Find(bullet->parent_id);
@@ -305,8 +309,7 @@ FvectorVec g_hit[3];
 
 extern void random_dir(Fvector& tgt_dir, const Fvector& src_dir, float dispersion);
 
-bool CBulletManager::ObjectHit(SBullet_Hit* hit_res, SBullet* bullet, const Fvector& end_point, collide::rq_result& R,
-    u16 target_material, Fvector& hit_normal)
+bool CBulletManager::ObjectHit(SBullet_Hit* hit_res, SBullet* bullet, const Fvector& end_point, collide::rq_result& R, u16 target_material, Fvector& hit_normal)
 {
     //----------- normal - start
     if (R.O)

@@ -38,17 +38,12 @@ void D3DXRenderBase::r_dsgraph_render_lods(bool _setup_zb, bool _clear)
     const u32 uiVertexPerImposter = 4;
     const u32 uiImpostersFit = RCache.Vertex.GetSize() / (firstV->geom->vb_stride * uiVertexPerImposter);
 
-    //Msg("dbg_lods: shid[%d],firstV[%X]",shid,u32((void*)firstV));
-    //Msg("dbg_lods: shader[%X]",u32((void*)firstV->shader._get()));
-    //Msg("dbg_lods: shader_E[%X]",u32((void*)cur_S._get()));
-
     for (u32 i = 0; i < lstLODs.size(); i++)
     {
         const u32 iBatchSize = std::min(lstLODs.size() - i, (size_t)uiImpostersFit);
         int cur_count = 0;
         u32 vOffset;
-        FLOD::_hw* V =
-            (FLOD::_hw*)RCache.Vertex.Lock(iBatchSize * uiVertexPerImposter, firstV->geom->vb_stride, vOffset);
+        FLOD::_hw* V = (FLOD::_hw*)RCache.Vertex.Lock(iBatchSize * uiVertexPerImposter, firstV->geom->vb_stride, vOffset);
 
         for (u32 j = 0; j < iBatchSize; ++j, ++i)
         {

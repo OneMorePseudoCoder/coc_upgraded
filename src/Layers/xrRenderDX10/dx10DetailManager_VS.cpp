@@ -8,9 +8,7 @@ const int quant = 16384;
 const int c_hdr = 10;
 const int c_size = 4;
 
-static D3DVERTEXELEMENT9 dwDecl[] = {{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, // pos
-    {0, 12, D3DDECLTYPE_SHORT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0}, // uv
-    D3DDECL_END()};
+static D3DVERTEXELEMENT9 dwDecl[] = {{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, {0, 12, D3DDECLTYPE_SHORT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0}, D3DDECL_END()};
 
 #pragma pack(push, 1)
 struct vertHW
@@ -21,10 +19,6 @@ struct vertHW
 #pragma pack(pop)
 
 short QC(float v);
-//{
-//	int t=iFloor(v*float(quant)); clamp(t,-32768,32767);
-//	return short(t&0xffff);
-//}
 
 void CDetailManager::hw_Load_Shaders()
 {
@@ -56,8 +50,6 @@ void CDetailManager::hw_Render()
     m_time_rot_2 += (PI_MUL_2 * fDelta / swing_current.rot2);
     m_time_pos += fDelta * swing_current.speed;
 
-    // float		tm_rot1		= (PI_MUL_2*Device.fTimeGlobal/swing_current.rot1);
-    // float		tm_rot2		= (PI_MUL_2*Device.fTimeGlobal/swing_current.rot2);
     float tm_rot1 = m_time_rot_1;
     float tm_rot2 = m_time_rot_2;
 
@@ -73,36 +65,19 @@ void CDetailManager::hw_Render()
     Fvector4 wave;
     Fvector4 consts;
     consts.set(scale, scale, ps_r__Detail_l_aniso, ps_r__Detail_l_ambient);
-    // wave.set				(1.f/5.f,		1.f/7.f,	1.f/3.f,	Device.fTimeGlobal*swing_current.speed);
     wave.set(1.f / 5.f, 1.f / 7.f, 1.f / 3.f, m_time_pos);
-    // RCache.set_c			(&*hwc_consts,	scale,		scale,		ps_r__Detail_l_aniso,	ps_r__Detail_l_ambient);
-    // //
-    // consts
-    // RCache.set_c			(&*hwc_wave,	wave.div(PI_MUL_2));	// wave
-    // RCache.set_c			(&*hwc_wind,	dir1); //
-    // wind-dir
-    // hw_Render_dump			(&*hwc_array,	1, 0, c_hdr );
     hw_Render_dump(consts, wave.div(PI_MUL_2), dir1, 1, 0);
 
     // Wave1
-    // wave.set				(1.f/3.f,		1.f/7.f,	1.f/5.f,	Device.fTimeGlobal*swing_current.speed);
     wave.set(1.f / 3.f, 1.f / 7.f, 1.f / 5.f, m_time_pos);
-    // RCache.set_c			(&*hwc_wave,	wave.div(PI_MUL_2));	// wave
-    // RCache.set_c			(&*hwc_wind,	dir2); //
-    // wind-dir
-    // hw_Render_dump			(&*hwc_array,	2, 0, c_hdr );
     hw_Render_dump(consts, wave.div(PI_MUL_2), dir2, 2, 0);
 
     // Still
     consts.set(scale, scale, scale, 1.f);
-    // RCache.set_c			(&*hwc_s_consts,scale,		scale,		scale,				1.f);
-    // RCache.set_c			(&*hwc_s_xform,	Device.mFullTransform);
-    // hw_Render_dump			(&*hwc_s_array,	0, 1, c_hdr );
     hw_Render_dump(consts, wave.div(PI_MUL_2), dir2, 0, 1);
 }
 
-void CDetailManager::hw_Render_dump(
-    const Fvector4& consts, const Fvector4& wave, const Fvector4& wind, u32 var_id, u32 lod_id)
+void CDetailManager::hw_Render_dump(const Fvector4& consts, const Fvector4& wave, const Fvector4& wind, u32 var_id, u32 lod_id)
 {
     static shared_str strConsts("consts");
     static shared_str strWave("wave");
@@ -212,8 +187,6 @@ void CDetailManager::hw_Render_dump(
                             RImplementation.BasicStats.DetailCount += dwBatch;
                             u32 dwCNT_verts = dwBatch * Object.number_vertices;
                             u32 dwCNT_prims = (dwBatch * Object.number_indices) / 3;
-                            // RCache.get_ConstantCache_Vertex().b_dirty				=	TRUE;
-                            // RCache.get_ConstantCache_Vertex().get_array_f().dirty	(c_base,c_base+dwBatch*4);
                             RCache.Render(D3DPT_TRIANGLELIST, vOffset, 0, dwCNT_verts, iOffset, dwCNT_prims);
                             RCache.stat.r.s_details.add(dwCNT_verts);
 
@@ -236,8 +209,6 @@ void CDetailManager::hw_Render_dump(
                     RImplementation.BasicStats.DetailCount += dwBatch;
                     u32 dwCNT_verts = dwBatch * Object.number_vertices;
                     u32 dwCNT_prims = (dwBatch * Object.number_indices) / 3;
-                    // RCache.get_ConstantCache_Vertex().b_dirty				=	TRUE;
-                    // RCache.get_ConstantCache_Vertex().get_array_f().dirty	(c_base,c_base+dwBatch*4);
                     RCache.Render(D3DPT_TRIANGLELIST, vOffset, 0, dwCNT_verts, iOffset, dwCNT_prims);
                     RCache.stat.r.s_details.add(dwCNT_verts);
                 }

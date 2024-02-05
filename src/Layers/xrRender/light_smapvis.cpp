@@ -7,11 +7,13 @@ smapvis::smapvis()
     invalidate();
     frame_sleep = 0;
 }
+
 smapvis::~smapvis()
 {
     flushoccq();
     invalidate();
 }
+
 void smapvis::invalidate()
 {
     state = state_counting;
@@ -19,6 +21,7 @@ void smapvis::invalidate()
     frame_sleep = Device.dwFrame + ps_r__LightSleepFrames;
     invisible.clear();
 }
+
 void smapvis::begin()
 {
     RImplementation.clear_Counters();
@@ -40,6 +43,7 @@ void smapvis::begin()
         break;
     }
 }
+
 void smapvis::end()
 {
     // Gather stats
@@ -108,6 +112,7 @@ void smapvis::flushoccq()
             state = state_usingTC;
     }
 }
+
 void smapvis::resetoccq()
 {
     if (testQ_frame == (Device.dwFrame + 1))

@@ -190,17 +190,14 @@ const CLocatorAPI::file* CLocatorAPI::RegisterExternal(pcstr name)
     return Register(name, u32(-1), 0, 0, buffer.st_size, buffer.st_size, u32(buffer.st_mtime));
 }
 
-const CLocatorAPI::file* CLocatorAPI::Register(
-    pcstr name, u32 vfs, u32 crc, u32 ptr, u32 size_real, u32 size_compressed, u32 modif)
+const CLocatorAPI::file* CLocatorAPI::Register(pcstr name, u32 vfs, u32 crc, u32 ptr, u32 size_real, u32 size_compressed, u32 modif)
 {
-    // Msg("Register[%d] [%s]",vfs,name);
     string256 temp_file_name;
     xr_strcpy(temp_file_name, sizeof temp_file_name, name);
     xr_strlwr(temp_file_name);
 
     // Register file
     file desc;
-    // desc.name = xr_strlwr(xr_strdup(name));
     desc.name = temp_file_name;
     desc.vfs = vfs;
     desc.crc = crc;
@@ -208,12 +205,10 @@ const CLocatorAPI::file* CLocatorAPI::Register(
     desc.size_real = size_real;
     desc.size_compressed = size_compressed;
     desc.modif = modif & ~u32(0x3);
-    // Msg("registering file %s - %d", name, size_real);
     // if file already exist - update info
     files_it I = m_files.find(desc);
     if (I != m_files.end())
     {
-        //. Msg("-- file already scanned [%s]", I->name);
         desc.name = I->name;
 
         // sad but true, performance option
@@ -237,6 +232,8 @@ const CLocatorAPI::file* CLocatorAPI::Register(
     while (temp[0])
     {
         _splitpath(temp, path, folder, nullptr, nullptr);
+		if (!folder[0]) 
+			break;
         xr_strcat(path, folder);
         if (!exist(path))
         {
@@ -250,7 +247,7 @@ const CLocatorAPI::file* CLocatorAPI::Register(
 
             R_ASSERT(I2.second);
         }
-        xr_strcpy(temp, sizeof temp, folder);
+        xr_strcpy(temp, sizeof temp, path);
         if (xr_strlen(temp))
             temp[xr_strlen(temp) - 1] = 0;
     }
@@ -277,7 +274,6 @@ IReader* open_chunk(void* ptr, u32 ID)
 #endif
         if (read_byte == 0)
             return nullptr;
-        //. VERIFY(res&&(read_byte==4));
 
 #ifdef WINDOWS
         res = ReadFile(ptr, &dwSize, 4, &read_byte, nullptr);
@@ -287,7 +283,6 @@ IReader* open_chunk(void* ptr, u32 ID)
 #endif
         if (read_byte == 0)
             return nullptr;
-        //. VERIFY(res&&(read_byte==4));
 
         if ((dwType & ~CFS_CompressMark) == ID)
         {
@@ -336,7 +331,6 @@ void CLocatorAPI::LoadArchive(archive& A, pcstr entrypoint)
             if (P != pathes.end())
             {
                 FS_Path* root = P->second;
-                // R_ASSERT3 (root, "path not found ", read_path.c_str());
                 xr_strcpy(fs_entry_point, sizeof fs_entry_point, root->m_Path);
             }
             xr_strcat(fs_entry_point, "gamedata//");
@@ -355,7 +349,6 @@ void CLocatorAPI::LoadArchive(archive& A, pcstr entrypoint)
             if (P != pathes.end())
             {
                 FS_Path* root = P->second;
-                // R_ASSERT3 (root, "path not found ", alias_name);
                 xr_strcpy(fs_entry_point, sizeof fs_entry_point, root->m_Path);
             }
             xr_strcat(fs_entry_point, sizeof fs_entry_point, read_path.c_str() + xr_strlen(alias_name) + 1);
@@ -716,11 +709,6 @@ IReader* CLocatorAPI::setup_fs_ltx(pcstr fs_name)
 {
     setup_fs_path(fs_name);
 
-    // if (m_Flags.is(flTargetFolderOnly)) {
-    // append_path ("$fs_root$", "", 0, FALSE);
-    // return (0);
-    // }
-
     pcstr fs_file_name = FSLTX;
     if (fs_name && *fs_name)
         fs_file_name = fs_name;
@@ -730,8 +718,7 @@ IReader* CLocatorAPI::setup_fs_ltx(pcstr fs_name)
     int file_handle;
     u32 file_size;
     IReader* result = nullptr;
-    CHECK_OR_EXIT(file_handle_internal(fs_file_name, file_size, file_handle),
-        make_string("Cannot open file \"%s\".\nCheck your working folder.", fs_file_name));
+    CHECK_OR_EXIT(file_handle_internal(fs_file_name, file_size, file_handle), make_string("Cannot open file \"%s\".\nCheck your working folder.", fs_file_name));
 
     void* buffer = FileDownload(fs_file_name, file_handle, file_size);
     result = new CTempReader(buffer, file_size, 0);
@@ -749,7 +736,7 @@ IReader* CLocatorAPI::setup_fs_ltx(pcstr fs_name)
 
 void CLocatorAPI::_initialize(u32 flags, pcstr target_folder, pcstr fs_name)
 {
-    char _delimiter = '|'; //','
+    char _delimiter = '|';
     if (m_Flags.is(flReady))
         return;
     CTimer t;
@@ -777,31 +764,7 @@ void CLocatorAPI::_initialize(u32 flags, pcstr target_folder, pcstr fs_name)
     else
     {
         IReader* pFSltx = setup_fs_ltx(fs_name);
-        /*
-         pcstr fs_ltx = (fs_name&&fs_name[0])?fs_name:FSLTX;
-         F = r_open(fs_ltx);
-         if (!F&&m_Flags.is(flScanAppRoot))
-         F = r_open("$app_root$",fs_ltx);
 
-         if (!F)
-         {
-         string_path tmpAppPath = "";
-         xr_strcpy(tmpAppPath,sizeof(tmpAppPath), Core.ApplicationPath);
-         if (xr_strlen(tmpAppPath))
-         {
-         tmpAppPath[xr_strlen(tmpAppPath)-1] = 0;
-         if (strrchr(tmpAppPath, '\\'))
-         *(strrchr(tmpAppPath, '\\')+1) = 0;
-
-         FS_Path* pFSRoot = FS.get_path("$fs_root$");
-         pFSRoot->_set_root (tmpAppPath);
-         rescan_path (pFSRoot->m_Path, pFSRoot->m_Flags.is(FS_Path::flRecurse));
-         }
-         F = r_open("$fs_root$",fs_ltx);
-         }
-
-         Log ("using fs-ltx",fs_ltx);
-         */
         // append all pathes
         string_path id, root, add, def, capt;
         pcstr lp_add, lp_def, lp_capt;
@@ -923,7 +886,7 @@ const CLocatorAPI::file* CLocatorAPI::GetFileDesc(pcstr path)
     return it != m_files.end() ? &*it : nullptr;
 }
 
-FileStatus CLocatorAPI::exist(pcstr fn, FSType fsType /*= FSType::Virtual*/)
+FileStatus CLocatorAPI::exist(pcstr fn, FSType fsType)
 {
     if ((fsType | FSType::Virtual) == FSType::Virtual)
     {
@@ -940,21 +903,20 @@ FileStatus CLocatorAPI::exist(pcstr fn, FSType fsType /*= FSType::Virtual*/)
     return FileStatus(false, false);
 }
 
-FileStatus CLocatorAPI::exist(pcstr path, pcstr name, FSType fsType /*= FSType::Virtual*/)
+FileStatus CLocatorAPI::exist(pcstr path, pcstr name, FSType fsType)
 {
     string_path temp;
     update_path(temp, path, name);
     return exist(temp, fsType);
 }
 
-FileStatus CLocatorAPI::exist(string_path& fn, pcstr path, pcstr name, FSType fsType /*= FSType::Virtual*/)
+FileStatus CLocatorAPI::exist(string_path& fn, pcstr path, pcstr name, FSType fsType)
 {
     update_path(fn, path, name);
     return exist(fn, fsType);
 }
 
-FileStatus CLocatorAPI::exist(
-    string_path& fn, pcstr path, pcstr name, pcstr ext, FSType fsType /*= FSType::Virtual*/)
+FileStatus CLocatorAPI::exist(string_path& fn, pcstr path, pcstr name, pcstr ext, FSType fsType)
 {
     string_path nm;
     strconcat(sizeof nm, nm, name, ext);
@@ -1158,11 +1120,7 @@ void CLocatorAPI::check_cached_files(pstr fname, const u32& fname_size, const fi
     {
         // use
         const file& fc = *fit;
-        if (fc.size_real == desc.size_real && fc.modif == desc.modif)
-        {
-            // use
-        }
-        else
+        if (!fc.size_real == desc.size_real && !fc.modif == desc.modif)
         {
             // copy & use
             Msg("copy: db[%X],cache[%X] - '%s', ", desc.modif, fc.modif, fname);
@@ -1278,8 +1236,7 @@ void CLocatorAPI::file_from_archive(IReader*& R, pcstr fname, const file& desc)
 void CLocatorAPI::file_from_archive(CStreamReader*& R, pcstr fname, const file& desc)
 {
     archive& A = m_archives[desc.vfs];
-    R_ASSERT2(desc.size_compressed == desc.size_real,
-        make_string("cannot use stream reading for compressed data %s, do not compress data to be streamed", fname));
+    R_ASSERT2(desc.size_compressed == desc.size_real, make_string("cannot use stream reading for compressed data %s, do not compress data to be streamed", fname));
 
     R = new CStreamReader();
     R->construct(A.hSrcMap, desc.ptr, desc.size_compressed, A.size, BIG_FILE_READER_WINDOW_SIZE);
@@ -1302,9 +1259,6 @@ void CLocatorAPI::copy_file_to_build(T*& r, pcstr source_name)
     string_path cpy_name;
     string_path e_cpy_name;
     FS_Path* P;
-    // if (!(source_name==strstr(source_name,(P=get_path("$server_root$"))->m_Path)||
-    // source_name==strstr(source_name,(P=get_path("$server_data_root$"))->m_Path)))
-    // return;
 
     string_path fs_root;
     update_path(fs_root, "$fs_root$", "");
@@ -1515,9 +1469,7 @@ CLocatorAPI::files_it CLocatorAPI::file_find_it(pcstr fname)
     VERIFY(xr_strlen(fname) * sizeof(char) < sizeof(file_name));
     xr_strcpy(file_name, sizeof file_name, fname);
     desc_f.name = file_name;
-    // desc_f.name = xr_strlwr(xr_strdup(fname));
     files_it I = m_files.find(desc_f);
-    // xr_free (desc_f.name);
     return I;
 }
 
@@ -1659,7 +1611,7 @@ bool CLocatorAPI::path_exist(pcstr path)
 
 FS_Path* CLocatorAPI::append_path(pcstr path_alias, pcstr root, pcstr add, bool recursive)
 {
-    VERIFY(root /**&&root[0]/**/);
+    VERIFY(root);
     VERIFY(false == path_exist(path_alias));
     FS_Path* P = new FS_Path(root, add, nullptr, nullptr, 0);
     bNoRecurse = !recursive;
@@ -1679,12 +1631,6 @@ pcstr CLocatorAPI::update_path(string_path& dest, pcstr initial, pcstr src)
 {
     return get_path(initial)->_update(dest, src);
 }
-/*
-void CLocatorAPI::update_path(xr_string& dest, pcstr initial, pcstr src)
-{
-    return get_path(initial)->_update(dest,src);
-}
-}*/
 
 u32 CLocatorAPI::get_file_age(pcstr nm)
 {

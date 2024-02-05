@@ -68,8 +68,6 @@ void CRender::ScreenshotImpl(ScreenshotMode mode, LPCSTR name, CMemoryWriter* me
         desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
         CHK_DX(HW.pDevice->CreateTexture2D(&desc, NULL, &pSrcSmallTexture));
 
-        //D3DX10_TEXTURE_LOAD_INFO* pLoadInfo
-
 #ifdef USE_DX11
         CHK_DX(D3DX11LoadTextureFromTexture(HW.pContext, pSrcTexture, NULL, pSrcSmallTexture));
 #else

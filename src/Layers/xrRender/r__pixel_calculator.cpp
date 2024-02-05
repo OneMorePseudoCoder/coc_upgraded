@@ -7,8 +7,7 @@
 void r_pixel_calculator::begin()
 {
     rt.create("$user$test", rt_dimensions, rt_dimensions, HW.Caps.fTarget);
-    R_CHK(HW.pDevice->CreateDepthStencilSurface(
-        rt_dimensions, rt_dimensions, HW.Caps.fDepth, D3DMULTISAMPLE_NONE, 0, TRUE, &zb, NULL));
+    R_CHK(HW.pDevice->CreateDepthStencilSurface(rt_dimensions, rt_dimensions, HW.Caps.fDepth, D3DMULTISAMPLE_NONE, 0, TRUE, &zb, NULL));
 
     RCache.set_RT(rt->pRT);
     RCache.set_ZB(zb);
@@ -28,10 +27,8 @@ void r_pixel_calculator::end()
 }
 
 // +X, -X, +Y, -Y, +Z, -Z
-static Fvector cmNorm[6] = {
-    {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}};
-static Fvector cmDir[6] = {
-    {1.f, 0.f, 0.f}, {-1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, -1.f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 0.f, -1.f}};
+static Fvector cmNorm[6] = {{0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}};
+static Fvector cmDir[6] = {{1.f, 0.f, 0.f}, {-1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, -1.f, 0.f}, {0.f, 0.f, 1.f}, {0.f, 0.f, -1.f}};
 
 r_aabb_ssa r_pixel_calculator::calculate(dxRender_Visual* V)
 {
@@ -50,8 +47,7 @@ r_aabb_ssa r_pixel_calculator::calculate(dxRender_Visual* V)
         // camera - left-to-right
         mView.build_camera_dir(vFrom.invert(cmDir[face]).mul(100.f), cmDir[face], cmNorm[face]);
         aabb.xform(V->vis.box, mView);
-        D3DXMatrixOrthoOffCenterLH(
-            (D3DXMATRIX*)&mProject, aabb.vMin.x, aabb.vMax.x, aabb.vMin.y, aabb.vMax.y, aabb.vMin.z, aabb.vMax.z);
+        D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)&mProject, aabb.vMin.x, aabb.vMax.x, aabb.vMin.y, aabb.vMax.y, aabb.vMin.z, aabb.vMax.z);
         RCache.set_xform_world(Fidentity);
         RCache.set_xform_view(mView);
         RCache.set_xform_project(mProject);

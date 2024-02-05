@@ -162,8 +162,8 @@ typename void CSXML_IdToIndex::InitInternal()
             T_VECTOR::iterator t_it = m_pItemDataVector->begin();
             for (; m_pItemDataVector->end() != t_it; t_it++)
             {
-                if (shared_str((*t_it).id) == shared_str(item_name))
-                    break;
+				if (!xr_strcmp((*t_it).id.c_str(), item_name))
+					break;
             }
 
             R_ASSERT3(m_pItemDataVector->end() == t_it, "duplicate item id", item_name);
@@ -172,7 +172,6 @@ typename void CSXML_IdToIndex::InitInternal()
             data.id = item_name;
             data.index = index;
             data.pos_in_file = i;
-            //.				data.file_name		= xml_file;
             data._xml = uiXml;
             m_pItemDataVector->push_back(data);
 

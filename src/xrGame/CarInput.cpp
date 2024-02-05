@@ -17,6 +17,7 @@
 #include "Level.h"
 #include "CarWeapon.h"
 #include "HUDManager.h"
+
 void CCar::OnMouseMove(int dx, int dy)
 {
     if (Remote())
@@ -62,9 +63,6 @@ bool CCar::bfAssignMovement(CScriptEntityAction* tpEntityAction)
         StartEngine();
     if (!!(l_tInput & CScriptMovementAction::eInputKeyEngineOff))
         StopEngine();
-
-    // if (_abs(tpEntityAction->m_tMovementAction.m_fSpeed) > EPS_L)
-    // m_current_rpm = _abs(tpEntityAction->m_tMovementAction.m_fSpeed*m_current_gear_ratio);
 
     return (true);
 }
@@ -208,27 +206,7 @@ void CCar::OnKeyboardHold(int cmd)
     case kLEFT:
     case kRIGHT: active_camera->Move(cmd); break;
 	case kWPN_FIRE: if (OwnerActor()) Action(CCarWeapon::eWpnFire, 1); break; // shooting on hold lmb
-        /*
-            case kFWD:
-                if (ectFree==active_camera->tag)	active_camera->Move(kUP);
-                else								m_vCamDeltaHP.y += active_camera->rot_speed.y*Device.fTimeDelta;
-                break;
-            case kBACK:
-                if (ectFree==active_camera->tag)	active_camera->Move(kDOWN);
-                else								m_vCamDeltaHP.y -= active_camera->rot_speed.y*Device.fTimeDelta;
-                break;
-            case kL_STRAFE:
-                if (ectFree==active_camera->tag)	active_camera->Move(kLEFT);
-                else								m_vCamDeltaHP.x -= active_camera->rot_speed.x*Device.fTimeDelta;
-                break;
-            case kR_STRAFE:
-                if (ectFree==active_camera->tag)	active_camera->Move(kRIGHT);
-                else								m_vCamDeltaHP.x += active_camera->rot_speed.x*Device.fTimeDelta;
-                break;
-        */
     }
-    //	clamp(m_vCamDeltaHP.x, -PI_DIV_2,	PI_DIV_2);
-    //	clamp(m_vCamDeltaHP.y, active_camera->lim_pitch.x,	active_camera->lim_pitch.y);
 }
 void CCar::Action(u16 id, u32 flags)
 {

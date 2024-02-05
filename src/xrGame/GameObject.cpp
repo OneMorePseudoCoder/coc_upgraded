@@ -145,12 +145,7 @@ void CGameObject::cNameVisual_set(shared_str N)
         renderable.visual = GEnv.Render->model_Create(*N);
         IKinematics* old_k = old_v ? old_v->dcast_PKinematics() : NULL;
         IKinematics* new_k = renderable.visual->dcast_PKinematics();
-        /*
-        if(old_k && new_k){
-        new_k->Update_Callback = old_k->Update_Callback;
-        new_k->Update_Callback_Param = old_k->Update_Callback_Param;
-        }
-        */
+
         if (old_k && new_k)
         {
             new_k->SetUpdateCallback(old_k->GetUpdateCallback());
@@ -254,7 +249,6 @@ void CGameObject::Load(LPCSTR section)
     if (self)
     {
         // #pragma todo("to Dima: All objects are visible for AI ???")
-        // self->spatial.type	|=	STYPE_VISIBLEFORAI;
         self->GetSpatialData().type &= ~STYPE_REACTTOSOUND;
     }
 }
@@ -302,7 +296,7 @@ void CGameObject::net_Destroy()
     if (register_schedule())
         shedule_unregister();
     spatial_unregister();
-    //setDestroy (true); // commented in original src1
+
     // remove visual
     cNameVisual_set(0);
     // ~
@@ -317,8 +311,6 @@ void CGameObject::net_Destroy()
     }
 
     Level().RemoveObject_From_4CrPr(this);
-
-    //.	Parent									= 0;
 
     scriptBinder.net_Destroy();
 
@@ -1226,7 +1218,6 @@ void CGameObject::create_anim_mov_ctrl(CBlend* b, Fmatrix* start_pose, bool loca
 
 #ifdef DEBUG
         VERIFY2(start_pose, make_string("start pose hasn't been specified for animation [%s][%s]", smart_cast<IKinematicsAnimated&>(*Visual()).LL_MotionDefName_dbg(b->motionID).first, smart_cast<IKinematicsAnimated&>(*Visual()).LL_MotionDefName_dbg(b->motionID).second));
-
         VERIFY2(!animation_movement(), make_string("start pose hasn't been specified for animation [%s][%s]", smart_cast<IKinematicsAnimated&>(*Visual()).LL_MotionDefName_dbg(b->motionID).first, smart_cast<IKinematicsAnimated&>(*Visual()).LL_MotionDefName_dbg(b->motionID).second));
 #endif
 
@@ -1298,10 +1289,9 @@ void CGameObject::UpdateCL()
 void CGameObject::PostUpdateCL(bool bUpdateCL_disabled) {}
 
 void CGameObject::on_matrix_change(const Fmatrix& previous) { obstacle().on_move(); }
-#ifdef DEBUG
 
-void render_box(
-    IRenderVisual* visual, const Fmatrix& xform, const Fvector& additional, bool draw_child_boxes, const u32& color)
+#ifdef DEBUG
+void render_box(IRenderVisual* visual, const Fmatrix& xform, const Fvector& additional, bool draw_child_boxes, const u32& color)
 {
     CDebugRenderer& renderer = Level().debug_renderer();
     IKinematics* kinematics = smart_cast<IKinematics*>(visual);
@@ -1341,9 +1331,7 @@ void render_box(
         if (draw_child_boxes)
             renderer.draw_obb(matrix, color);
 
-        static const Fvector local_points[8] = {Fvector().set(-1.f, -1.f, -1.f), Fvector().set(-1.f, -1.f, +1.f),
-            Fvector().set(-1.f, +1.f, +1.f), Fvector().set(-1.f, +1.f, -1.f), Fvector().set(+1.f, +1.f, +1.f),
-            Fvector().set(+1.f, +1.f, -1.f), Fvector().set(+1.f, -1.f, +1.f), Fvector().set(+1.f, -1.f, -1.f)};
+        static const Fvector local_points[8] = {Fvector().set(-1.f, -1.f, -1.f), Fvector().set(-1.f, -1.f, +1.f), Fvector().set(-1.f, +1.f, +1.f), Fvector().set(-1.f, +1.f, -1.f), Fvector().set(+1.f, +1.f, +1.f), Fvector().set(+1.f, +1.f, -1.f), Fvector().set(+1.f, -1.f, +1.f), Fvector().set(+1.f, -1.f, -1.f)};
 
         for (u32 i = 0; i < 8; ++i, ++I)
             matrix.transform_tiny(*I, local_points[i]);

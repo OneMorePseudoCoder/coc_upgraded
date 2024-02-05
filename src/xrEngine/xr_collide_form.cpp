@@ -221,12 +221,10 @@ BOOL CCF_Skeleton::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R)
     w_bv_sphere.R = bv_sphere.R;
 
     //
-    float tgt_dist = Q.range;
-    float aft[2];
-    int quant;
-    Fsphere::ERP_Result res1 = w_bv_sphere.intersect(Q.start, Q.dir, tgt_dist, quant, aft);
-    if ((Fsphere::rpNone == res1) || ((Fsphere::rpOriginOutside == res1) && (aft[0] > tgt_dist)))
-        return FALSE;
+	float tgt_dist = Q.range;
+	Fsphere::ERP_Result res = w_bv_sphere.intersect(Q.start, Q.dir, tgt_dist);
+	if (res == Fsphere::rpNone) 
+		return FALSE;
 
     if (dwFrame != Device.dwFrame)
         BuildState();
@@ -255,7 +253,6 @@ BOOL CCF_Skeleton::_RayQuery(const collide::ray_defs& Q, collide::rq_results& R)
             break;
         case SBoneShape::stSphere:
             res = RAYvsSPHERE(I->s_sphere, Q.start, Q.dir, range, Q.flags & CDB::OPT_CULL);
-
             break;
         case SBoneShape::stCylinder:
             res = RAYvsCYLINDER(I->c_cylinder, Q.start, Q.dir, range, Q.flags & CDB::OPT_CULL);
