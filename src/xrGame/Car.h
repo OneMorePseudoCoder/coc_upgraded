@@ -612,10 +612,9 @@ public:
     virtual float GetfHealth() const { return CEntity::GetfHealth(); };
     virtual float SetfHealth(float value) { return CEntity::SetfHealth(value); };
     // Hits
-    virtual void HitSignal(
-        float /**HitAmount/**/, Fvector& /**local_dir/**/, IGameObject* /**who/**/, s16 /**element/**/){};
+    virtual void HitSignal(float /**HitAmount/**/, Fvector& /**local_dir/**/, IGameObject* /**who/**/, s16 /**element/**/){};
     virtual void HitImpulse(float /**amount/**/, Fvector& /**vWorldDir/**/, Fvector& /**vLocalDir/**/){};
-    virtual void g_fireParams(const CHudItem* /**pHudItem/**/, Fvector& /**P/**/, Fvector& /**D/**/){};
+    virtual void g_fireParams(CHudItem* /**pHudItem/**/, Fvector& /**P/**/, Fvector& /**D/**/) override {};
     virtual u16 Initiator();
     // HUD
     virtual void OnHUDDraw(CCustomHUD* hud);

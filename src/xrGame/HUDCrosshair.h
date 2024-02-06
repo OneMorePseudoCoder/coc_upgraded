@@ -21,7 +21,7 @@ private:
 #ifdef DEBUG
     float fb_radius;
 #endif
-    // ref_geom 		hGeomLine;
+
     ui_shader hShader;
 
 public:
@@ -30,7 +30,7 @@ public:
     CHUDCrosshair();
     ~CHUDCrosshair();
 
-    void OnRender();
+    void OnRender(const Fvector2& center, const Fvector2& scr_size);
     void SetDispersion(float disp);
 #ifdef DEBUG
     void SetFirstBulletDispertion(float fbdisp);

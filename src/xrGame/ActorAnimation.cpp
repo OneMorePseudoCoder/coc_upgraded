@@ -3,6 +3,7 @@
 #include "ActorAnimation.h"
 #include "actor_anim_defs.h"
 #include "weapon.h"
+#include "WeaponKnife.h"
 #include "inventory.h"
 #include "missile.h"
 #include "Level.h"
@@ -21,7 +22,6 @@
 #include "artefact.h"
 #include "IKLimbsController.h"
 #include "player_hud.h"
-#include "WeaponKnife.h"
 
 static const float y_spin0_factor = 0.0f;
 static const float y_spin1_factor = 0.4f;
@@ -358,9 +358,9 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 		return;
 	}
 
-	STorsoWpn::eMovingState	moving_idx 		= STorsoWpn::eIdle;
-	SActorState*					ST 		= 0;
-	SAnimState*						AS 		= 0;
+	STorsoWpn::eMovingState	moving_idx = STorsoWpn::eIdle;
+	SActorState* ST = 0;
+	SAnimState* AS = 0;
 	
 	if (mstate_rl&mcCrouch)	
 		ST = &m_anims->m_crouch;
@@ -387,9 +387,9 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 			moving_idx = STorsoWpn::eWalk;
 	}
 
-	MotionID 						M_legs;
-	MotionID 						M_torso;
-	MotionID 						M_head;
+	MotionID M_legs;
+	MotionID M_torso;
+	MotionID M_head;
 
 	bool is_standing = false;
 
@@ -454,7 +454,7 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 
 	//-----------------------------------------------------------------------
 	// Torso
-	if(mstate_rl&mcClimb)
+	if (mstate_rl&mcClimb)
 	{
 		if (mstate_rl&mcFwd)		
 			M_torso	= AS->legs_fwd;
@@ -496,14 +496,11 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 //						CPda *P = smart_cast<CPda*>(_i);
 						if (W) 
 						{
-							bool K = inventory().GetActiveSlot() == KNIFE_SLOT;
-							bool R3 = W->IsTriStateReload();
-
 							if (smart_cast<CWeaponKnife*>(W))
 							{
-								switch (W->GetState()) 
+								switch (W->GetState())
 								{
-								case CWeapon::eIdle:		M_torso = TW->moving[moving_idx];		break;
+								case CWeapon::eIdle: M_torso = TW->moving[moving_idx]; break;
 
 								case CWeapon::eFire:
 									if (is_standing)
@@ -519,37 +516,38 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 										M_torso = TW->fire_idle;
 									break;
 
-								case CWeapon::eReload:		M_torso = TW->reload;					break;
-								case CWeapon::eShowing:		M_torso = TW->draw;						break;
-								case CWeapon::eHiding:		M_torso = TW->holster;					break;
-								default:  	M_torso = TW->moving[moving_idx];		break;
+								case CWeapon::eReload: M_torso = TW->reload; break;
+								case CWeapon::eShowing: M_torso = TW->draw; break;
+								case CWeapon::eHiding: M_torso = TW->holster; break;
+								default: M_torso = TW->moving[moving_idx]; break;
 								}
 							}
 							else
 							{
-								switch (W->GetState()) 
+								switch (W->GetState())
 								{
-								case CWeapon::eIdle:		M_torso = W->IsZoomed() ? TW->zoom : TW->moving[moving_idx];	break;
-								case CWeapon::eFire:		M_torso = W->IsZoomed() ? TW->attack_zoom : TW->attack;				break;
-								case CWeapon::eFire2:		M_torso = W->IsZoomed() ? TW->attack_zoom : TW->attack;				break;
+								case CWeapon::eIdle: M_torso = W->IsZoomed() ? TW->zoom : TW->moving[moving_idx]; break;
+								case CWeapon::eFire: M_torso = W->IsZoomed() ? TW->attack_zoom : TW->attack; break;
+								case CWeapon::eFire2: M_torso = W->IsZoomed() ? TW->attack_zoom : TW->attack; break;
 								case CWeapon::eReload:
-									if (!R3)
+									if (!W->IsTriStateReload())
 										M_torso = TW->reload;
-									else 
+									else
 									{
 										CWeapon::EWeaponSubStates sub_st = W->GetReloadState();
-										switch (sub_st) 
+										switch (sub_st)
 										{
-										case CWeapon::eSubstateReloadBegin:			M_torso = TW->reload;	break;
-										case CWeapon::eSubstateReloadInProcess:		M_torso = TW->reload_1; break;
-										case CWeapon::eSubstateReloadEnd:			M_torso = TW->reload_2; break;
-										default:									M_torso = TW->reload;	break;
+										case CWeapon::eSubstateReloadBegin: M_torso = TW->reload; break;
+										case CWeapon::eSubstateReloadInProcess: M_torso = TW->reload_1; break;
+										case CWeapon::eSubstateReloadEnd: M_torso = TW->reload_2; break;
+										default: M_torso = TW->reload; break;
 										}
-									}break;
+									}
+									break;
 
-								case CWeapon::eShowing:	M_torso = TW->draw;					break;
-								case CWeapon::eHiding:	M_torso = TW->holster;				break;
-								default:  M_torso = TW->moving[moving_idx];	break;
+								case CWeapon::eShowing: M_torso = TW->draw; break;
+								case CWeapon::eHiding: M_torso = TW->holster; break;
+								default: M_torso = TW->moving[moving_idx]; break;
 								}
 							}
 							if (!M_torso)
@@ -626,10 +624,8 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 
 	if (!M_legs)
 	{
-		if((mstate_rl&mcCrouch)&&!isActorAccelerated(mstate_rl, IsZoomAimingMode()))
-		{
-			M_legs=smart_cast<IKinematicsAnimated*>(Visual())->ID_Cycle("cr_idle_1");
-		}
+		if ((mstate_rl&mcCrouch)&&!isActorAccelerated(mstate_rl, IsZoomAimingMode()))
+			M_legs = smart_cast<IKinematicsAnimated*>(Visual())->ID_Cycle("cr_idle_1");
 		else if (!_i & !(mstate_rl&mcCrouch) & !(mstate_rl&mcClimb))
 			M_legs = smart_cast<IKinematicsAnimated*>(Visual())->ID_Cycle("norm_idle_1");
 		else
@@ -647,25 +643,25 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 			M_torso = ST->m_torso_idle;
 	}
 	
-	if (m_current_torso!=M_torso)
+	if (m_current_torso != M_torso)
 	{
 		if (m_bAnimTorsoPlayed)		
 			m_current_torso_blend = smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_torso,TRUE,AnimTorsoPlayCallBack,this);
 		else						
 			m_current_torso_blend = smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_torso);
 
-		m_current_torso=M_torso;
+		m_current_torso = M_torso;
 	}
 	
-	if (m_current_head!=M_head)
+	if (m_current_head != M_head)
 	{
 		if (M_head)
-			smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_head);
+			smart_cast < IKinematicsAnimated*>(Visual())->PlayCycle(M_head);
 
-		m_current_head=M_head;
+		m_current_head = M_head;
 	}
 
-	if (m_current_legs!=M_legs)
+	if (m_current_legs != M_legs)
 	{
 		float pos = 0.f;
 		VERIFY(!m_current_legs_blend || !fis_zero(m_current_legs_blend->timeTotal));
@@ -742,21 +738,20 @@ void CActor::g_SetAnimation(u32 mstate_rl)
 	if (!m_current_torso_blend)
 		return;
 
-	IKinematicsAnimated		*skeleton_animated = smart_cast<IKinematicsAnimated*>(Visual());
+	IKinematicsAnimated *skeleton_animated = smart_cast<IKinematicsAnimated*>(Visual());
 
-	CMotionDef				*motion0 = skeleton_animated->LL_GetMotionDef(m_current_torso);
-	VERIFY					(motion0);
+	CMotionDef *motion0 = skeleton_animated->LL_GetMotionDef(m_current_torso);
+	VERIFY(motion0);
 	if (!(motion0->flags & esmSyncPart))
 		return;
 
 	if (!m_current_legs_blend)
 		return;
 
-	CMotionDef				*motion1 = skeleton_animated->LL_GetMotionDef(m_current_legs);
-	VERIFY					(motion1);
+	CMotionDef *motion1 = skeleton_animated->LL_GetMotionDef(m_current_legs);
+	VERIFY(motion1);
 	if (!(motion1->flags & esmSyncPart))
 		return;
 
-
-	m_current_torso_blend->timeCurrent	= m_current_legs_blend->timeCurrent/m_current_legs_blend->timeTotal*m_current_torso_blend->timeTotal;
+	m_current_torso_blend->timeCurrent = m_current_legs_blend->timeCurrent / m_current_legs_blend->timeTotal * m_current_torso_blend->timeTotal;
 }

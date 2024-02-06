@@ -21,7 +21,8 @@ void CRender::render_lights(light_Package& LP)
             L->vis_update();
             if (!L->vis.visible)
             {
-                source.erase(source.begin() + it);
+                std::swap(source[it], source.back());
+                source.pop_back();
                 it--;
             }
             else
@@ -37,14 +38,15 @@ void CRender::render_lights(light_Package& LP)
         xr_vector<light*> refactored;
         refactored.reserve(source.size());
         const size_t total = source.size();
+        std::sort(source.begin(), source.end(), pred_area);
 
         for (u16 smap_ID = 0; refactored.size() != total; ++smap_ID)
         {
             LP_smap_pool.initialize(RImplementation.o.smapsize);
-            std::sort(source.begin(), source.end(), pred_area);
-            for (size_t test = 0; test < source.size(); ++test)
+            for (auto& L : source)
             {
-                light* L = source[test];
+                if (!L)
+                    continue;
                 SMAP_Rect R{};
                 if (LP_smap_pool.push(R, L->X.S.size))
                 {
@@ -53,32 +55,17 @@ void CRender::render_lights(light_Package& LP)
                     L->X.S.posY = R.min.y;
                     L->vis.smap_ID = smap_ID;
                     refactored.push_back(L);
-                    source.erase(source.begin() + test);
-                    --test;
+                    L = nullptr;
                 }
             }
         }
 
         // save (lights are popped from back)
-        std::reverse(refactored.begin(), refactored.end());
         LP.v_shadowed = std::move(refactored);
     }
 
     PIX_EVENT(SHADOWED_LIGHTS);
 
-    //////////////////////////////////////////////////////////////////////////
-    // sort lights by importance???
-    // while (has_any_lights_that_cast_shadows) {
-    //		if (has_point_shadowed)		->	generate point shadowmap
-    //		if (has_spot_shadowed)		->	generate spot shadowmap
-    //		switch-to-accumulator
-    //		if (has_point_unshadowed)	-> 	accum point unshadowed
-    //		if (has_spot_unshadowed)	-> 	accum spot unshadowed
-    //		if (was_point_shadowed)		->	accum point shadowed
-    //		if (was_spot_shadowed)		->	accum spot shadowed
-    //	}
-    //	if (left_some_lights_that_doesn't cast shadows)
-    //		accumulate them
     HOM.Disable();
     while (LP.v_shadowed.size())
     {

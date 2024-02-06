@@ -94,14 +94,13 @@ public:
     virtual void HitImpulse(float P, Fvector& vWorldDir, Fvector& vLocalDir) = 0;
 
     virtual void Die(IGameObject* who);
-    //void KillEntity (IGameObject* who);
     void KillEntity(u16 whoID, bool bypass_actor_check = false);
 
     // Events
     virtual void OnEvent(NET_Packet& P, u16 type);
 
     virtual BOOL IsVisibleForHUD() { return g_Alive(); }
-    virtual void g_fireParams(const CHudItem*, Fvector&, Fvector&){};
+    virtual void g_fireParams(CHudItem*, Fvector&, Fvector&) {};
     virtual bool g_stateFire() { return true; }
     // time of entity death
     u32 m_level_death_time;

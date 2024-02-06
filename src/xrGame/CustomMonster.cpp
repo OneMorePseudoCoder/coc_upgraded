@@ -611,7 +611,6 @@ void CCustomMonster::eye_pp_s2()
 
 void CCustomMonster::Exec_Visibility()
 {
-    // if (0==Sector())				return;
     if (!g_Alive())
         return;
 
@@ -632,9 +631,8 @@ void CCustomMonster::UpdateCamera()
 {
     float new_range = eye_range, new_fov = eye_fov;
     if (g_Alive())
-        update_range_fov(
-            new_range, new_fov, memory().visual().current_state().m_max_view_distance * eye_range, eye_fov);
-    g_pGameLevel->Cameras().Update(eye_matrix.c, eye_matrix.k, eye_matrix.j, new_fov, .75f, new_range, 0);
+        update_range_fov(new_range, new_fov, memory().visual().current_state().m_max_view_distance * eye_range, eye_fov);
+    g_pGameLevel->Cameras().Update(eye_matrix.c, eye_matrix.k, eye_matrix.j, new_fov, .75f, new_range, 0, csFirstEye, 0); //Не уверен, что так можно. Будем смотреть.
 }
 
 void CCustomMonster::HitSignal(float /**perc/**/, Fvector& /**vLocalDir/**/, IGameObject* /**who/**/) {}

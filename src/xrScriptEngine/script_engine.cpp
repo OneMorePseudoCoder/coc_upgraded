@@ -195,7 +195,6 @@ void CScriptEngine::print_stack(lua_State* L)
     if (L == nullptr)
         L = lua();
 
-
     Log("\nLua Stack");
     lua_Debug l_tDebugInfo;
     for (int i = 0; lua_getstack(L, i, &l_tDebugInfo); i++)
@@ -207,8 +206,7 @@ void CScriptEngine::print_stack(lua_State* L)
             Msg("%2d : [C  ] %s", i, l_tDebugInfo.name);
         else
         {
-            Msg("%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src,
-                l_tDebugInfo.currentline, l_tDebugInfo.name);
+            Msg("%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
         }
 
         // Giperion: verbose log
@@ -386,8 +384,7 @@ bool CScriptEngine::parse_namespace(LPCSTR caNamespaceName, LPSTR b, u32 b_size,
     return true;
 }
 
-bool CScriptEngine::load_buffer(
-lua_State* L, LPCSTR caBuffer, size_t tSize, LPCSTR caScriptName, LPCSTR caNameSpaceName)
+bool CScriptEngine::load_buffer(lua_State* L, LPCSTR caBuffer, size_t tSize, LPCSTR caScriptName, LPCSTR caNameSpaceName)
 {
     int l_iErrorCode;
     if (caNameSpaceName && xr_strcmp(GlobalNamespace, caNameSpaceName))
@@ -410,11 +407,13 @@ lua_State* L, LPCSTR caBuffer, size_t tSize, LPCSTR caScriptName, LPCSTR caNameS
     }
     else
         l_iErrorCode = luaL_loadbuffer(L, caBuffer, tSize, caScriptName);
+
     if (l_iErrorCode)
     {
         onErrorCallback(L, caScriptName, l_iErrorCode);
         return false;
     }
+
     return true;
 }
 

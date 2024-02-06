@@ -165,11 +165,10 @@ void CCameraManager::OnEffectorReleased(SBaseEffector* e)
 
 void CCameraManager::UpdateFromCamera(const CCameraBase* C)
 {
-    Update(C->vPosition, C->vDirection, C->vNormal, C->f_fov, C->f_aspect,
-        g_pGamePersistent->Environment().CurrentEnv->far_plane, C->m_Flags.flags);
+    Update(C->vPosition, C->vDirection, C->vNormal, C->f_fov, C->f_aspect, g_pGamePersistent->Environment().CurrentEnv->far_plane, C->m_Flags.flags, C->style, C->GetParent());
 }
 
-void CCameraManager::Update(const Fvector& P, const Fvector& D, const Fvector& N, float fFOV_Dest, float fASPECT_Dest, float fFAR_Dest, u32 flags)
+void CCameraManager::Update(const Fvector& P, const Fvector& D, const Fvector& N, float fFOV_Dest, float fASPECT_Dest, float fFAR_Dest, u32 flags, ECameraStyle style, IGameObject* parent)
 {
 #ifdef DEBUG
     if (!Device.Paused())
@@ -183,6 +182,7 @@ void CCameraManager::Update(const Fvector& P, const Fvector& D, const Fvector& N
         m_cam_info.p.set(P);
     else
         m_cam_info.p.inertion(P, psCamInert);
+
     if (flags & CCameraBase::flDirectionRigid)
     {
         m_cam_info.d.set(D);
@@ -208,6 +208,8 @@ void CCameraManager::Update(const Fvector& P, const Fvector& D, const Fvector& N
     m_cam_info.fFar = m_cam_info.fFar * dst + fFAR_Dest * src;
     m_cam_info.fAspect = m_cam_info.fAspect * dst + (fASPECT_Dest * aspect) * src;
     m_cam_info.dont_apply = false;
+	m_cam_info.style = style;
+	m_cam_info.parent = parent;
 
     UpdateCamEffectors();
 

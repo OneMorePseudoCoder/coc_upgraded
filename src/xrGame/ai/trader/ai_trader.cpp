@@ -33,15 +33,12 @@ CAI_Trader::~CAI_Trader()
 
 void CAI_Trader::Load(LPCSTR section)
 {
-    //	setEnabled						(FALSE);
     inherited::Load(section);
 
-    // fHealth							= pSettings->r_float	(section,"Health");
     SetfHealth(pSettings->r_float(section, "Health"));
 
     float max_weight = pSettings->r_float(section, "max_item_mass");
     inventory().SetMaxWeight(max_weight * 1000);
-    //	inventory().SetMaxRuck(1000000);
     inventory().CalcTotalWeight();
 }
 
@@ -66,13 +63,7 @@ void CAI_Trader::reload(LPCSTR section)
 bool CAI_Trader::bfAssignSound(CScriptEntityAction* tpEntityAction)
 {
     if (!CScriptEntity::bfAssignSound(tpEntityAction))
-    {
-        // m_cur_head_anim_type	= MonsterSpace::eHeadAnimNone;
         return (false);
-    }
-
-    // CScriptSoundAction	&l_tAction	= tpEntityAction->m_tSoundAction;
-    // m_cur_head_anim_type = l_tAction.m_tHeadAnimType;
 
     return (true);
 }
@@ -131,8 +122,7 @@ BOOL CAI_Trader::net_Spawn(CSE_Abstract* DC)
     set_money(l_tpTrader->m_dwMoney, false);
 
     // Установка callback на кости
-    CBoneInstance* bone_head = &smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(
-        smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_head"));
+    CBoneInstance* bone_head = &smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_head"));
     bone_head->set_callback(bctCustom, BoneCallback, this);
 
     shedule.t_min = 100;
@@ -144,9 +134,6 @@ BOOL CAI_Trader::net_Spawn(CSE_Abstract* DC)
 void CAI_Trader::net_Export(NET_Packet& P)
 {
     R_ASSERT(Local());
-
-    //	P.w_float						(inventory().TotalWeight());
-    //	P.w_u32							(m_dwMoney);
 }
 
 void CAI_Trader::net_Import(NET_Packet& P)
@@ -198,8 +185,6 @@ void CAI_Trader::OnEvent(NET_Packet& P, u16 type)
 
         Obj->SetTmpPreDestroy(just_before_destroy);
         inventory().DropItem(smart_cast<CGameObject*>(Obj), just_before_destroy, dont_create_shell);
-        // if(inventory().DropItem(smart_cast<CGameObject*>(Obj), just_before_destroy))
-        //	Obj->H_SetParent(0, just_before_destroy); //moved to DropItem
     }
     break;
     case GE_TRANSFER_AMMO: break;
@@ -210,6 +195,7 @@ void CAI_Trader::feel_touch_new(IGameObject* O)
 {
     if (!g_Alive())
         return;
+
     if (Remote())
         return;
 
@@ -258,7 +244,7 @@ void CAI_Trader::g_WeaponBones(int& L, int& R1, int& R2)
     L = V->LL_BoneID("bip01_l_finger1");
 }
 
-void CAI_Trader::g_fireParams(const CHudItem* pHudItem, Fvector& P, Fvector& D)
+void CAI_Trader::g_fireParams(CHudItem* pHudItem, Fvector& P, Fvector& D)
 {
     VERIFY(inventory().ActiveItem());
     if (g_Alive() && inventory().ActiveItem())

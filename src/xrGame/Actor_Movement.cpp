@@ -95,14 +95,11 @@ void CActor::g_cl_ValidateMState(float dt, u32 mstate_wf)
         m_bJumpKeyPressed = FALSE;
 
     // Зажало-ли меня/уперся - не двигаюсь
-    if (((character_physics_support()->movement()->GetVelocityActual() < 0.2f) &&
-            (!(mstate_real & (mcFall | mcJump)))) ||
-        character_physics_support()->movement()->bSleep)
+    if (((character_physics_support()->movement()->GetVelocityActual() < 0.2f) && (!(mstate_real & (mcFall | mcJump)))) || character_physics_support()->movement()->bSleep)
     {
         mstate_real &= ~mcAnyMove;
     }
-    if (character_physics_support()->movement()->Environment() == CPHMovementControl::peOnGround ||
-        character_physics_support()->movement()->Environment() == CPHMovementControl::peAtWall)
+    if (character_physics_support()->movement()->Environment() == CPHMovementControl::peOnGround || character_physics_support()->movement()->Environment() == CPHMovementControl::peAtWall)
     {
         // если на земле гарантированно снимать флажок Jump
         if (((s_fJumpTime - m_fJumpTime) > s_fJumpGroundTime) && (mstate_real & mcJump))
@@ -255,16 +252,14 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
 
         if (mstate_real & mcCrouch)
         {
-            if (!isActorAccelerated(mstate_real, IsZoomAimingMode()) &&
-                isActorAccelerated(mstate_wf, IsZoomAimingMode()))
+            if (!isActorAccelerated(mstate_real, IsZoomAimingMode()) && isActorAccelerated(mstate_wf, IsZoomAimingMode()))
             {
                 character_physics_support()->movement()->EnableCharacter();
                 if (!character_physics_support()->movement()->ActivateBoxDynamic(1))
                     move &= ~mcAccel;
             }
 
-            if (isActorAccelerated(mstate_real, IsZoomAimingMode()) &&
-                !isActorAccelerated(mstate_wf, IsZoomAimingMode()))
+            if (isActorAccelerated(mstate_real, IsZoomAimingMode()) && !isActorAccelerated(mstate_wf, IsZoomAimingMode()))
             {
                 character_physics_support()->movement()->EnableCharacter();
                 if (character_physics_support()->movement()->ActivateBoxDynamic(2))
@@ -282,8 +277,8 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
             mstate_real |= mcSprint;
         else
             mstate_real &= ~mcSprint;
-        if (!(mstate_real & (mcFwd | mcLStrafe | mcRStrafe)) || mstate_real & (mcCrouch | mcClimb) ||
-            !isActorAccelerated(mstate_wf, IsZoomAimingMode()))
+
+        if (!(mstate_real & (mcFwd | mcLStrafe | mcRStrafe)) || (mstate_real & mcFwd && mstate_real & mcBack) || (mstate_real & mcLStrafe && mstate_real & mcRStrafe) || mstate_real & (mcCrouch | mcClimb) || !isActorAccelerated(mstate_wf, IsZoomAimingMode()))
         {
             mstate_real &= ~mcSprint;
             mstate_wishful &= ~mcSprint;
@@ -335,7 +330,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
 				if (inventory().TotalWeight() > MaxCarryWeight())
 					accel_k *= m_fOverweightWalkAccel;
 
-				scale	=	accel_k/scale;
+				scale =	accel_k/scale;
 				if (bAccelerated)
 					if (mstate_real&mcBack)
 						scale *= m_fRunBackFactor;
@@ -345,9 +340,14 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector& vControlAccel, float& Ju
 					if (mstate_real&mcBack)
 						scale *= m_fWalkBackFactor;
 
-                if (mstate_real & mcCrouch) scale *= m_fCrouchFactor;
-                if (mstate_real & mcClimb)  scale *= m_fClimbFactor;
-                if (mstate_real & mcSprint) scale *= m_fSprintFactor;
+                if (mstate_real & mcCrouch) 
+					scale *= m_fCrouchFactor;
+				
+                if (mstate_real & mcClimb)  
+					scale *= m_fClimbFactor;
+				
+                if (mstate_real & mcSprint) 
+					scale *= m_fSprintFactor;
 
                 if (mstate_real & (mcLStrafe | mcRStrafe) && !(mstate_real & mcCrouch))
                 {
@@ -514,23 +514,27 @@ bool CActor::g_LadderOrient()
 void CActor::g_cl_Orientate(u32 mstate_rl, float dt)
 {
     // capture camera into torso (only for FirstEye & LookAt cameras)
-    if (eacFreeLook != cam_active)
+	if (eacLookAt == cam_active)
     {
-        r_torso.yaw = cam_Active()->GetWorldYaw();
-        r_torso.pitch = cam_Active()->GetWorldPitch();
+		r_torso.yaw = cam_Active()->GetWorldYaw();
+		r_torso.pitch = cam_Active()->GetWorldPitch();
+	}
+	else if (eacFreeLook == cam_active)
+	{
+		r_torso.yaw = cam_FirstEye()->GetWorldYaw();
+		r_torso.pitch = cam_FirstEye()->GetWorldPitch();
     }
     else
     {
-        r_torso.yaw = cam_FirstEye()->GetWorldYaw();
-        r_torso.pitch = cam_FirstEye()->GetWorldPitch();
+		r_torso.yaw = cam_FirstEye()->GetWorldYaw();
+		r_torso.pitch = 0;
     }
 
     unaffected_r_torso.yaw = r_torso.yaw;
     unaffected_r_torso.pitch = r_torso.pitch;
     unaffected_r_torso.roll = r_torso.roll;
 
-    CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*>(
-        inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
+    CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*>(inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
     if (pWM && pWM->GetCurrentFireMode() == 1 && eacFirstEye != cam_active)
     {
         Fvector dangle = weapon_recoil_last_delta();
@@ -546,22 +550,40 @@ void CActor::g_cl_Orientate(u32 mstate_rl, float dt)
     }
     else
     {
-        // if camera rotated more than 45 degrees - align model with it
-        float ty = angle_normalize(r_torso.yaw);
-        if (_abs(r_model_yaw - ty) > PI_DIV_4 / 3.f)
-        {
-            r_model_yaw_dest = ty;
-            //
-            mstate_real |= mcTurn;
-        }
-        if (_abs(r_model_yaw - r_model_yaw_dest) < EPS_L)
-        {
-            mstate_real &= ~mcTurn;
-        }
-        if (mstate_rl & mcTurn)
-        {
-            angle_lerp(r_model_yaw, r_model_yaw_dest, PI_MUL_2, dt);
-        }
+		if (eacFirstEye != cam_active)
+		{
+			// if camera rotated more than 45 degrees - align model with it
+			float ty = angle_normalize(r_torso.yaw);
+			if (_abs(r_model_yaw - ty) > PI_DIV_4) 
+			{
+				r_model_yaw_dest = ty;
+				mstate_real |= mcTurn;
+			}
+			if (_abs(r_model_yaw - r_model_yaw_dest) < EPS_L) 
+				mstate_real &= ~mcTurn;
+
+			if (mstate_rl & mcTurn) 
+				angle_lerp(r_model_yaw, r_model_yaw_dest, PI_MUL_2, dt);
+		}
+		else
+		{
+			// if camera rotated more than 35 degrees - align model with it
+			float ty = angle_normalize(r_torso.yaw);
+			if (_abs(r_model_yaw - ty) > PI_DIV_6) 
+			{
+				if ((r_model_yaw - ty) > 0)
+					r_model_yaw = angle_normalize(r_torso.yaw + PI_DIV_6);
+				else
+					r_model_yaw = angle_normalize(r_torso.yaw - PI_DIV_6);
+				r_model_yaw_dest = ty;
+				mstate_real |= mcTurn;
+			}
+			if (_abs(r_model_yaw - r_model_yaw_dest) < EPS_L)
+				mstate_real &= ~mcTurn;
+
+			if (mstate_rl&mcTurn) 
+				angle_lerp(r_model_yaw, r_model_yaw_dest, PI_MUL_2, dt);
+		}
     }
 }
 

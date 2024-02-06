@@ -502,17 +502,13 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
     r_model_yaw = E->o_torso.yaw;
     r_torso.yaw = E->o_torso.yaw;
     r_torso.pitch = E->o_torso.pitch;
-    r_torso.roll = 0.0f; // E->o_Angle.z;
+    r_torso.roll = 0.0f;
 
     unaffected_r_torso.yaw = r_torso.yaw;
     unaffected_r_torso.pitch = r_torso.pitch;
     unaffected_r_torso.roll = r_torso.roll;
 
-    bool cameraRestoredFromPacket = abs(cam_Active()->yaw) > 0.f || abs(cam_Active()->pitch) > 0.f || abs(cam_Active()->roll) > 0.f;
-    if (!cameraRestoredFromPacket)
-    {
-        cam_Active()->Set(-E->o_torso.yaw, E->o_torso.pitch, 0);
-    }
+	cam_Active()->Set(-E->o_torso.yaw, (cam_active != eacFirstEye) ? E->o_torso.pitch : cameras[eacFirstEye]->pitch, 0);
 
     m_bJumpKeyPressed = FALSE;
     NET_SavedAccel.set(0, 0, 0);
@@ -681,6 +677,7 @@ void CActor::SetCallbacks()
     V->LL_GetBoneInstance(u16(m_spine)).set_callback(bctCustom, ShoulderCallback, this);
     V->LL_GetBoneInstance(u16(m_head)).set_callback(bctCustom, HeadCallback, this);
 }
+
 void CActor::ResetCallbacks()
 {
     IKinematics* V = smart_cast<IKinematics*>(Visual());
@@ -1158,14 +1155,6 @@ void CActor::save(NET_Packet& output_packet)
     output_packet.w_stringZ(g_quick_use_slots[1]);
     output_packet.w_stringZ(g_quick_use_slots[2]);
     output_packet.w_stringZ(g_quick_use_slots[3]);
-	
-    CCameraBase* camera = cam_Active();
-    if (camera)
-    {
-        output_packet.w_float(camera->yaw);
-        output_packet.w_float(camera->pitch);
-        output_packet.w_float(camera->roll);
-    }
 }
 
 void CActor::load(IReader& input_packet)
@@ -1186,15 +1175,6 @@ void CActor::load(IReader& input_packet)
     input_packet.r_stringZ(g_quick_use_slots[1], sizeof(g_quick_use_slots[1]));
     input_packet.r_stringZ(g_quick_use_slots[2], sizeof(g_quick_use_slots[2]));
     input_packet.r_stringZ(g_quick_use_slots[3], sizeof(g_quick_use_slots[3]));
-	
-    CCameraBase* camera = cam_Active();
-    if (camera)
-    {
-        const float yaw = input_packet.r_float();
-        const float pitch = input_packet.r_float();
-        const float roll = input_packet.r_float();
-        camera->Set(yaw, pitch, roll);
-    }
 }
 
 #ifdef DEBUG

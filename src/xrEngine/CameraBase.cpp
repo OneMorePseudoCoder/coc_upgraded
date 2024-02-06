@@ -28,6 +28,8 @@ CCameraBase::CCameraBase(IGameObject* p, u32 flags)
     tag = 0;
     m_look_cam_fp_zoom = false;
     m_bInputDisabled = false; //--#SM+#--
+	style = ECameraStyle::cs_forcedword;
+	parent = nullptr;
 }
 
 CCameraBase::~CCameraBase() {}
