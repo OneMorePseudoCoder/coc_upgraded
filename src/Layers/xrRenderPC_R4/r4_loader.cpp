@@ -366,7 +366,7 @@ void CRender::LoadSectors(IReader* fs)
 				CL.add_face_packed_D(v1, v2, v3, 0);
 			}
 
-			rmPortals->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()), nullptr, nullptr);
+			rmPortals->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()), nullptr, nullptr, false);
 
 			if (use_cache)
 				rmPortals->serialize(fName);

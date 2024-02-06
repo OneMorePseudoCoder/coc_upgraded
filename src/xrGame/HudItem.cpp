@@ -167,15 +167,14 @@ void CHudItem::OnStateSwitch(u32 S, u32 oldState)
 
         break;
     }
+    g_player_hud->updateMovementLayerState();
 }
 
 void CHudItem::OnAnimationEnd(u32 state)
 {
     CActor* A = smart_cast<CActor*>(object().H_Parent());
     if (A)
-        A->callback(GameObject::eActorHudAnimationEnd)(smart_cast<CGameObject*>(this)->lua_game_object(),
-                                                       this->hud_sect.c_str(), this->m_current_motion.c_str(), state,
-                                                       this->animation_slot());
+        A->callback(GameObject::eActorHudAnimationEnd)(smart_cast<CGameObject*>(this)->lua_game_object(), this->hud_sect.c_str(), this->m_current_motion.c_str(), state, this->animation_slot());
 
     switch (state)
     {
@@ -424,6 +423,13 @@ bool CHudItem::isHUDAnimationExist(pcstr anim_name) const
 void CHudItem::PlayAnimIdleMovingCrouch() { PlayHUDMotion("anm_idle_moving_crouch", true, nullptr, GetState()); }
 void CHudItem::PlayAnimIdleMoving() { PlayHUDMotion("anm_idle_moving", true, nullptr, GetState()); }
 void CHudItem::PlayAnimIdleSprint() { PlayHUDMotion("anm_idle_sprint", true, nullptr, GetState()); }
+
+bool CHudItem::NeedBlendAnm()
+{
+    u32 state = GetState();
+    return (state != eIdle && state != eHidden);
+}
+
 void CHudItem::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)
 {
     if (GetState() == eIdle && !m_bStopAtEndAnimIsRunning)

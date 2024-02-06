@@ -338,27 +338,110 @@ void D3DXRenderBase::r_dsgraph_insert_static(dxRender_Visual* pVisual)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CRender::add_leafs_Dynamic(dxRender_Visual* pVisual)
+const float O_D_L1_S_ULT = 2.0f;
+const float O_D_L1_D_ULT = 30.f;
+const float O_D_L2_S_ULT = 8.f;
+const float O_D_L2_D_ULT = 50.f;
+const float O_D_L3_S_ULT = 4000.f;
+const float O_D_L3_D_ULT = 110.f;
+
+const float O_D_L1_S_MED = 1.f;
+const float O_D_L1_D_MED = 40.f;
+const float O_D_L2_S_MED = 4.f;
+const float O_D_L2_D_MED = 100.f;
+const float O_D_L3_S_MED = 4000.f;
+const float O_D_L3_D_MED = 200.f;
+
+// Cut off Dynamic geometry depending of size of geometryand distance to cameraand current geometry optimization settings
+IC bool IsValuableToRenderDyn(dxRender_Visual* pVisual, Fmatrix& transform_matrix, bool sm)
+{
+	auto GetDistFromCamera = [](const Fvector& from_position)
+	{
+		float distance = Device.vCameraPosition.distance_to(from_position);
+		float fov_K = 70.f / Device.fFOV;
+		float adjusted_distane = distance / fov_K;
+
+		return adjusted_distane;
+	};
+
+#if RENDER!=R_R1
+	u32 smapsize = RImplementation.o.smapsize;
+#else
+	u32 smapsize = 2048;
+#endif
+
+
+	if (sm && smapsize < 4096)
+	{
+		float sphere_volume = pVisual->getVisData().sphere.volume();
+
+		Fvector    Tpos;
+		transform_matrix.transform_tiny(Tpos, pVisual->vis.sphere.P);
+
+		float adjusted_distane = GetDistFromCamera(Tpos);
+
+		if (sm && smapsize < 4096) // Highest cut off for shadow map
+		{
+			if (adjusted_distane > 160) // don't need geometry behind the farest sun shadow cascade
+				return false;
+
+			if ((sphere_volume < O_D_L1_S_ULT) && adjusted_distane > O_D_L1_D_ULT)
+				return false;
+			else if ((sphere_volume < O_D_L2_S_ULT) && adjusted_distane > O_D_L2_D_ULT)
+				return false;
+			else if ((sphere_volume < O_D_L3_S_ULT) && adjusted_distane > O_D_L3_D_ULT)
+				return false;
+			else
+				return true;
+		}
+		else
+		{
+			if ((sphere_volume < O_D_L1_S_MED) && adjusted_distane > O_D_L1_D_MED)
+				return false;
+			else if ((sphere_volume < O_D_L2_S_MED) && adjusted_distane > O_D_L2_D_MED)
+				return false;
+			else if ((sphere_volume < O_D_L3_S_MED) && adjusted_distane > O_D_L3_D_MED)
+				return false;
+			else
+				return true;
+		}
+	}
+
+	return true;
+}
+
+void CRender::add_leafs_Dynamic(dxRender_Visual *pVisual, bool bIgnoreOpt)
 {
     if (nullptr == pVisual)
         return;
 
     // Visual is 100% visible - simply add it
+#if RENDER!=R_R1
+	if (!bIgnoreOpt && !IsValuableToRenderDyn(pVisual, *val_pTransform, phase == PHASE_SMAP))
+		return;
+#else
+	if (!bIgnoreOpt && !IsValuableToRenderDyn(pVisual, *val_pTransform, false))
+		return;
+#endif
     switch (pVisual->Type)
     {
     case MT_PARTICLE_GROUP:
     {
+#if RENDER!=R_R1
+			if (phase == PHASE_SMAP)
+				return;
+#endif
         // Add all children, doesn't perform any tests
         PS::CParticleGroup* pG = (PS::CParticleGroup*)pVisual;
         for (auto &it : pG->items)
         {
             PS::CParticleGroup::SItem& I = it;
             if (I._effect)
-                add_leafs_Dynamic(I._effect);
+                add_leafs_Dynamic(I._effect, bIgnoreOpt);
             for (auto &pit : I._children_related)
-                add_leafs_Dynamic(pit);
+                add_leafs_Dynamic(pit, bIgnoreOpt);
             for (auto &pit : I._children_free)
-                add_leafs_Dynamic(pit);
+                add_leafs_Dynamic(pit, bIgnoreOpt);
         }
     }
         return;
@@ -416,8 +499,114 @@ void CRender::add_leafs_Dynamic(dxRender_Visual* pVisual)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+const float O_S_L1_S_ULT = 80.f;
+const float O_S_L1_D_ULT = 40.f;
+const float O_S_L2_S_ULT = 600.f;
+const float O_S_L2_D_ULT = 100.f;
+const float O_S_L3_S_ULT = 2500.f;
+const float O_S_L3_D_ULT = 120.f;
+const float O_S_L4_S_ULT = 5000.f;
+const float O_S_L4_D_ULT = 140.f;
+const float O_S_L5_S_ULT = 20000.f;
+const float O_S_L5_D_ULT = 200.f;
+
+
+const float O_S_L1_S_MED = 25.f;
+const float O_S_L1_D_MED = 50.f;
+const float O_S_L2_S_MED = 200.f;
+const float O_S_L2_D_MED = 150.f;
+const float O_S_L3_S_MED = 1000.f;
+const float O_S_L3_D_MED = 200.f;
+const float O_S_L4_S_MED = 2500.f;
+const float O_S_L4_D_MED = 300.f;
+const float O_S_L5_S_MED = 7000.f;
+const float O_S_L5_D_MED = 400.f;
+
+// Cut off Static geometry depending of size of geometry and distance to camera and current geometry optimization settings
+IC bool IsValuableToRender(dxRender_Visual* pVisual, bool sm)
+{
+	auto GetDistFromCamera = [](const Fvector& from_position)
+	{
+		float distance = Device.vCameraPosition.distance_to(from_position);
+		float fov_K = 70.f / Device.fFOV;
+		float adjusted_distane = distance / fov_K;
+
+		return adjusted_distane;
+	};
+
+#if RENDER!=R_R1
+	u32 smapsize = RImplementation.o.smapsize;
+#else
+	u32 smapsize = 2048;
+#endif
+
+	if (sm && smapsize < 4096)
+	{
+		float sphere_volume = pVisual->getVisData().sphere.volume();
+
+		float adjusted_distane = GetDistFromCamera(pVisual->vis.sphere.P);
+
+		if (sm && smapsize < 4096) // Highest cut off for shadow map
+		{
+			if (sphere_volume < 50000.f && adjusted_distane > 160) // don't need geometry behind the farest sun shadow cascade
+				return false;
+
+			if ((sphere_volume < O_S_L1_S_ULT) && adjusted_distane > O_S_L1_D_ULT)
+				return false;
+			else if ((sphere_volume < O_S_L2_S_ULT) && adjusted_distane > O_S_L2_D_ULT)
+				return false;
+			else if ((sphere_volume < O_S_L3_S_ULT) && adjusted_distane > O_S_L3_D_ULT)
+				return false;
+			else if ((sphere_volume < O_S_L4_S_ULT) && adjusted_distane > O_S_L4_D_ULT)
+				return false;
+			else if ((sphere_volume < O_S_L5_S_ULT) && adjusted_distane > O_S_L5_D_ULT)
+				return false;
+			else
+				return true;
+		}
+		else
+		{
+			if ((sphere_volume < O_S_L1_S_MED) && adjusted_distane > O_S_L1_D_MED)
+				return false;
+			else if ((sphere_volume < O_S_L2_S_MED) && adjusted_distane > O_S_L2_D_MED)
+				return false;
+			else if ((sphere_volume < O_S_L3_S_MED) && adjusted_distane > O_S_L3_D_MED)
+				return false;
+			else if ((sphere_volume < O_S_L4_S_MED) && adjusted_distane > O_S_L4_D_MED)
+				return false;
+			else if ((sphere_volume < O_S_L5_S_MED) && adjusted_distane > O_S_L5_D_MED)
+				return false;
+			else
+				return true;
+		}
+	}
+
+	return true;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CRender::add_leafs_Static(dxRender_Visual* pVisual)
 {
+	// Check frustum visibility and calculate distance to visual's center
+	EFC_Visible	VIS;
+	vis_data& vis = pVisual->vis;
+
+	u32 planes_v = View->getMask();
+
+	VIS = View->testSAABB(vis.sphere.P, vis.sphere.R, vis.box.data(), planes_v);
+
+	if (VIS == fcvNone)
+		return;
+
+#if RENDER!=R_R1
+	if (!IsValuableToRender(pVisual, phase == PHASE_SMAP))
+		return;
+#else
+	if (!IsValuableToRender(pVisual, false))
+		return;
+#endif
+
     if (!HOM.visible(pVisual->vis))
         return;
 
@@ -512,6 +701,14 @@ void CRender::add_leafs_Static(dxRender_Visual* pVisual)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 BOOL CRender::add_Dynamic(dxRender_Visual* pVisual, u32 planes)
 {
+#if RENDER!=R_R1
+	if (!IsValuableToRenderDyn(pVisual, *val_pTransform, phase == PHASE_SMAP))
+		return FALSE;
+#else
+	if (!IsValuableToRenderDyn(pVisual, *val_pTransform, false))
+		return FALSE;
+#endif
+
     // Check frustum visibility and calculate distance to visual's center
     Fvector Tpos; // transformed position
     EFC_Visible VIS;
@@ -608,6 +805,14 @@ BOOL CRender::add_Dynamic(dxRender_Visual* pVisual, u32 planes)
 
 void CRender::add_Static(dxRender_Visual* pVisual, u32 planes)
 {
+#if RENDER!=R_R1
+	if (!IsValuableToRender(pVisual, phase == PHASE_SMAP))
+		return;
+#else
+	if (!IsValuableToRender(pVisual, false))
+		return;
+#endif
+
     // Check frustum visibility and calculate distance to visual's center
     EFC_Visible VIS;
     vis_data& vis = pVisual->vis;

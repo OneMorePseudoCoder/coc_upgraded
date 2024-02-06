@@ -272,21 +272,22 @@ void CAI_Stalker::Hit(SHit* pHDS)
         if (!already_critically_wounded)
         {
             const CCoverPoint* cover = agent_manager().member().member(this).cover();
-            if (!invulnerable() && cover && HDS.initiator() && (HDS.initiator()->ID() != ID()) &&
-                !fis_zero(HDS.damage()) && brain().affect_cover())
+            if (!invulnerable() && cover && HDS.initiator() && (HDS.initiator()->ID() != ID()) && !fis_zero(HDS.damage()) && brain().affect_cover())
             {
-                agent_manager().location().add(
-                    new CDangerCoverLocation(cover, Device.dwTimeGlobal, DANGER_INTERVAL, DANGER_DISTANCE));
+                agent_manager().location().add(new CDangerCoverLocation(cover, Device.dwTimeGlobal, DANGER_INTERVAL, DANGER_DISTANCE));
             }
         }
 
-        const CEntityAlive* entity_alive = smart_cast<const CEntityAlive*>(HDS.initiator());
-        if (entity_alive && !wounded())
+		const CEntityAlive* entity_alive = smart_cast<const CEntityAlive*>(HDS.initiator());
+		IKinematics* tpKinematics = smart_cast<IKinematics*>(Visual());
+		lastHittedInHead_ = HDS.bone() == tpKinematics->LL_BoneID("bip01_head") ? true : false;
+
+		if (entity_alive && !wounded() && !lastHittedInHead_)
         {
             if (is_relation_enemy(entity_alive))
                 sound().play(eStalkerSoundInjuring);
-            //			else
-            //				sound().play		(eStalkerSoundInjuringByFriend);
+            else
+                sound().play(eStalkerSoundInjuringByFriend);
         }
 
         int weapon_type = -1;
@@ -306,7 +307,6 @@ void CAI_Stalker::Hit(SHit* pHDS)
                 float power_factor = m_power_fx_factor * HDS.damage() / 100.f;
                 clamp(power_factor, 0.f, 1.f);
 
-                // IKinematicsAnimated		*tpKinematics = smart_cast<IKinematicsAnimated*>(Visual());
                 IKinematics* tpKinematics = smart_cast<IKinematics*>(Visual());
 #ifdef DEBUG
                 tpKinematics->LL_GetBoneInstance(HDS.bone());
@@ -316,12 +316,6 @@ void CAI_Stalker::Hit(SHit* pHDS)
                     HDS._dump();
                 }
 #endif
-                //				int						fx_index =
-                //iFloor(tpKinematics->LL_GetBoneInstance(HDS.bone()).get_param(1)
-                //+
-                //(angle_difference(movement().m_body.current.yaw,-yaw) <= PI_DIV_2 ? 0 : 1));
-                //				if (fx_index != -1)
-                //					animation().play_fx	(power_factor,fx_index);
             }
             else
             {
@@ -359,19 +353,16 @@ void CAI_Stalker::Hit(SHit* pHDS)
         HDS.impulse = tLuaHit.m_fImpulse;
         HDS.dir = tLuaHit.m_tDirection;
         HDS.hit_type = (ALife::EHitType)(tLuaHit.m_tHitType);
-        //HDS.who = smart_cast<CObject*>(tLuaHit.m_tpDraftsman->object());
-        //HDS.whoID = tLuaHit.m_tpDraftsman->ID();
 
         float const damage_factor = invulnerable() ? 0.f : 100.f;
         memory().hit().add(damage_factor * HDS.damage(), HDS.direction(), HDS.who, HDS.boneID);
     }
 
-    // conditions().health()			= 1.f;
-
     inherited::Hit(&HDS);
 }
 
 void CAI_Stalker::HitSignal(float amount, Fvector& vLocalDir, IGameObject* who, s16 element) {}
+
 void CAI_Stalker::OnItemTake(CInventoryItem* inventory_item)
 {
     CObjectHandler::OnItemTake(inventory_item);
@@ -391,8 +382,6 @@ void CAI_Stalker::OnItemDrop(CInventoryItem* inventory_item, bool just_before_de
 
     if (!critically_wounded())
         return;
-
-    //	VERIFY						(inventory().ActiveItem());
 
     if (inventory().ActiveItem() && (inventory().ActiveItem() != inventory_item))
         return;
@@ -592,9 +581,7 @@ bool CAI_Stalker::remember_ammo()
 
 bool CAI_Stalker::ready_to_kill()
 {
-    return (m_best_item_to_kill && inventory().ActiveItem() &&
-        (inventory().ActiveItem()->object().ID() == m_best_item_to_kill->object().ID()) &&
-        m_best_item_to_kill->ready_to_kill());
+    return (m_best_item_to_kill && inventory().ActiveItem() && (inventory().ActiveItem()->object().ID() == m_best_item_to_kill->object().ID()) && m_best_item_to_kill->ready_to_kill());
 }
 
 bool CAI_Stalker::ready_to_detour()
@@ -790,8 +777,7 @@ bool CAI_Stalker::zoom_state() const
     if (!inventory().ActiveItem())
         return (false);
 
-    if ((movement().movement_type() != eMovementTypeStand) && (movement().body_state() != eBodyStateCrouch) &&
-        !movement().path_completed())
+    if ((movement().movement_type() != eMovementTypeStand) && (movement().body_state() != eBodyStateCrouch) && !movement().path_completed())
         return (false);
 
     switch (CObjectHandler::planner().current_action_state_id())
@@ -973,8 +959,7 @@ void CAI_Stalker::compute_throw_miss(u32 const vertex_id)
     {
         Fvector const direction = Fvector().random_dir();
         Fvector const check_position = Fvector().mad(m_throw_target_position, direction, throw_miss_radius);
-        u32 const check_vertex_id =
-            level_graph.check_position_in_direction(vertex_id, m_throw_target_position, check_position);
+        u32 const check_vertex_id = level_graph.check_position_in_direction(vertex_id, m_throw_target_position, check_position);
         if (!level_graph.valid_vertex_id(check_vertex_id))
             continue;
 
@@ -1140,7 +1125,6 @@ bool CAI_Stalker::critical_wound_external_conditions_suitable()
     if (!agent_manager().member().registered_in_combat(this))
         return (false);
 
-    //	Msg								("%6d executing critical hit",Device.dwTimeGlobal);
     animation().global().make_inactual();
     return (true);
 }

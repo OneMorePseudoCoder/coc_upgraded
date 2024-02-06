@@ -383,9 +383,6 @@ CSE_ALifeObject::CSE_ALifeObject(LPCSTR caSection) : CSE_Abstract(caSection)
 #endif // XRSE_FACTORY_EXPORTS
     m_flags.set(flOfflineNoMove, false);
     seed(u32(CPU::QPC() & 0xffffffff));
-	
-	if (pSettings->line_exist(caSection, "use_ai_locations"))
-		m_flags.set(flUsedAI_Locations, !!pSettings->r_bool(caSection, "use_ai_locations"));
 }
 
 #ifdef XRGAME_EXPORTS

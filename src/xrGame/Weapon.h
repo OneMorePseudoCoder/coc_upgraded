@@ -42,11 +42,24 @@ public:
 
     virtual CWeapon* cast_weapon() { return this; }
     virtual CWeaponMagazined* cast_weapon_magazined() { return 0; }
-    // serialization
+    
+	// serialization
     virtual void save(NET_Packet& output_packet);
     virtual void load(IReader& input_packet);
     virtual BOOL net_SaveRelevant() { return inherited::net_SaveRelevant(); }
-    virtual void UpdateCL();
+	
+	// SWM3.0 hud collision
+	float m_hud_fov_add_mod;
+	float m_nearwall_dist_max;
+	float m_nearwall_dist_min;
+	float m_nearwall_last_hud_fov;
+	float m_nearwall_target_hud_fov;
+	float m_nearwall_speed_mod;
+
+	float GetHudFov();
+	//End
+    
+	virtual void UpdateCL();
     virtual void shedule_Update(u32 dt);
 
     virtual void renderable_Render();
@@ -60,7 +73,7 @@ public:
     virtual void OnH_A_Chield();
     virtual void OnH_B_Independent(bool just_before_destroy);
     virtual void OnH_A_Independent();
-    virtual void OnEvent(NET_Packet& P, u16 type); // {inherited::OnEvent(P,type);}
+    virtual void OnEvent(NET_Packet& P, u16 type);
 
     virtual void Hit(SHit* pHDS);
 
@@ -75,6 +88,7 @@ public:
     virtual void OnActiveItem();
     virtual void OnHiddenItem();
     virtual void SendHiddenItem(); // same as OnHiddenItem but for client... (sends message to a server)...
+    virtual bool NeedBlendAnm();
 
 public:
     virtual bool can_kill() const;

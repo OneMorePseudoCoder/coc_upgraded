@@ -136,8 +136,7 @@ void CPsyDog::Think()
     {
         for (int i = 0; i < m_max_phantoms_count; ++i)
         {
-            if (m_phantoms_die_time[i] != s_phantom_alive_flag &&
-                time() > m_phantoms_die_time[i] + m_time_phantom_respawn)
+            if (m_phantoms_die_time[i] != s_phantom_alive_flag && time() > m_phantoms_die_time[i] + m_time_phantom_respawn)
             {
                 if (spawn_phantom())
                     m_phantoms_die_time[i] = s_phantom_alive_flag;

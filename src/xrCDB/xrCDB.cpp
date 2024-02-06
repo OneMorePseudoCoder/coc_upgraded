@@ -81,21 +81,20 @@ void MODEL::build_thread(void* params)
     P.M->build_internal(P.V, P.Vcnt, P.T, P.Tcnt, P.BC, P.BCP);
     P.M->status = S_READY;
     P.M->pcs->Leave();
-    // Msg						("* xrCDB: cform build completed, memory usage: %d K",P.M->memory()/1024);
 }
 
-void MODEL::build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp)
+void MODEL::build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp, const bool rebuildTrisRequired)
 {
     R_ASSERT(S_INIT == status);
     R_ASSERT((Vcnt >= 4) && (Tcnt >= 2));
 
     _initialize_cpu_thread();
 #ifdef _EDITOR
-    build_internal(V, Vcnt, T, Tcnt, bc, bcp);
+    build_internal(V, Vcnt, T, Tcnt, bc, bcp, rebuildTrisRequired);
 #else
     if (!strstr(Core.Params, "-mt_cdb"))
     {
-        build_internal(V, Vcnt, T, Tcnt, bc, bcp);
+        build_internal(V, Vcnt, T, Tcnt, bc, bcp, rebuildTrisRequired);
         status = S_READY;
     }
     else
@@ -112,7 +111,7 @@ void MODEL::build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, vo
 #endif
 }
 
-void MODEL::build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp)
+void MODEL::build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp, const bool rebuildTrisRequired)
 {
     // verts
     verts_count = Vcnt;
@@ -122,8 +121,22 @@ void MODEL::build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callbac
     // tris
     tris_count = Tcnt;
     tris = xr_alloc<TRI>(tris_count);
-    CopyMemory(tris, T, tris_count * sizeof(TRI));
-
+#ifdef _M_X64
+    if (rebuildTrisRequired)
+    {
+        TRI_DEPRECATED* realT = reinterpret_cast<TRI_DEPRECATED*>(T);
+        for (int triIter = 0; triIter < tris_count; ++triIter)
+        {
+            TRI_DEPRECATED& oldTri = realT[triIter];
+            TRI& newTri = tris[triIter];
+            newTri = oldTri;
+        }
+    }
+    else
+        CopyMemory(tris, T, tris_count * sizeof(TRI));
+#else
+        CopyMemory(tris, T, tris_count * sizeof(TRI));
+#endif
     // callback
     if (bc)
         bc(verts, Vcnt, tris, Tcnt, bcp);
@@ -139,6 +152,7 @@ void MODEL::build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callbac
         xr_free(tris);
         return;
     }
+
     u32* temp_ptr = temp_tris;
     for (int i = 0; i < tris_count; i++)
     {

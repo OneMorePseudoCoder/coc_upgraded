@@ -19,9 +19,6 @@
 #include "game_object_space.h"
 #include "script_game_object.h"
 #include "hit.h"
-#ifdef DEBUG
-
-#endif
 
 void CAI_Crow::SAnim::Load(IKinematicsAnimated* visual, LPCSTR prefix)
 {
@@ -137,6 +134,7 @@ BOOL CAI_Crow::net_Spawn(CSE_Abstract* DC)
     BOOL R = inherited::net_Spawn(DC);
     setVisible(TRUE);
     setEnabled(TRUE);
+	renderable.visual->bIgnoreOpt = true;
 
     // animations
     IKinematicsAnimated* M = smart_cast<IKinematicsAnimated*>(Visual());

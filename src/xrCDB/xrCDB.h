@@ -21,6 +21,28 @@ class Lock;
 #pragma pack(push, 8)
 namespace CDB
 {
+#ifdef _M_X64
+struct TRI_DEPRECATED
+{
+public:
+    std::uint32_t verts[3]; // 3*4 = 12b
+    union
+    {
+        std::uint32_t dummy; // 4b
+        struct
+        {
+            std::uint32_t material : 14; //
+            std::uint32_t suppress_shadows : 1; //
+            std::uint32_t suppress_wm : 1; //
+            std::uint32_t sector : 16; //
+        };
+    };
+
+public:
+    IC std::uint32_t IDvert(std::uint32_t ID) { return verts[ID]; }
+};
+#endif
+
 // Triangle
 class XRCDB_API TRI //*** 16 bytes total (was 32 :)
 {
@@ -35,11 +57,43 @@ public:
             u32 suppress_shadows : 1; //
             u32 suppress_wm : 1; //
             u32 sector : 16; //
+#if defined(_M_X64)
+            size_t dumb : 32;
+#endif
         };
     };
 
 public:
     IC u32 IDvert(u32 ID) { return verts[ID]; }
+
+#if defined(_M_X64)
+    TRI(TRI_DEPRECATED& oldTri)
+    {
+        verts[0] = oldTri.verts[0];
+        verts[1] = oldTri.verts[1];
+        verts[2] = oldTri.verts[2];
+        dummy = oldTri.dummy;
+        dumb = 0;
+    }
+
+    TRI()
+    {
+        verts[0] = 0;
+        verts[1] = 0;
+        verts[2] = 0;
+        dummy = 0;
+    }
+
+    TRI& operator=(const TRI_DEPRECATED& oldTri)
+    {
+        verts[0] = oldTri.verts[0];
+        verts[1] = oldTri.verts[1];
+        verts[2] = oldTri.verts[2];
+        dummy = oldTri.dummy;
+        dumb = 0;
+        return *this;
+    }
+#endif
 };
 
 // Build callback
@@ -88,8 +142,8 @@ public:
     }
 
     static void build_thread(void*);
-    void build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc = NULL, void* bcp = NULL);
-    void build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc = NULL, void* bcp = NULL);
+    void build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc = NULL, void* bcp = NULL, const bool rebuildTrisRequired = true);
+    void build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc = NULL, void* bcp = NULL, const bool rebuildTrisRequired = true);
     u32 memory();
 	void set_version(u32 value) { version = value; }
 	bool serialize(pcstr fileName, serialize_callback callback = nullptr) const;
@@ -112,6 +166,9 @@ struct XRCDB_API RESULT
             u32 suppress_shadows : 1; //
             u32 suppress_wm : 1; //
             u32 sector : 16; //
+#if defined(_M_X64)
+            std::uint64_t dumb : 32;
+#endif
         };
     };
     int id;

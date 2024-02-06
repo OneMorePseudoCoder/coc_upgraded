@@ -13,6 +13,8 @@
 
 #include "xr_object.h"
 #include "xr_object_list.h"
+#include <regex>
+#include <string>
 
 ENGINE_API xr_vector<xr_token> AvailableVideoModes;
 xr_vector<xr_token> vid_quality_token;
@@ -276,7 +278,13 @@ class CCC_Start : public IConsole_Command
     {
         dest[0] = 0;
         if (strstr(args, name))
-            sscanf(strstr(args, name) + xr_strlen(name), "(%[^)])", dest);
+        {
+            std::string str = strstr(args, name) + xr_strlen(name);
+            std::regex Reg("\\(([^)]+)\\)");
+            std::smatch results;
+            if (std::regex_search(str, results, Reg))
+                strcpy(dest, results[1].str().c_str());
+        }
     }
 
     void protect_Name_strlwr(LPSTR str)
@@ -574,7 +582,8 @@ public:
     virtual void Info(TInfo& I) { xr_sprintf(I, sizeof(I), "hide console"); }
 };
 
-ENGINE_API float psHUD_FOV = 0.45f;
+ENGINE_API float psHUD_FOV_def = 0.35f; //--#SM+#--
+ENGINE_API float psHUD_FOV = psHUD_FOV_def; //--#SM+#--
 
 extern int rsDVB_Size;
 extern int rsDIB_Size;

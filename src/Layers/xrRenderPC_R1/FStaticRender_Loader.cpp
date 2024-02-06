@@ -191,10 +191,6 @@ void CRender::LoadBuffers(CStreamReader* base_fs)
 
         for (u32 i = 0; i < count; i++)
         {
-            // decl
-
-            //			D3DVERTEXELEMENT9	*dcl = (D3DVERTEXELEMENT9*) fs->pointer();
-
             fs->r(dcl, buffer_size);
             fs->advance(-(int)buffer_size);
 
@@ -202,7 +198,6 @@ void CRender::LoadBuffers(CStreamReader* base_fs)
 
             DCL[i].resize(dcl_len);
             fs->r(DCL[i].begin(), dcl_len * sizeof(D3DVERTEXELEMENT9));
-            //.????????? remove T&B from DCL[]
 
             // count, size
             u32 vCount = fs->r_u32();
@@ -215,10 +210,7 @@ void CRender::LoadBuffers(CStreamReader* base_fs)
             HW.stats_manager.increment_stats(vCount * vSize, enum_stats_buffer_type_vertex, D3DPOOL_MANAGED);
             R_CHK(VB[i]->Lock(0, 0, (void**)&pData, 0));
             fs->r(pData, vCount * vSize);
-            //			CopyMemory			(pData,fs->pointer(),vCount*vSize);	//.???? copy while skip T&B
             VB[i]->Unlock();
-
-            //			fs->advance			(vCount*vSize);
         }
         fs->close();
     }
@@ -243,11 +235,8 @@ void CRender::LoadBuffers(CStreamReader* base_fs)
             R_CHK(HW.pDevice->CreateIndexBuffer(iCount * 2, dwUsage, D3DFMT_INDEX16, D3DPOOL_MANAGED, &IB[i], nullptr));
             HW.stats_manager.increment_stats(iCount * 2, enum_stats_buffer_type_index, D3DPOOL_MANAGED);
             R_CHK(IB[i]->Lock(0, 0, (void**)&pData, 0));
-            //			CopyMemory			(pData,fs->pointer(),iCount*2);
             fs->r(pData, iCount * 2);
             IB[i]->Unlock();
-
-            //			fs->advance			(iCount*2);
         }
         fs->close();
     }
@@ -370,7 +359,7 @@ void CRender::LoadSectors(IReader* fs)
 				v3.set(-20002.f, -20002.f, -20002.f);
 				CL.add_face_packed_D(v1, v2, v3, 0);
 			}
-			rmPortals->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()), nullptr, nullptr);
+			rmPortals->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()), nullptr, nullptr, false);
 			if (use_cache)
 				rmPortals->serialize(fName);
         }
@@ -379,10 +368,6 @@ void CRender::LoadSectors(IReader* fs)
     {
         rmPortals = nullptr;
     }
-
-    // debug
-    //	for (int d=0; d<Sectors.size(); d++)
-    //		Sectors[d]->DebugDump	();
 
     pLastSector = nullptr;
 }

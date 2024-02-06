@@ -398,11 +398,11 @@ void CBaseMonster::Die(IGameObject* who)
     m_base_aura.on_monster_death();
 
     if (m_anti_aim)
-    {
         m_anti_aim->on_monster_death();
-    }
 
     inherited::Die(who);
+
+	sound().clear_playing_sounds();
 
     if (is_special_killer(who))
         sound().play(MonsterSound::eMonsterSoundDieInAnomaly);
@@ -412,9 +412,7 @@ void CBaseMonster::Die(IGameObject* who)
     monster_squad().remove_member((u8)g_Team(), (u8)g_Squad(), (u8)g_Group(), this);
 
     if (m_grouping_behaviour)
-    {
         m_grouping_behaviour->set_squad(NULL);
-    }
 
     if (m_controlled)
         m_controlled->on_die();

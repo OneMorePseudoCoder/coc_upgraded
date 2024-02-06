@@ -119,8 +119,10 @@ void IGame_Persistent::Disconnect()
 
     if (g_hud)
         DEL_INSTANCE(g_hud);
-//. g_hud->OnDisconnected ();
 #endif
+    // Kill object - save memory
+    ObjectPool.clear();
+    GEnv.Render->models_Clear(TRUE);
 }
 
 void IGame_Persistent::OnGameStart()
@@ -184,7 +186,6 @@ void IGame_Persistent::OnFrame()
     // Destroy inactive particle systems
     while (ps_destroy.size())
     {
-        // u32 cnt = ps_destroy.size();
         CPS_Instance* psi = ps_destroy.back();
         VERIFY(psi);
         if (psi->Locked())

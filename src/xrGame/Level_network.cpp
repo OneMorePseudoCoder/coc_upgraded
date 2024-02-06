@@ -147,8 +147,11 @@ void CLevel::net_Stop()
 #endif // DEBUG
 }
 
-void CLevel::ClientSend()
+void CLevel::ClientSend(bool bForce)
 {
+	if (!bForce && Device.dwFrame % 3 != 0) //Update every 3 frames
+		return;
+
     NET_Packet P;
     u32 start = 0;
 

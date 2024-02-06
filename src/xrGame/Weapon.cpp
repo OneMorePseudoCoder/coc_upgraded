@@ -15,6 +15,7 @@
 #include "xrPhysics/MathUtils.h"
 #include "Common/object_broker.h"
 #include "player_hud.h"
+#include "HUDManager.h"
 #include "gamepersistent.h"
 #include "effectorFall.h"
 #include "debug_renderer.h"
@@ -30,6 +31,8 @@
 
 #define WEAPON_REMOVE_TIME 60000
 #define ROTATION_TIME 0.25f
+
+ENGINE_API extern float psHUD_FOV_def;
 
 BOOL b_toggle_weapon_aim = FALSE;
 extern CUIXml* pWpnScopeXml;
@@ -86,6 +89,7 @@ CWeapon::CWeapon()
     m_activation_speed_is_overriden = false;
     m_cur_addon.data = 0;
     m_fRTZoomFactor = 1.f;
+	m_nearwall_last_hud_fov = psHUD_FOV_def;
 }
 
 CWeapon::~CWeapon()
@@ -508,7 +512,13 @@ void CWeapon::Load(LPCSTR section)
 	// Added by Axel, to enable optional condition use on any item
 	m_flags.set( FUsingCondition, READ_IF_EXISTS( pSettings, r_bool, section, "use_condition", true ));
 
-	m_APk = READ_IF_EXISTS(pSettings, r_float, section, "ap_modifier",1.0f);
+	m_APk = READ_IF_EXISTS(pSettings, r_float, section, "ap_modifier", 1.0f);
+	m_hud_fov_add_mod = READ_IF_EXISTS(pSettings, r_float, section, "hud_fov_addition_modifier", 0.f);
+
+	m_nearwall_dist_min = READ_IF_EXISTS(pSettings, r_float, section, "nearwall_dist_min", 0.5f);
+	m_nearwall_dist_max = READ_IF_EXISTS(pSettings, r_float, section, "nearwall_dist_max", 1.f);
+	m_nearwall_target_hud_fov = READ_IF_EXISTS(pSettings, r_float, section, "nearwall_target_hud_fov", 0.27f);
+	m_nearwall_speed_mod = READ_IF_EXISTS(pSettings, r_float, section, "nearwall_speed_mod", 10.f);
 }
 
 void CWeapon::LoadFireParams(LPCSTR section)
@@ -770,6 +780,7 @@ void CWeapon::OnH_B_Independent(bool just_before_destroy)
     m_strapped_mode = false;
     m_zoom_params.m_bIsZoomModeNow = false;
     UpdateXForm();
+	m_nearwall_last_hud_fov	= psHUD_FOV_def;
 }
 
 void CWeapon::OnH_A_Independent()
@@ -820,6 +831,11 @@ void CWeapon::SendHiddenItem()
     }
 }
 
+bool CWeapon::NeedBlendAnm()
+{
+    return inherited::NeedBlendAnm();
+}
+
 void CWeapon::OnH_B_Chield()
 {
     m_dwWeaponIndependencyTime = 0;
@@ -827,6 +843,7 @@ void CWeapon::OnH_B_Chield()
 
     OnZoomOut();
     m_set_next_ammoType_on_reload = undefined_ammo_type;
+	m_nearwall_last_hud_fov = psHUD_FOV_def;
 }
 
 extern u32 hud_adj_mode;
@@ -837,6 +854,7 @@ void CWeapon::UpdateCL()
 {
     inherited::UpdateCL();
     UpdateHUDAddonsVisibility();
+
     //подсветка от выстрела
     UpdateLight();
 
@@ -1435,6 +1453,7 @@ void CWeapon::OnZoomIn()
             m_zoom_params.m_pNight_vision = new CNightVisionEffector(m_zoom_params.m_sUseZoomPostprocess, effNightvisionScope);
         }
     }
+    g_player_hud->updateMovementLayerState();
 }
 
 void CWeapon::OnZoomOut()
@@ -1461,6 +1480,7 @@ void CWeapon::OnZoomOut()
             m_zoom_params.m_pNight_vision->Stop(100000.0f, false);
         xr_delete(m_zoom_params.m_pNight_vision);
     }
+    g_player_hud->updateMovementLayerState();
 }
 
 CUIWindow* CWeapon::ZoomTexture()
@@ -1988,4 +2008,26 @@ void CWeapon::SyncronizeWeaponToServer()
     packet.w_u16(m_ammoElapsed.data);
     packet.w_u8(m_bGrenadeMode ? 1 : 0);
     obj->u_EventSend(packet);
+}
+
+float CWeapon::GetHudFov()
+{
+	if (ParentIsActor() && Level().CurrentViewEntity() == H_Parent())
+	{
+		collide::rq_result& RQ = HUD().GetCurrentRayQuery();
+		float dist = RQ.range;
+
+		clamp(dist, m_nearwall_dist_min, m_nearwall_dist_max);
+		float fDistanceMod = ((dist - m_nearwall_dist_min) / (m_nearwall_dist_max - m_nearwall_dist_min)); // 0.f ... 1.f
+
+		float fBaseFov = psHUD_FOV_def + m_hud_fov_add_mod;
+		clamp(fBaseFov, 0.0f, FLT_MAX);
+
+		float src = m_nearwall_speed_mod * Device.fTimeDelta;
+		clamp(src, 0.f, 1.f);
+
+		float fTrgFov = m_nearwall_target_hud_fov + fDistanceMod * (fBaseFov - m_nearwall_target_hud_fov);
+		m_nearwall_last_hud_fov = m_nearwall_last_hud_fov * (1 - src) + fTrgFov * src;
+	}
+	return m_nearwall_last_hud_fov;
 }

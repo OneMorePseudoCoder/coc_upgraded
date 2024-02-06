@@ -42,7 +42,7 @@ struct STorsoWpn
     void Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1);
 };
 
-#define _total_anim_slots_ 14
+#define _total_anim_slots_ 13
 
 struct SActorState
 {

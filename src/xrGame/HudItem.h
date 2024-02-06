@@ -122,6 +122,8 @@ public:
     virtual void PlayAnimIdleMoving();
     virtual void PlayAnimIdleSprint();
 
+    virtual bool NeedBlendAnm();
+
     virtual void UpdateCL();
     virtual void renderable_Render();
 

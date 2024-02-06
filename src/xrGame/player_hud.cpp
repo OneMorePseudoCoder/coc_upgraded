@@ -7,6 +7,7 @@
 #include "static_cast_checked.hpp"
 #include "actoreffector.h"
 #include "xrEngine/IGame_Persistent.h"
+#include "weapon.h"
 
 //Alun: defined in HudItem.cpp now
 extern const float PITCH_OFFSET_R;		// barrel movement sideways (to the left) with vertical camera turns
@@ -337,11 +338,8 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
     xr_sprintf(anim_name_r, "%s%s", anm_name_b.c_str(), ((m_attach_place_idx == 1) && is_16x9) ? "_16x9" : "");
 
     player_hud_motion* anm = m_hand_motions.find_motion(anim_name_r);
-    R_ASSERT2(
-        anm, make_string("model [%s] has no motion alias defined [%s]", m_sect_name.c_str(), anim_name_r).c_str());
-    R_ASSERT2(anm->m_animations.size(), make_string("model [%s] has no motion defined in motion_alias [%s]",
-                                            pSettings->r_string(m_sect_name, "item_visual"), anim_name_r)
-                                            .c_str());
+    R_ASSERT2(anm, make_string("model [%s] has no motion alias defined [%s]", m_sect_name.c_str(), anim_name_r).c_str());
+    R_ASSERT2(anm->m_animations.size(), make_string("model [%s] has no motion defined in motion_alias [%s]", pSettings->r_string(m_sect_name, "item_visual"), anim_name_r).c_str());
 
     float speed = anm->m_anim_speed;
 
@@ -419,6 +417,31 @@ player_hud::player_hud()
 	m_transform.identity();
 	m_transform_2.identity();
     m_attach_offset.identity();
+	
+    if (pSettings->section_exist("hud_movement_layers"))
+    {
+        m_movement_layers.reserve(move_anms_end);
+
+        for (int i = 0; i < move_anms_end; i++)
+        {
+            movement_layer* anm = new movement_layer;
+
+            char temp[20];
+            string512 tmp;
+            strconcat(sizeof(temp), temp, "movement_layer_", std::to_string(i).c_str());
+            R_ASSERT2(pSettings->line_exist("hud_movement_layers", temp), make_string("Missing definition for [hud_movement_layers] %s", temp));
+            LPCSTR layer_def = pSettings->r_string("hud_movement_layers", temp);
+            R_ASSERT2(_GetItemCount(layer_def) > 0, make_string("Wrong definition for [hud_movement_layers] %s", temp));
+
+            _GetItem(layer_def, 0, tmp);
+            anm->Load(tmp);
+            _GetItem(layer_def, 1, tmp);
+            anm->anm->Speed() = (atof(tmp) ? atof(tmp) : 1.f);
+            _GetItem(layer_def, 2, tmp);
+            anm->m_power = (atof(tmp) ? atof(tmp) : 1.f);
+            m_movement_layers.push_back(anm);
+        }
+    }
 }
 
 player_hud::~player_hud()
@@ -439,6 +462,7 @@ player_hud::~player_hud()
         xr_delete(a);
     }
     m_pool.clear();
+    delete_data(m_movement_layers);
 }
 
 void player_hud::load(const shared_str& player_hud_sect)
@@ -632,6 +656,73 @@ void player_hud::update(const Fmatrix& cam_trans)
 	m_model_2->UpdateTracks();
 	m_model_2->dcast_PKinematics()->CalculateBones_Invalidate();
 	m_model_2->dcast_PKinematics()->CalculateBones(TRUE);
+
+    bool need_blend[2];
+    need_blend[0] = ((m_attached_items[0] && m_attached_items[0]->m_parent_hud_item->NeedBlendAnm()));
+    need_blend[1] = ((m_attached_items[1] && m_attached_items[1]->m_parent_hud_item->NeedBlendAnm()));
+
+    for (movement_layer* anm : m_movement_layers)
+    {
+        if (!anm || !anm->anm || (!anm->active && anm->blend_amount[0] == 0.f && anm->blend_amount[1] == 0.f))
+            continue;
+
+//        if (need_update_collision_local)
+        {
+            if (anm->active && (need_blend[0] || need_blend[1]))
+            {
+                if (need_blend[0])
+                {
+                    anm->blend_amount[0] += Device.fTimeDelta / .4f;
+
+                    if (!m_attached_items[1])
+                        anm->blend_amount[1] += Device.fTimeDelta / .4f;
+                    else if (!need_blend[1])
+                        anm->blend_amount[1] -= Device.fTimeDelta / .4f;
+                }
+
+                if (need_blend[1])
+                {
+                    anm->blend_amount[1] += Device.fTimeDelta / .4f;
+
+                    if (!m_attached_items[0])
+                        anm->blend_amount[0] += Device.fTimeDelta / .4f;
+                    else if (!need_blend[0])
+                        anm->blend_amount[0] -= Device.fTimeDelta / .4f;
+                }
+            }
+            else
+            {
+                anm->blend_amount[0] -= Device.fTimeDelta / .4f;
+                anm->blend_amount[1] -= Device.fTimeDelta / .4f;
+            }
+
+            clamp(anm->blend_amount[0], 0.f, 1.f);
+            clamp(anm->blend_amount[1], 0.f, 1.f);
+
+            if (anm->blend_amount[0] == 0.f && anm->blend_amount[1] == 0.f)
+            {
+                anm->Stop(true);
+                continue;
+            }
+
+            anm->anm->Update(Device.fTimeDelta);
+        }
+
+        if (anm->blend_amount[0] == anm->blend_amount[1])
+        {
+            Fmatrix blend = anm->XFORM(0);
+            m_transform.mulB_43(blend);
+            m_transform_2.mulB_43(blend);
+        }
+        else
+        {
+            if (anm->blend_amount[0] > 0.f)
+                m_transform.mulB_43(anm->XFORM(0));
+
+            if (anm->blend_amount[1] > 0.f)
+                m_transform_2.mulB_43(anm->XFORM(1));
+        }
+    }
 
 	if (m_attached_items[0])
         m_attached_items[0]->update(true);
@@ -838,6 +929,8 @@ void player_hud::attach_item(CHudItem* item)
             m_attached_items[1]->m_parent_hud_item->CheckCompatibility(item);
 
         item->on_a_hud_attach();
+		
+        updateMovementLayerState();
     }
     pi->m_parent_hud_item = item;
 }
@@ -971,5 +1064,47 @@ void player_hud::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)
 
         if (m_attached_items[1])
             m_attached_items[1]->m_parent_hud_item->OnMovementChanged(cmd);
+		
+		updateMovementLayerState();
+    }
+}
+
+void player_hud::updateMovementLayerState()
+{
+    if (!m_movement_layers.size())
+        return;
+
+    CActor* pActor = Actor();
+
+    if (!pActor)
+        return;
+
+    for (movement_layer* anm : m_movement_layers)
+    {
+        anm->Stop(false);
+    }
+
+    bool need_blend = ((m_attached_items[0] && m_attached_items[0]->m_parent_hud_item->NeedBlendAnm()) || (m_attached_items[1] && m_attached_items[1]->m_parent_hud_item->NeedBlendAnm()));
+
+    if (pActor->AnyMove() && need_blend)
+    {
+        CEntity::SEntityState state;
+        pActor->g_State(state);
+
+        CWeapon* wep = nullptr;
+
+        if (m_attached_items[0] && m_attached_items[0]->m_parent_hud_item->object().cast_weapon())
+            wep = m_attached_items[0]->m_parent_hud_item->object().cast_weapon();
+
+        if (wep && wep->IsZoomed())
+            state.bCrouch ? m_movement_layers[eAimCrouch]->Play() : m_movement_layers[eAimWalk]->Play();
+        else if (state.bCrouch)
+            m_movement_layers[eCrouch]->Play();
+        else if (state.bSprint)
+            m_movement_layers[eSprint]->Play();
+        else if (!isActorAccelerated(pActor->MovingState(), false))
+            m_movement_layers[eWalk]->Play();
+        else
+            m_movement_layers[eRun]->Play();
     }
 }
