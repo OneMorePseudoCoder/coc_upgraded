@@ -17,7 +17,6 @@ template <class T> class _box3;
 using Fbox = _box3<float>;
 class Lock;
 
-
 #pragma pack(push, 8)
 namespace CDB
 {
@@ -47,18 +46,18 @@ public:
 class XRCDB_API TRI //*** 16 bytes total (was 32 :)
 {
 public:
-    u32 verts[3]; // 3*4 = 12b
+    std::uint32_t verts[3]; // 3*4 = 12b
     union
     {
-        u32 dummy; // 4b
+        std::uint32_t dummy; // 4b
         struct
         {
-            u32 material : 14; //
-            u32 suppress_shadows : 1; //
-            u32 suppress_wm : 1; //
-            u32 sector : 16; //
+            std::uint32_t material : 14; //
+            std::uint32_t suppress_shadows : 1; //
+            std::uint32_t suppress_wm : 1; //
+            std::uint32_t sector : 16; //
 #if defined(_M_X64)
-            size_t dumb : 32;
+            std::uint32_t dumb : 32;
 #endif
         };
     };
@@ -159,13 +158,13 @@ struct XRCDB_API RESULT
     Fvector verts[3];
     union
     {
-        u32 dummy; // 4b
+        size_t dummy; // 4b
         struct
         {
-            u32 material : 14; //
-            u32 suppress_shadows : 1; //
-            u32 suppress_wm : 1; //
-            u32 sector : 16; //
+            size_t material : 14; //
+            size_t suppress_shadows : 1; //
+            size_t suppress_wm : 1; //
+            size_t sector : 16; //
 #if defined(_M_X64)
             std::uint64_t dumb : 32;
 #endif
@@ -267,11 +266,6 @@ private:
 
 public:
     CollectorPacked(const Fbox& bb, int apx_vertices = 5000, int apx_faces = 5000);
-
-    //		__declspec(noinline) CollectorPacked &operator=	(const CollectorPacked &object)
-    //		{
-    //			verts
-    //		}
 
     void add_face(const Fvector& v0, const Fvector& v1, const Fvector& v2, u16 material, u16 sector, u32 flags);
     void add_face_D(const Fvector& v0, const Fvector& v1, const Fvector& v2, u32 dummy, u32 flags);

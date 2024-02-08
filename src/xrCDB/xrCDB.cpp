@@ -40,6 +40,7 @@ MODEL::MODEL() :
     verts = 0;
     verts_count = 0;
     status = S_INIT;
+    version = 0;
 }
 MODEL::~MODEL()
 {
@@ -50,6 +51,7 @@ MODEL::~MODEL()
     tris_count = 0;
     xr_free(verts);
     verts_count = 0;
+    version = 0;
     delete pcs;
 }
 
@@ -70,6 +72,7 @@ struct BTHREAD_params
     int Tcnt;
     build_callback* BC;
     void* BCP;
+    const bool rebuildTrisRequired;
 };
 
 void MODEL::build_thread(void* params)
@@ -78,7 +81,7 @@ void MODEL::build_thread(void* params)
     FPU::m64r();
     BTHREAD_params P = *((BTHREAD_params*)params);
     P.M->pcs->Enter();
-    P.M->build_internal(P.V, P.Vcnt, P.T, P.Tcnt, P.BC, P.BCP);
+    P.M->build_internal(P.V, P.Vcnt, P.T, P.Tcnt, P.BC, P.BCP, P.rebuildTrisRequired);
     P.M->status = S_READY;
     P.M->pcs->Leave();
 }
@@ -99,7 +102,7 @@ void MODEL::build(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, vo
     }
     else
     {
-        BTHREAD_params P = {this, V, Vcnt, T, Tcnt, bc, bcp};
+        BTHREAD_params P = {this, V, Vcnt, T, Tcnt, bc, bcp, rebuildTrisRequired};
         ThreadUtil::CreateThread(build_thread, "CDB-construction", 0, &P);
         while (S_INIT == status)
         {
@@ -116,27 +119,28 @@ void MODEL::build_internal(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callbac
     // verts
     verts_count = Vcnt;
     verts = xr_alloc<Fvector>(verts_count);
-    CopyMemory(verts, V, verts_count * sizeof(Fvector));
+    std::memcpy(verts, V, verts_count * sizeof(Fvector));
 
     // tris
     tris_count = Tcnt;
     tris = xr_alloc<TRI>(tris_count);
 #ifdef _M_X64
-    if (rebuildTrisRequired)
-    {
-        TRI_DEPRECATED* realT = reinterpret_cast<TRI_DEPRECATED*>(T);
-        for (int triIter = 0; triIter < tris_count; ++triIter)
-        {
-            TRI_DEPRECATED& oldTri = realT[triIter];
-            TRI& newTri = tris[triIter];
-            newTri = oldTri;
-        }
-    }
-    else
-        CopyMemory(tris, T, tris_count * sizeof(TRI));
-#else
-        CopyMemory(tris, T, tris_count * sizeof(TRI));
+//    if (rebuildTrisRequired)
+//    {
+//        TRI_DEPRECATED* realT = reinterpret_cast<TRI_DEPRECATED*>(T);
+//        for (int triIter = 0; triIter < tris_count; ++triIter)
+//        {
+//            TRI_DEPRECATED& oldTri = realT[triIter];
+//            TRI& newTri = tris[triIter];
+//            newTri = oldTri;
+//        }
+//    }
+//    else
 #endif
+    {
+        std::memcpy(tris, T, tris_count * sizeof(TRI));
+    }
+
     // callback
     if (bc)
         bc(verts, Vcnt, tris, Tcnt, bcp);
@@ -197,8 +201,7 @@ u32 MODEL::memory()
     return tree->GetUsedBytes() + V + T + sizeof(*this) + sizeof(*tree);
 }
 
-
-bool MODEL::serialize(pcstr fileName, serialize_callback callback /*= nullptr*/) const
+bool MODEL::serialize(pcstr fileName, serialize_callback callback) const
 {
 	IWriter* wstream = FS.w_open(fileName);
 	if (!wstream)
@@ -230,7 +233,7 @@ bool MODEL::serialize(pcstr fileName, serialize_callback callback /*= nullptr*/)
 	return true;
 }
 
-bool MODEL::deserialize(pcstr fileName, bool checkCrc32 /*= true*/, deserialize_callback callback /*= nullptr*/)
+bool MODEL::deserialize(pcstr fileName, bool checkCrc32, deserialize_callback callback)
 {
 	IReader* rstream = FS.r_open(fileName);
 	if (!rstream)

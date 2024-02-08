@@ -127,21 +127,16 @@ void CHOM::Load()
 	FS.update_path(fName, "$app_data_root$", fName);
 
 	if (bUseCache && FS.exist(fName) && m_pModel->deserialize(fName, checkCrc32))
-	{
-#ifndef MASTER_GOLD
 		Msg("* Loaded HOM cache (%s)...", fName);
-#endif
-	}
 	else
 	{
-#ifndef MASTER_GOLD
 		Msg("* HOM cache for '%s' was not loaded. Building the model from scratch..", fName);
-#endif
 		m_pModel->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()), nullptr, nullptr, false);
 
 		if (bUseCache)
 			m_pModel->serialize(fName);
 	}
+
     bEnabled = TRUE;
     S->close();
     FS.r_close(fs);
@@ -180,10 +175,8 @@ void CHOM::Render_DB(CFrustum& base)
 {
     // Update projection matrices on every frame to ensure valid HOM culling
     float view_dim = occ_dim_0;
-    Fmatrix m_viewport = {view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        view_dim / 2.f + 0 + 0, view_dim / 2.f + 0 + 0, 0.0f, 1.0f};
-    Fmatrix m_viewport_01 = {1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        1.f / 2.f + 0 + 0, 1.f / 2.f + 0 + 0, 0.0f, 1.0f};
+    Fmatrix m_viewport = {view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -view_dim / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, view_dim / 2.f + 0 + 0, view_dim / 2.f + 0 + 0, 0.0f, 1.0f};
+    Fmatrix m_viewport_01 = {1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, -1.f / 2.f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.f / 2.f + 0 + 0, 1.f / 2.f + 0 + 0, 0.0f, 1.0f};
     m_xform.mul(m_viewport, Device.mFullTransform);
     m_xform_01.mul(m_viewport_01, Device.mFullTransform);
 

@@ -393,10 +393,10 @@ void CRender::LoadSectors(IReader* fs)
 	}
 	else
 	{
-        rmPortals = 0;
+        rmPortals = nullptr;
     }
 
-    pLastSector = 0;
+    pLastSector = nullptr;
 }
 
 void CRender::LoadSWIs(CStreamReader* base_fs)

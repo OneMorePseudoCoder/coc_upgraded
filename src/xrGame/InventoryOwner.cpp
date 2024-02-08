@@ -296,6 +296,16 @@ void CInventoryOwner::renderable_Render()
     if (inventory().ActiveItem())
         inventory().ActiveItem()->renderable_Render();
 
+	auto rWeapon = inventory().ItemFromSlot(INV_SLOT_3);
+	bool rValid = rWeapon->BaseSlot() == INV_SLOT_3;
+	if (rWeapon && rValid && rWeapon != inventory().ActiveItem())
+		rWeapon->renderable_Render();
+
+	auto lWeapon = inventory().ItemFromSlot(INV_SLOT_2);
+	bool lValid = lWeapon->BaseSlot() == INV_SLOT_3;
+	if (lWeapon && lValid && lWeapon != inventory().ActiveItem())
+		lWeapon->renderable_Render();
+
     CAttachmentOwner::renderable_Render();
 }
 
@@ -307,8 +317,7 @@ void CInventoryOwner::OnItemTake(CInventoryItem* inventory_item)
 
     attach(inventory_item);
 
-    if (m_tmp_active_slot_num != NO_ACTIVE_SLOT && inventory_item->CurrPlace() == eItemPlaceSlot &&
-        inventory_item->CurrSlot() == m_tmp_active_slot_num)
+    if (m_tmp_active_slot_num != NO_ACTIVE_SLOT && inventory_item->CurrPlace() == eItemPlaceSlot && inventory_item->CurrSlot() == m_tmp_active_slot_num)
     {
         if (inventory().ItemFromSlot(m_tmp_active_slot_num))
         {
@@ -346,13 +355,11 @@ void CInventoryOwner::spawn_supplies()
         return;
 
     if (use_bolts())
-        Level().spawn_item(
-            "bolt", game_object->Position(), game_object->ai_location().level_vertex_id(), game_object->ID());
+        Level().spawn_item("bolt", game_object->Position(), game_object->ai_location().level_vertex_id(), game_object->ID());
 
     if (!ai().get_alife())
     {
-        CSE_Abstract* abstract = Level().spawn_item("device_pda", game_object->Position(),
-            game_object->ai_location().level_vertex_id(), game_object->ID(), true);
+        CSE_Abstract* abstract = Level().spawn_item("device_pda", game_object->Position(), game_object->ai_location().level_vertex_id(), game_object->ID(), true);
         CSE_ALifeItemPDA* pda = smart_cast<CSE_ALifeItemPDA*>(abstract);
         R_ASSERT(pda);
         pda->m_original_owner = (u16)game_object->ID();

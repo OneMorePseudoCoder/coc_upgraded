@@ -14,7 +14,6 @@
 #include "LightAnimLibrary.h"
 #include "xrCDB/ISpatial.h"
 #include "Text_Console.h"
-#include "xrSASH.h"
 #include "xr_ioc_cmd.h"
 
 #ifdef MASTER_GOLD
@@ -23,17 +22,9 @@
 
 // global variables
 ENGINE_API CInifile* pGameIni = nullptr;
-ENGINE_API bool g_bBenchmark = false;
-string512 g_sBenchmarkName;
 ENGINE_API string512 g_sLaunchOnExit_params;
 ENGINE_API string512 g_sLaunchOnExit_app;
 ENGINE_API string_path g_sLaunchWorkingFolder;
-
-namespace
-{
-bool CheckBenchmark();
-void RunBenchmark(pcstr name);
-} // namespace
 
 ENGINE_API void InitEngine()
 {
@@ -149,13 +140,9 @@ ENGINE_API void Startup()
     Engine.Event.Dump();
     // Destroying
     destroyInput();
-    if (!g_bBenchmark && !g_SASH.IsRunning())
-        destroySettings();
+	destroySettings();
     LALib.OnDestroy();
-    if (!g_bBenchmark && !g_SASH.IsRunning())
-        destroyConsole();
-    else
-        Console->Destroy();
+	destroyConsole();
     destroyEngine();
     destroySound();
 }
@@ -189,9 +176,6 @@ ENGINE_API int RunApplication()
     InitInput();
     InitConsole();
     Engine.External.CreateRendererList();
-
-    if (CheckBenchmark())
-        return 0;
 
     if (strstr(Core.Params, "-r4"))
         Console->Execute("renderer renderer_r4");
@@ -227,63 +211,3 @@ ENGINE_API int RunApplication()
     }
     return 0;
 }
-
-namespace
-{
-bool CheckBenchmark()
-{
-    pcstr benchName = "-batch_benchmark ";
-    if (strstr(Core.Params, benchName))
-    {
-        const u32 sz = xr_strlen(benchName);
-        string64 benchmarkName;
-        sscanf(strstr(Core.Params, benchName) + sz, "%[^ ] ", benchmarkName);
-        RunBenchmark(benchmarkName);
-        return true;
-    }
-
-    pcstr sashName = "-openautomate ";
-    if (strstr(Core.Params, sashName))
-    {
-        const u32 sz = xr_strlen(sashName);
-        string512 sashArg;
-        sscanf(strstr(Core.Params, sashName) + sz, "%[^ ] ", sashArg);
-        g_SASH.Init(sashArg);
-        g_SASH.MainLoop();
-        return true;
-    }
-
-    return false;
-}
-void RunBenchmark(pcstr name)
-{
-    g_bBenchmark = true;
-    string_path cfgPath;
-    FS.update_path(cfgPath, "$app_data_root$", name);
-    CInifile ini(cfgPath);
-    const u32 benchmarkCount = ini.line_count("benchmark");
-    for (u32 i = 0; i < benchmarkCount; i++)
-    {
-        LPCSTR benchmarkName, t;
-        ini.r_line("benchmark", i, &benchmarkName, &t);
-        xr_strcpy(g_sBenchmarkName, benchmarkName);
-        shared_str benchmarkCommand = ini.r_string_wb("benchmark", benchmarkName);
-        u32 cmdSize = benchmarkCommand.size() + 1;
-        Core.Params = (char*)xr_realloc(Core.Params, cmdSize);
-        xr_strcpy(Core.Params, cmdSize, benchmarkCommand.c_str());
-        xr_strlwr(Core.Params);
-        InitInput();
-        if (i)
-            InitEngine();
-        Engine.External.Initialize();
-        xr_strcpy(Console->ConfigFile, "user.ltx");
-        if (strstr(Core.Params, "-ltx "))
-        {
-            string64 cfgName;
-            sscanf(strstr(Core.Params, "-ltx ") + strlen("-ltx "), "%[^ ] ", cfgName);
-            xr_strcpy(Console->ConfigFile, cfgName);
-        }
-        Startup();
-    }
-}
-} // namespace

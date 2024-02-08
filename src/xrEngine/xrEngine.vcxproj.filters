@@ -432,9 +432,6 @@
     <ClInclude Include="ide.hpp">
       <Filter>editor\ide</Filter>
     </ClInclude>
-    <ClInclude Include="xrSASH.h">
-      <Filter>OpenAutomate</Filter>
-    </ClInclude>
     <ClInclude Include="GameMtlLib.h">
       <Filter>Game API\MaterialSystem</Filter>
     </ClInclude>
@@ -679,9 +676,6 @@
     </ClCompile>
     <ClCompile Include="engine_impl.cpp">
       <Filter>editor\engine_impl</Filter>
-    </ClCompile>
-    <ClCompile Include="xrSASH.cpp">
-      <Filter>OpenAutomate</Filter>
     </ClCompile>
     <ClCompile Include="GameMtlLib.cpp">
       <Filter>Game API\MaterialSystem</Filter>

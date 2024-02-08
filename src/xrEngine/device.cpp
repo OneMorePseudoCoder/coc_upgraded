@@ -21,7 +21,6 @@
 
 #include "engine_impl.hpp"
 
-#include "xrSASH.h"
 #include "IGame_Persistent.h"
 #include "xrScriptEngine/ScriptExporter.hpp"
 #include "xr_input.h"
@@ -97,9 +96,6 @@ void CRenderDevice::End(void)
     }
     g_bRendering = FALSE;
     // end scene
-    // Present goes here, so call OA Frame end.
-    if (g_SASH.IsBenchmarkRunning())
-        g_SASH.DisplayFrame(Device.fTimeGlobal);
 
     GEnv.Render->End();
 }
@@ -399,8 +395,6 @@ ENGINE_API BOOL bShowPauseString = TRUE;
 void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 {
     static int snd_emitters_ = -1;
-    if (g_bBenchmark)
-        return;
 
     if (bOn)
     {

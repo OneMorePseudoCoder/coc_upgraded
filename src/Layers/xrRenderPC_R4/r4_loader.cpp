@@ -329,17 +329,11 @@ void CRender::LoadSectors(IReader* fs)
 
 		if (use_cache && FS.exist(fName) && rmPortals->deserialize(fName, checkCrc32))
 		{
-#ifndef MASTER_GOLD
 			Msg("* Loaded portals cache (%s)...", fName);
-#endif
 			do_rebuild = false;
 		}
 		else
-		{
-#ifndef MASTER_GOLD
 			Msg("* Portals cache for '%s' was not loaded. Building the model from scratch..", fName);
-#endif
-		}
 
         CDB::Collector CL;
         fs->find_chunk(fsL_PORTALS);
@@ -374,10 +368,10 @@ void CRender::LoadSectors(IReader* fs)
 	}
 	else
 	{
-        rmPortals = 0;
+        rmPortals = nullptr;
     }
 
-    pLastSector = 0;
+    pLastSector = nullptr;
 }
 
 void CRender::LoadSWIs(CStreamReader* base_fs)

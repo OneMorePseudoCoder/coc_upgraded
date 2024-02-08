@@ -117,21 +117,16 @@ void CObjectSpace::Create(Fvector* verts, CDB::TRI* tris, const hdrCFORM& H, CDB
 	FS.update_path(fName, "$app_data_root$", fName);
 
 	if (bUseCache && FS.exist(fName) && Static.deserialize(fName, checkCrc32, deserialize_callback))
-	{
-#ifndef MASTER_GOLD
 		Msg("* Loaded ObjectSpace cache (%s)...", fName);
-#endif
-	}
 	else
 	{
-#ifndef MASTER_GOLD
 		Msg("* ObjectSpace cache for '%s' was not loaded. Building the model from scratch..", fName);
-#endif
 		Static.build(verts, H.vertcount, tris, H.facecount, build_callback);
 
 		if (bUseCache)
 			Static.serialize(fName, serialize_callback);
 	}
+
     m_BoundingVolume.set(H.aabb);
     g_SpatialSpace->initialize(m_BoundingVolume);
     g_SpatialSpacePhysic->initialize(m_BoundingVolume);

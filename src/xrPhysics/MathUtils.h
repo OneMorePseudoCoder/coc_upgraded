@@ -8,7 +8,12 @@
 #ifdef DEBUG
 #include "xrCore/dump_string.h"
 #endif
+
+#ifdef _M_X64
+constexpr float phInfinity = std::numeric_limits<float>::max();
+#else
 constexpr float phInfinity = std::numeric_limits<float>::infinity();
+#endif
 
 template <class T> struct _quaternion;
 typedef _quaternion<float> Fquaternion;

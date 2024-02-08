@@ -3,55 +3,6 @@
 #include "xrCore/_cylinder.h"
 #include <ode/common.h>
 
-/*
-#include "MathUtils.h"
-enum EBoxSideNearestPointCode
-{
-    box_inside		,
-    side_invisible	,
-    on_side			,
-    on_edge			,
-    on_vertex
-};
-EBoxSideNearestPointCode GetNearestPointOnOBBSide(const Fmatrix &xform,const Fvector	&center,const Fvector &sides,u16
-side,const Fvector &p,Fvector &point)
-{
-    //to plane dist
-    const Fvector	&norm=xform[side];
-    u16 side1=(side+1)%3,side2=(side+2)%3;
-    float h=sides[side],h1=sides[side1],h2=sides[side2];
-    //Fvector vdiffc;vdiffc.sub(center,p);
-    float c_prg=norm.dotproduct(center);
-    float p_prg=norm.dotproduct(p);
-    float diffc=c_prg-p_prg;norm.dotproduct(vdiffc);
-    float diffs;
-    if(diffc<0.f)
-    {
-        diffs=diffc+h;
-        point.set(norm);
-        point.mul(diffs);
-        point.add(p);
-        Fvector d;d.sub(center,point);
-        bool inside1 =_abs(d[side1])<h1;
-        bool inside2 =_abs(d[side2])<h2;
-        if(diffs>0.f)
-        {
-            if(inside1&&inside2) return box_inside;
-            else return side_invisible;
-        }
-        else
-        {
-            if(inside1&&inside2) return on_side;
-            else if(inside1)
-            {
-                float dd=h2-_abs(d[side2]);
-                Fvector s;s.set(xform[side2]);s.
-            }
-        }
-    }
-    float diffs=diffc<0.f ? diffc+h	:	diffc-h;
-}
-*/
 IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvector& D, float& R, BOOL bCull)
 {
     const float& r = c_cylinder.m_radius;
@@ -61,8 +12,6 @@ IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvect
 
     const Fvector& c = c_cylinder.m_center;
     const Fvector& ax = c_cylinder.m_direction;
-    // c.set(-IM.c.dotproduct(IM.i),-IM.c.dotproduct(IM.j),-IM.c.dotproduct(IM.k));
-    // Fvector ax;ax.set(IM.i.z,IM.j.z,IM.k.z);//??
 
     //////////////////////////////////////////////////////////////
     Fvector v;
@@ -177,18 +126,13 @@ IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvect
     float tr = (Lr - cs * Lc) * r_sq_sin;
     float tc = (cs * Lr - Lc) * r_sq_sin;
 
-    // more frequent separation - axes dist> radius
-    // v^2+tc^2+tr^2-2*(cos*tc*tr-Lc*tc+Lr*tr)
-
     float sq_nearest_dist = v_smag + tr * tr + tc * tc - 2 * (cs * tc * tr - Lc * tc + Lr * tr);
 
     if (sq_nearest_dist > sq_r)
         return false;
-    // float max_c_diff=//;
 
     float sq_horde = (sq_r - sq_nearest_dist);
 
-    // float horde=_sqrt(sq_horde)					;
     float sq_c_diff = sq_horde * sq_cos * r_sq_sin;
     float c_diff = _sqrt(sq_c_diff); // ccc
     float cp1 = tc - c_diff;
@@ -198,7 +142,7 @@ IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvect
     if (cp1 > h)
     {
         // sphere
-        float tc_h = tc - h; //!! hi					(=)/;
+        float tc_h = tc - h;
         float sq_sphere_dist = sq_sin * tc_h * tc_h;
         if (sq_sphere_dist > sq_horde)
             return false;
@@ -326,7 +270,6 @@ IC bool RAYvsCYLINDER(const Fcylinder& c_cylinder, const Fvector& S, const Fvect
             if (cp2 < h)
             {
                 // mixed//lo sphere	cyl						(/=)
-
                 float tc_h = tc + h; //(tc-(-h))
                 float sq_sphere_dist = sq_sin * tc_h * tc_h;
                 // if(sq_sphere_dist>sq_horde)return false;

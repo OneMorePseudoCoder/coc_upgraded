@@ -99,6 +99,7 @@ public:
         u32 size;
         u32 vfs_idx;
         shared_str path;
+        u32 modif = 0;
         void *hSrcFile, *hSrcMap;
         CInifile* header;
         

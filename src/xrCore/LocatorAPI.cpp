@@ -397,13 +397,14 @@ void CLocatorAPI::LoadArchive(archive& A, pcstr entrypoint)
 
         strconcat(sizeof full, full, fs_entry_point, name);
 
-        Register(full, A.vfs_idx, crc, ptr, size_real, size_compr, 0);
+        Register(full, A.vfs_idx, crc, ptr, size_real, size_compr, A.modif);
     }
     hdr->close();
 }
 
 void CLocatorAPI::archive::open()
 {
+    struct stat file_info;
     // Open the file
     if (hSrcFile && hSrcMap)
         return;
@@ -413,14 +414,16 @@ void CLocatorAPI::archive::open()
     R_ASSERT(hSrcFile != INVALID_HANDLE_VALUE);
     hSrcMap = CreateFileMapping(hSrcFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
     R_ASSERT(hSrcMap != INVALID_HANDLE_VALUE);
-    size = GetFileSize(hSrcFile, nullptr);
+    stat(*path, &file_info);
+    modif = file_info.st_mtime;
 #elif defined(LINUX)
     hSrcFile = ::open(*path, O_RDONLY | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     R_ASSERT(hSrcFile != -1);
-    struct stat file_info;
-    ::fstat(hSrcFile, &file_info);
-    size = file_info.st_size;
+    stat(conv_path, &file_info);
+    modif = file_info.st_mtim.tv_sec;
+    xr_free(conv_path);
 #endif
+    size = file_info.st_size;
     R_ASSERT(size > 0);
 }
 
